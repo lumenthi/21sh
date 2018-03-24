@@ -6,14 +6,14 @@
 #    By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2017/12/22 14:06:43 by lumenthi          #+#    #+#              #
-#    Updated: 2018/03/24 11:36:32 by lumenthi         ###   ########.fr        #
+#    Updated: 2018/03/24 23:25:09 by lumenthi         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME = 21sh
 
 CC = gcc
-FLAGS = -Wall -Werror -Wextra
+FLAGS = -Wall -Werror -Wextra -g
 CURSES = -lncurses
 
 LIBDIR = libft

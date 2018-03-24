@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/03/13 12:12:55 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/03/24 19:09:29 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/03/25 00:01:38 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,11 +47,11 @@ char	*make_string(char *fullpath)
 	return (str);
 }
 
-int		ft_move(char dir)
+int		ft_move(char dir, int i)
 {
 	if (dir == 'l')
 	{
-		if (g_data->cursor->x >= 21)
+		if (g_data->cursor->x > 0)
 		{
 			ft_put("le");
 			g_data->cursor->x--;
@@ -60,7 +60,7 @@ int		ft_move(char dir)
 	}
 	else if (dir == 'r')
 	{
-		if (g_data->cursor->x < ((int)ft_strlen(g_data->line) + 20))
+		if (g_data->cursor->x < i)
 		{
 			ft_put("nd");
 			g_data->cursor->x++;
@@ -70,22 +70,60 @@ int		ft_move(char dir)
 	return (0);
 }
 
-char	*edit_line(char *line, int pos, int i)
+void	edit_line(int pos, int i)
 {
 	char	*before;
 	char	*after;
-	char	*all;
 
-	line[i] = '\0';
-	before = ft_strdup(line);
-	after = ft_strdup(line);
+	if (pos - 1 == (int)ft_strlen(g_data->line))
+		return ;
+	g_data->line[i] = '\0';
+	before = ft_strdup(g_data->line);
 	before[pos] = '\0';
-	if (ft_strlen(before) == ft_strlen(line))
-		return (before);
-	after = after + (pos + 1);
-	after[ft_strlen(line) - pos - 1] = '\0';
-	all = ft_strjoin(before, after);
-	return (all);
+	after = ft_strdup(g_data->line + (pos + 1));
+	free(g_data->line);
+	g_data->line = ft_strjoin(before, after);
+	free(before);
+	free(after);
+}
+
+void	inser_char(int pos, int i, char buf)
+{
+	char	*before;
+	char	*after;
+	int		bu;
+
+	bu = g_data->cursor->x;
+	if (g_data->line == NULL)
+		g_data->line = ft_strdup("");
+	g_data->line[i - 1] = '\0';
+	if (pos - 1 == (int)ft_strlen(g_data->line))
+	{
+		ft_putchar(buf);
+		g_data->line = (char*)ft_realloc(g_data->line, i + 1);
+		g_data->line[i - 1] = buf;
+	}
+	else
+	{
+		
+		ft_put("sc");
+		ft_put("ce");
+		after = ft_strdup(g_data->line + (pos - 1));
+		before = ft_strdup(g_data->line);
+		before[pos] = '\0';
+		before = ft_realloc(before, ft_strlen(before) + 1);
+		before[pos - 1] = buf;
+		free(g_data->line);
+		g_data->line = ft_strjoin(before, after);
+		free(before);
+		free(after);
+		while (ft_move('l', i))
+			;
+		g_data->cursor->x = bu;
+		ft_putstr(g_data->line);
+		ft_put("rc");
+		ft_put("nd");
+	}
 }
 
 char	*gnl(void)
@@ -96,7 +134,7 @@ char	*gnl(void)
 
 	g_data->line = NULL;
 	i = 0;
-	g_data->cursor->x = 20;
+	g_data->cursor->x = 0;
 	ft_put("ks");
 	while (1)
 	{
@@ -107,18 +145,18 @@ char	*gnl(void)
 		if (buf[0] == 10)
 		{
 			ft_putchar('\n');
-			g_data->cursor->x = 20;
+			g_data->cursor->x = 0;
 			break ;
 		}
 		else if (buf[0] == 127)
 		{
-			if (ft_move('l'))
+			if (ft_move('l', i))
 			{
 				bu = g_data->cursor->x;
 				ft_put("sc");
 				ft_put("ce");
-				g_data->line = edit_line(g_data->line, g_data->cursor->x - 20, i);
-				while (ft_move('l'))
+				edit_line(g_data->cursor->x, i);
+				while (ft_move('l', i))
 					;
 				ft_putstr(g_data->line);
 				g_data->cursor->x = bu;
@@ -127,23 +165,19 @@ char	*gnl(void)
 			}
 		}
 		else if (LEFT)
-			ft_move('l');
+			ft_move('l', i);
 		else if (RIGHT)
-			ft_move('r');
+			ft_move('r', i);
 		else if (ECHAP)
 			return (ft_strdup("exit"));
 		else
 		{
-			g_data->cursor->x++;
-			ft_putchar(buf[0]);
-			g_data->line = (char*)ft_realloc(g_data->line, i + 2);
-			*(g_data->line + i) = buf[0];
 			i++;
+			inser_char(g_data->cursor->x + 1, i, buf[0]);
+			g_data->cursor->x++;
 		}
 	}
 	ft_put("ke");
-	if (i && g_data->line)
-		*(g_data->line + i) = '\0';
 	return (g_data->line);
 }
 
