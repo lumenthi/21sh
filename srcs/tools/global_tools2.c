@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/03/13 12:12:55 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/03/26 18:06:49 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/03/27 01:05:00 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -139,6 +139,13 @@ char	*ft_insert(char *line, char buf, int pos, int i)
 	return (after);
 }
 
+void	ft_clear(int i)
+{
+	while (ft_move('l', i))
+		;
+	ft_put("cd");
+}
+
 void	inser_char(char buf, int *i)
 {
 	ft_put("sc");
@@ -150,21 +157,56 @@ void	inser_char(char buf, int *i)
 	ft_move('r', *i);
 }
 
-void	ft_up(void)
+void	history_search(int *i, char a)
 {
-	int		fd = open(".21sh_history", O_RDONLY);
-	int		cursor;
+	int		fd;
+	char	*buf[history->nb_lines];
+	int		j = 0;
+	int		pos;
 
-	cursor = history->nb_lines - history->position;
-	while (cursor)
+	fd = open(".21sh_history", O_RDONLY);
+	free(g_data->line);
+	while (get_next_line(fd, &g_data->line) > 0)
 	{
-		get_next_line(fd, &g_data->line);
-		cursor--;
+		buf[j] = ft_strdup(g_data->line);
+		free(g_data->line);
+		j++;
 	}
+//	print_tab(buf);
+//	printf("position: %d\n", history->position);
+//	printf("nb_lines: %d\n", history->nb_lines);
+	if (a == 'u' && history->position <= history->nb_lines)
+	{
+		if (history->position == history->nb_lines)
+			history->position--;
+		pos = history->nb_lines - history->position - 1;
+		free(g_data->line);
+		g_data->line = ft_strdup(buf[pos]);
+		history->position++;
+	}
+	else if (a == 'd' && history->position >= 1)
+	{
+		if (history->position == 1)
+			history->position--;
+		else
+		{
+			history->position--;
+			pos = history->nb_lines - history->position;
+			free(g_data->line);
+			g_data->line = ft_strdup(buf[pos]);
+		}
+	}
+	ft_clear(*i);
 	ft_putstr(g_data->line);
-	g_data->cursor->x = g_data->cursor->start + ft_strlen(g_data->line);
+	*i = ft_strlen(g_data->line);
+	g_data->cursor->x = *i;
+	j = 0;
+	while (buf[j])
+	{
+		free(buf[j]);
+		j++;
+	}
 	close(fd);
-	history->position++;
 }
 
 char	*gnl(void)
@@ -197,10 +239,9 @@ char	*gnl(void)
 		else if (RIGHT)
 			ft_move('r', i);
 		else if (UP)
-		{
-			ft_up();
-			i = ft_strlen(g_data->line);
-		}
+			history->nb_lines ? history_search(&i, 'u') : 0;
+		else if (DOWN)
+			history->nb_lines ? history_search(&i, 'd') : 0;
 		else if (ECHAP)
 			return (ft_strdup("exit"));
 		else

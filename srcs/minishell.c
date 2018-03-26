@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/08 11:24:59 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/03/25 14:32:15 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/03/26 23:21:47 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -125,10 +125,13 @@ int			main(void)
 		g_data->error = 0;
 		if (line)
 		{
-			write(history->fd, line, ft_strlen(line));
-			write(history->fd, "\n", 1);
-			history->position = 0;
-			history->nb_lines++;
+			if (line[0] != '\0')
+			{
+				write(history->fd, line, ft_strlen(line));
+				write(history->fd, "\n", 1);
+				history->nb_lines++;
+				history->position = 0;
+			}
 			if (ft_minishell(&line))
 				break ;
 		}
