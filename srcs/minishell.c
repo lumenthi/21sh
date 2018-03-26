@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/08 11:24:59 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/03/24 15:32:19 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/03/25 14:32:15 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,13 +96,23 @@ static void	term_init(void)
 	tcsetattr(0, TCSADRAIN, &term);
 }
 
+static void	history_init(void)
+{
+	history = malloc(sizeof(t_history));
+	history->fd = open(".21sh_history", O_RDWR|O_CREAT|O_TRUNC, 0666);
+	history->position = 0;
+	history->nb_lines = 0;
+}
+
 int			main(void)
 {
 	extern char	**environ;
 	char		*line;
 
+	history_init();
 	data_init();
 	term_init();
+	get_winsize();
 	g_data->error = 0;
 	environ_cpy(environ, &g_data->cpy);
 	signal(SIGINT, inthandler);
@@ -115,6 +125,10 @@ int			main(void)
 		g_data->error = 0;
 		if (line)
 		{
+			write(history->fd, line, ft_strlen(line));
+			write(history->fd, "\n", 1);
+			history->position = 0;
+			history->nb_lines++;
 			if (ft_minishell(&line))
 				break ;
 		}

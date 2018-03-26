@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/03/13 12:12:55 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/03/25 00:01:38 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/03/26 14:54:18 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,6 +60,14 @@ int		ft_move(char dir, int i)
 	}
 	else if (dir == 'r')
 	{
+		if (g_data->cursor->x + g_data->cursor->start == g_data->w_col)
+		{
+				ft_put("cr");
+				ft_put("do");
+				g_data->cursor->x++;
+				g_data->cursor->y++;
+				return (1);
+		}
 		if (g_data->cursor->x < i)
 		{
 			ft_put("nd");
@@ -70,78 +78,88 @@ int		ft_move(char dir, int i)
 	return (0);
 }
 
-void	edit_line(int pos, int i)
+char	*ft_delete(char *line, int pos, int i)
 {
-	char	*before;
 	char	*after;
 
-	if (pos - 1 == (int)ft_strlen(g_data->line))
-		return ;
-	g_data->line[i] = '\0';
-	before = ft_strdup(g_data->line);
-	before[pos] = '\0';
-	after = ft_strdup(g_data->line + (pos + 1));
-	free(g_data->line);
-	g_data->line = ft_strjoin(before, after);
-	free(before);
-	free(after);
+	line[i] = '\0';
+	after = malloc(i + 1);
+	ft_strncpy(after, line, pos);
+	after[pos] = '\0';
+	ft_strcat(after, line + (pos + 1));
+	after[i] = '\0';
+	free(line);
+	return (after);
 }
 
-void	inser_char(int pos, int i, char buf)
+void	edit_line(int *i)
 {
-	char	*before;
-	char	*after;
-	int		bu;
+	ft_put("dm");
+	ft_put("dc");
+	ft_put("ed");
+	g_data->line = ft_delete(g_data->line, g_data->cursor->x, *i);
+	(*i)--;
+}
 
-	bu = g_data->cursor->x;
-	if (g_data->line == NULL)
-		g_data->line = ft_strdup("");
-	g_data->line[i - 1] = '\0';
-	if (pos - 1 == (int)ft_strlen(g_data->line))
-	{
-		ft_putchar(buf);
-		g_data->line = (char*)ft_realloc(g_data->line, i + 1);
-		g_data->line[i - 1] = buf;
-	}
+char	*ft_insert(char *line, char buf, int pos, int i)
+{
+	char	*after;
+
+	if (i == 0)
+		line = ft_strdup("");
 	else
+		line[i] = '\0';
+	after = malloc(i + 2);
+	ft_strncpy(after, line, pos);
+	after[pos] = buf;
+	after[pos + 1] = '\0';
+	ft_strcat(after, line + pos);
+	after[i + 1] = '\0';
+	free(line);
+	return (after);
+}
+
+void	inser_char(char buf, int *i)
+{
+	ft_put("im");
+	ft_putchar(buf);
+	ft_put("ei");
+	g_data->line = ft_insert(g_data->line, buf, g_data->cursor->x, *i);
+	g_data->cursor->x++;
+	(*i)++;
+}
+
+void	ft_up(void)
+{
+	int		fd = open(".21sh_history", O_RDONLY);
+	int		cursor;
+
+	cursor = history->nb_lines - history->position;
+	while (cursor)
 	{
-		
-		ft_put("sc");
-		ft_put("ce");
-		after = ft_strdup(g_data->line + (pos - 1));
-		before = ft_strdup(g_data->line);
-		before[pos] = '\0';
-		before = ft_realloc(before, ft_strlen(before) + 1);
-		before[pos - 1] = buf;
-		free(g_data->line);
-		g_data->line = ft_strjoin(before, after);
-		free(before);
-		free(after);
-		while (ft_move('l', i))
-			;
-		g_data->cursor->x = bu;
-		ft_putstr(g_data->line);
-		ft_put("rc");
-		ft_put("nd");
+		get_next_line(fd, &g_data->line);
+		cursor--;
 	}
+	ft_putstr(g_data->line);
+	g_data->cursor->x = g_data->cursor->start + ft_strlen(g_data->line);
+	close(fd);
+	history->position++;
 }
 
 char	*gnl(void)
 {
-	char	buf[9];
+	char	buf[20];
 	int		i;
-	int		bu;
 
 	g_data->line = NULL;
-	i = 0;
-	g_data->cursor->x = 0;
 	ft_put("ks");
+	i = 0;
 	while (1)
 	{
 		buf[0] = 0;
 		buf[1] = 0;
 		buf[2] = 0;
-		read(0, buf, 9);
+		read(0, buf, 20);
 		if (buf[0] == 10)
 		{
 			ft_putchar('\n');
@@ -151,31 +169,21 @@ char	*gnl(void)
 		else if (buf[0] == 127)
 		{
 			if (ft_move('l', i))
-			{
-				bu = g_data->cursor->x;
-				ft_put("sc");
-				ft_put("ce");
-				edit_line(g_data->cursor->x, i);
-				while (ft_move('l', i))
-					;
-				ft_putstr(g_data->line);
-				g_data->cursor->x = bu;
-				ft_put("rc");
-				i--;
-			}
+				edit_line(&i);
 		}
 		else if (LEFT)
 			ft_move('l', i);
 		else if (RIGHT)
 			ft_move('r', i);
+		else if (UP)
+		{
+			ft_up();
+			i = ft_strlen(g_data->line);
+		}
 		else if (ECHAP)
 			return (ft_strdup("exit"));
 		else
-		{
-			i++;
-			inser_char(g_data->cursor->x + 1, i, buf[0]);
-			g_data->cursor->x++;
-		}
+			inser_char(buf[0], &i);
 	}
 	ft_put("ke");
 	return (g_data->line);
@@ -220,4 +228,7 @@ void	print_prompt(char **cpy)
 	path ? ft_putstr(path) : 0;
 	ft_putstr("$ ");
 	ft_putstr(BLANK);
+	g_data->cursor->start = ft_strlen(path) + 16;
+	g_data->cursor->y = 0;
+	g_data->cursor->x = 0;
 }

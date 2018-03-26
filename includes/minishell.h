@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/08 11:22:09 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/03/24 15:36:11 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/03/25 14:31:08 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,7 @@
 # include <termios.h>
 # include <term.h>
 # include <sys/ioctl.h>
+# include <fcntl.h>
 
 enum {ARGS, VAR_FOUND, FT_FOUND, QUOTES, EMPTY};
 
@@ -39,7 +40,15 @@ typedef struct		s_cursor
 {
 	int	x;
 	int	y;
+	int	start;
 }					t_cursor;
+
+typedef struct		s_history
+{
+	int	fd;
+	int	position;
+	int	nb_lines;
+}					t_history;
 
 typedef struct		s_data
 {
@@ -91,5 +100,6 @@ void	ft_put(char *str);
 int		my_outc(int c);
 
 t_data	*g_data;
+t_history	*history;
 
 #endif
