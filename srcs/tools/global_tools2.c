@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/03/13 12:12:55 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/03/26 14:54:18 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/03/26 18:06:49 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,7 +51,14 @@ int		ft_move(char dir, int i)
 {
 	if (dir == 'l')
 	{
-		if (g_data->cursor->x > 0)
+		if (g_data->w_col - (g_data->cursor->x + g_data->cursor->start) == -1)
+		{
+			ft_put("up");
+			tputs(tgoto(tgetstr("ch", NULL), 0, g_data->w_col - 1), 0, my_outc);
+			g_data->cursor->x--;
+			return (1);
+		}
+		else if (g_data->cursor->x > 0)
 		{
 			ft_put("le");
 			g_data->cursor->x--;
@@ -68,7 +75,7 @@ int		ft_move(char dir, int i)
 				g_data->cursor->y++;
 				return (1);
 		}
-		if (g_data->cursor->x < i)
+		else if (g_data->cursor->x < i)
 		{
 			ft_put("nd");
 			g_data->cursor->x++;
@@ -92,12 +99,25 @@ char	*ft_delete(char *line, int pos, int i)
 	return (after);
 }
 
+void	ft_print(void)
+{
+	int i;
+
+	i = g_data->cursor->x;
+	while (g_data->line[i])
+	{
+		ft_putchar(g_data->line[i]);
+		i++;
+	}
+}
+
 void	edit_line(int *i)
 {
-	ft_put("dm");
-	ft_put("dc");
-	ft_put("ed");
+	ft_put("sc");
+	ft_put("cd");
 	g_data->line = ft_delete(g_data->line, g_data->cursor->x, *i);
+	ft_print();
+	ft_put("rc");
 	(*i)--;
 }
 
@@ -121,12 +141,13 @@ char	*ft_insert(char *line, char buf, int pos, int i)
 
 void	inser_char(char buf, int *i)
 {
-	ft_put("im");
-	ft_putchar(buf);
-	ft_put("ei");
+	ft_put("sc");
+	ft_put("cd");
 	g_data->line = ft_insert(g_data->line, buf, g_data->cursor->x, *i);
-	g_data->cursor->x++;
+	ft_print();
+	ft_put("rc");
 	(*i)++;
+	ft_move('r', *i);
 }
 
 void	ft_up(void)
@@ -221,14 +242,17 @@ void	print_prompt(char **cpy)
 		ft_strlen(path) > 1 ? path = path + 1 : 0;
 		!path ? path = tmp : 0;
 	}
-	ft_putstr(BLUE);
-	ft_putstr("[42minishell]");
-	ft_putstr(BLANK);
-	ft_putstr(GREEN);
+	ft_putstr(ORANGE);
+	ft_putchar('[');
+	ft_put("us");
+	ft_putstr("21sh");
+	ft_put("ue");
+	ft_putchar(']');
+	ft_putstr(YELLOW);
 	path ? ft_putstr(path) : 0;
 	ft_putstr("$ ");
 	ft_putstr(BLANK);
-	g_data->cursor->start = ft_strlen(path) + 16;
+	g_data->cursor->start = ft_strlen(path) + 9;
 	g_data->cursor->y = 0;
 	g_data->cursor->x = 0;
 }

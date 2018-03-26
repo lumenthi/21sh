@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/08 11:22:09 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/03/25 14:31:08 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/03/26 16:53:35 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,9 +14,12 @@
 # define MINISHELL_H
 
 # define GREEN "\033[1;32m"
-# define BLUE "\033[4;34m"
+# define BLUE "\033[1;34m"
 # define BLANK "\033[0m"
 # define RED "\033[1;31m"
+# define ORANGE "\033[38;5;214m"
+# define YELLOW "\033[38;5;227m"
+
 # define RIGHT (buf[0] == 27 && buf[1] == 79 && buf[2] == 67)
 # define LEFT (buf[0] == 27 && buf[1] == 79 && buf[2] == 68)
 # define DOWN (buf[0] == 27 && buf[1] == 79 && buf[2] == 66)
