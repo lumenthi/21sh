@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/03/13 12:12:55 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/03/27 01:05:00 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/03/27 19:04:42 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -159,54 +159,37 @@ void	inser_char(char buf, int *i)
 
 void	history_search(int *i, char a)
 {
-	int		fd;
-	char	*buf[history->nb_lines];
-	int		j = 0;
 	int		pos;
 
-	fd = open(".21sh_history", O_RDONLY);
-	free(g_data->line);
-	while (get_next_line(fd, &g_data->line) > 0)
-	{
-		buf[j] = ft_strdup(g_data->line);
-		free(g_data->line);
-		j++;
-	}
-//	print_tab(buf);
-//	printf("position: %d\n", history->position);
-//	printf("nb_lines: %d\n", history->nb_lines);
 	if (a == 'u' && history->position <= history->nb_lines)
 	{
 		if (history->position == history->nb_lines)
 			history->position--;
 		pos = history->nb_lines - history->position - 1;
 		free(g_data->line);
-		g_data->line = ft_strdup(buf[pos]);
+		g_data->line = ft_strdup(history->line[pos]);
 		history->position++;
 	}
 	else if (a == 'd' && history->position >= 1)
 	{
 		if (history->position == 1)
+		{
 			history->position--;
+			free(g_data->line);
+			g_data->line = ft_strdup("");
+		}
 		else
 		{
 			history->position--;
 			pos = history->nb_lines - history->position;
 			free(g_data->line);
-			g_data->line = ft_strdup(buf[pos]);
+			g_data->line = ft_strdup(history->line[pos]);
 		}
 	}
 	ft_clear(*i);
-	ft_putstr(g_data->line);
+	g_data->line ? ft_putstr(g_data->line) : 0;
 	*i = ft_strlen(g_data->line);
 	g_data->cursor->x = *i;
-	j = 0;
-	while (buf[j])
-	{
-		free(buf[j]);
-		j++;
-	}
-	close(fd);
 }
 
 char	*gnl(void)

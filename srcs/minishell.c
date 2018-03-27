@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/08 11:24:59 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/03/26 23:21:47 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/03/27 19:05:15 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,12 +96,64 @@ static void	term_init(void)
 	tcsetattr(0, TCSADRAIN, &term);
 }
 
+#include <stdio.h>
+
+static void		get_lines(void)
+{
+	int		fd;
+	char	*line = NULL;
+	int		i;
+
+	i = 0;
+	fd = open(".21sh_history", O_RDONLY|O_CREAT, 0666);
+	while (get_next_line(fd, &line))
+	{
+		history->line[i] = ft_strdup(line);
+		free(line);
+		i++;
+	}
+	history->line[i] = NULL;
+	free(line);
+	close(fd);
+	history->nb_lines = i;
+}
+
+static void	free_lines(void)
+{
+	int i;
+
+	i = 0;
+	while (i <= history->nb_lines)
+	{
+		free(history->line[i]);
+		i++;
+	}
+}
+
+static int	history_open(void)
+{
+	if (history->nb_lines < HISTORY_LIMIT)
+	{
+		history->fd = open(".21sh_history", O_RDWR|O_CREAT|O_APPEND, 0666);
+		return (1);
+	}
+	else
+	{
+		history->fd = open(".21sh_history", O_RDWR|O_CREAT|O_TRUNC, 0666);
+		ft_putstr(BLUE);
+		ft_putstr("History limit reached, cleaning history...\n");
+		ft_putstr(BLANK);
+		history->nb_lines = 0;
+		return (0);
+	}
+}
+
 static void	history_init(void)
 {
 	history = malloc(sizeof(t_history));
-	history->fd = open(".21sh_history", O_RDWR|O_CREAT|O_TRUNC, 0666);
+	history_open();
+	get_lines();
 	history->position = 0;
-	history->nb_lines = 0;
 }
 
 int			main(void)
@@ -127,9 +179,11 @@ int			main(void)
 		{
 			if (line[0] != '\0')
 			{
+				history_open();
 				write(history->fd, line, ft_strlen(line));
 				write(history->fd, "\n", 1);
-				history->nb_lines++;
+				free_lines();
+				get_lines();
 				history->position = 0;
 			}
 			if (ft_minishell(&line))
@@ -142,5 +196,6 @@ int			main(void)
 	free(g_data->bu);
 	free(g_data);
 	free(line);
+	close(history->fd);
 	return (0);
 }

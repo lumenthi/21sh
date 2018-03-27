@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/12/05 11:54:10 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/01/12 11:43:34 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/03/27 17:52:59 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,8 @@ static int		gnl_strcut(char **line)
 
 	if (!(cut = ft_strchr(*line, '\n')))
 		return (0);
-	*line = cut + 1;
+	free(*line);
+	*line = ft_strdup(cut + 1);
 	return (1);
 }
 
@@ -85,6 +86,9 @@ int				get_next_line(int const fd, char **line)
 	if (!(*line = ft_strdup(file[fd])))
 		return (-1);
 	if (!(gnl_get_line(line)))
+	{
+		ft_strdel(&file[fd]);
 		return (0);
+	}
 	return (1);
 }

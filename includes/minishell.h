@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/08 11:22:09 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/03/26 16:53:35 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/03/27 18:00:43 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,8 @@
 # define RED "\033[1;31m"
 # define ORANGE "\033[38;5;214m"
 # define YELLOW "\033[38;5;227m"
+
+#define HISTORY_LIMIT 150
 
 # define RIGHT (buf[0] == 27 && buf[1] == 79 && buf[2] == 67)
 # define LEFT (buf[0] == 27 && buf[1] == 79 && buf[2] == 68)
@@ -48,9 +50,10 @@ typedef struct		s_cursor
 
 typedef struct		s_history
 {
-	int	fd;
-	int	position;
-	int	nb_lines;
+	int		fd;
+	int		position;
+	int		nb_lines;
+	char	*line[HISTORY_LIMIT + 1];
 }					t_history;
 
 typedef struct		s_data
