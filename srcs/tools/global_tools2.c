@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/03/13 12:12:55 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/03/27 19:04:42 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/03/28 13:27:31 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,8 +89,9 @@ char	*ft_delete(char *line, int pos, int i)
 {
 	char	*after;
 
+	after = NULL;
 	line[i] = '\0';
-	after = malloc(i + 1);
+	after = malloc(i);
 	ft_strncpy(after, line, pos);
 	after[pos] = '\0';
 	ft_strcat(after, line + (pos + 1));
@@ -118,7 +119,7 @@ void	edit_line(int *i)
 	g_data->line = ft_delete(g_data->line, g_data->cursor->x, *i);
 	ft_print();
 	ft_put("rc");
-	(*i)--;
+	(*i) == 1 ? *i : (*i)--;
 }
 
 char	*ft_insert(char *line, char buf, int pos, int i)

@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/08 11:24:59 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/03/27 19:05:15 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/03/28 13:41:48 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,13 +53,23 @@ int			ft_minishell(char **line)
 	}
 	else
 		ft_apply(line, args);
-	free(*line);
 	if (args)
 	{
 		ft_tabdel(&args);
 		free(args);
 	}
+	free(*line);
 	return (0);
+}
+
+static void	data_free(void)
+{
+	ft_tabdel(&g_data->cpy);
+	free(g_data->cpy);
+	free(g_data->cursor);
+	free(g_data->bu);
+	free(g_data->line);
+	free(g_data);
 }
 
 static void	data_init(void)
@@ -96,8 +106,6 @@ static void	term_init(void)
 	tcsetattr(0, TCSADRAIN, &term);
 }
 
-#include <stdio.h>
-
 static void		get_lines(void)
 {
 	int		fd;
@@ -123,7 +131,7 @@ static void	free_lines(void)
 	int i;
 
 	i = 0;
-	while (i <= history->nb_lines)
+	while (history->line[i])
 	{
 		free(history->line[i]);
 		i++;
@@ -156,10 +164,23 @@ static void	history_init(void)
 	history->position = 0;
 }
 
+static int	line_char(char *line)
+{
+	int i;
+
+	i = 0;
+	while (line[i])
+	{
+		if (ft_isalnum(line[i]))
+			return (1);
+		i++;
+	}
+	return (0);
+}
+
 int			main(void)
 {
 	extern char	**environ;
-	char		*line;
 
 	history_init();
 	data_init();
@@ -170,32 +191,28 @@ int			main(void)
 	signal(SIGINT, inthandler);
 	while (1)
 	{
-		line = NULL;
+		g_data->line = NULL;
 		if (!g_data->error)
 			print_prompt(g_data->cpy);
-		line = gnl();
+		g_data->line = gnl();
 		g_data->error = 0;
-		if (line)
+		if (g_data->line)
 		{
-			if (line[0] != '\0')
+			if (line_char(g_data->line))
 			{
 				history_open();
-				write(history->fd, line, ft_strlen(line));
+				write(history->fd, g_data->line, ft_strlen(g_data->line));
 				write(history->fd, "\n", 1);
 				free_lines();
 				get_lines();
 				history->position = 0;
 			}
-			if (ft_minishell(&line))
+			if (ft_minishell(&g_data->line))
 				break ;
 		}
 	}
 	tcsetattr(0, 0, g_data->bu);
-	ft_tabdel(&g_data->cpy);
-	free(g_data->cpy);
-	free(g_data->bu);
-	free(g_data);
-	free(line);
+	data_free();
 	close(history->fd);
 	return (0);
 }
