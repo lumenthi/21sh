@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/08 11:22:09 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/03/29 11:26:53 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/03/29 11:53:08 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,6 +65,7 @@ typedef struct		s_data
 	struct termios	*bu;
 	t_cursor		*cursor;
 	char			*line;
+	int				pos;
 }					t_data;
 
 pid_t	new_process(void);

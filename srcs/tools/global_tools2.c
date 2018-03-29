@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/03/13 12:12:55 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/03/29 11:32:51 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/03/29 14:52:08 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,38 +49,53 @@ char	*make_string(char *fullpath)
 
 int		ft_move(char dir, int i)
 {
+	int	start;
+	int	x;
+
+	start = g_data->cursor->y ? 0 : (g_data->cursor->start - 1);
+	x = g_data->cursor->x + start;
 	if (dir == 'l')
 	{
-		if (g_data->w_col - (g_data->cursor->x + g_data->cursor->start) == -1)
+		if (x == 0)
 		{
 			ft_put("up");
 			tputs(tgoto(tgetstr("ch", NULL), 0, g_data->w_col - 1), 0, my_outc);
-			g_data->cursor->x--;
+			g_data->pos--;
+			g_data->cursor->y--;
+			if (!g_data->cursor->y)
+				g_data->cursor->x = g_data->w_col - g_data->cursor->start;
+			else
+				g_data->cursor->x = g_data->w_col - 1;
 			return (1);
 		}
-		else if (g_data->cursor->x > 0)
+		else if (g_data->pos > 0)
 		{
 			ft_put("le");
+			g_data->pos--;
 			g_data->cursor->x--;
 			return (1);
 		}
+		return (0);
 	}
 	else if (dir == 'r')
 	{
-		if (g_data->cursor->x + g_data->cursor->start == g_data->w_col)
+		if (x == g_data->w_col - 1)
 		{
 				ft_put("cr");
 				ft_put("do");
-				g_data->cursor->x++;
+				g_data->cursor->x = 0;
+				g_data->pos++;
 				g_data->cursor->y++;
 				return (1);
 		}
-		else if (g_data->cursor->x < i)
+		else if (g_data->pos < i)
 		{
 			ft_put("nd");
+			g_data->pos++;
 			g_data->cursor->x++;
 			return (1);
 		}
+		return (0);
 	}
 	return (0);
 }
@@ -104,7 +119,7 @@ void	ft_print(void)
 {
 	int i;
 
-	i = g_data->cursor->x;
+	i = g_data->pos;
 	while (g_data->line[i])
 	{
 		ft_putchar(g_data->line[i]);
@@ -116,7 +131,7 @@ void	edit_line(int *i)
 {
 	ft_put("sc");
 	ft_put("cd");
-	g_data->line = ft_delete(g_data->line, g_data->cursor->x, *i);
+	g_data->line = ft_delete(g_data->line, g_data->pos, *i);
 	ft_print();
 	ft_put("rc");
 	(*i) == 1 ? *i : (*i)--;
@@ -151,7 +166,7 @@ void	inser_char(char buf, int *i)
 {
 	ft_put("sc");
 	ft_put("cd");
-	g_data->line = ft_insert(g_data->line, buf, g_data->cursor->x, *i);
+	g_data->line = ft_insert(g_data->line, buf, g_data->pos, *i);
 	ft_print();
 	ft_put("rc");
 	(*i)++;
@@ -190,7 +205,8 @@ void	history_search(int *i, char a)
 	ft_clear(*i);
 	g_data->line ? ft_putstr(g_data->line) : 0;
 	*i = ft_strlen(g_data->line);
-	g_data->cursor->x = *i;
+	g_data->pos = *i;
+	g_data->cursor->x = g_data->pos;
 }
 
 char	*gnl(void)
@@ -210,7 +226,6 @@ char	*gnl(void)
 		if (buf[0] == 10)
 		{
 			ft_putchar('\n');
-			g_data->cursor->x = 0;
 			break ;
 		}
 		else if (buf[0] == 127)
@@ -278,6 +293,7 @@ void	print_prompt(char **cpy)
 	ft_putstr("$ ");
 	ft_putstr(BLANK);
 	g_data->cursor->start = ft_strlen(path) + 9;
+	g_data->pos = 0;
 	g_data->cursor->y = 0;
 	g_data->cursor->x = 0;
 }

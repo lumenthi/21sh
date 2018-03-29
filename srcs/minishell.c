@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/08 11:24:59 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/03/29 11:25:37 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/03/29 14:23:17 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,6 +77,7 @@ static void	data_init(void)
 {
 	g_data = (t_data *)malloc(sizeof(t_data));
 	g_data->cursor = (t_cursor *)malloc(sizeof(t_cursor));
+	g_data->pos = 0;
 	g_data->cursor->x = 0;
 	g_data->cursor->y = 0;
 }
@@ -193,6 +194,7 @@ static void	history_init(void)
 	fd = 0;
 	history = malloc(sizeof(t_history));
 	history->line = malloc(sizeof(char *) * HISTORY_LIMIT + 1);
+	history->nb_lines = 0;
 	fd = history_open(fd);
 	while (i <= HISTORY_LIMIT)
 	{
