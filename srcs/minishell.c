@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/08 11:24:59 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/03/28 13:41:48 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/03/29 10:37:36 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,8 @@ int			ft_minishell(char **line)
 	char **args;
 
 	args = NULL;
-	args = get_a(*line, args);
+//	get_a("test", args);
+	args = ft_strsplit(*line, ' ');
 	if (!args)
 		ft_print_error(NULL, QUOTES, *line);
 	else if (args[0] &&
@@ -106,23 +107,56 @@ static void	term_init(void)
 	tcsetattr(0, TCSADRAIN, &term);
 }
 
-static void		get_lines(void)
+#include <stdio.h>
+
+static char		*read_file(void)
 {
 	int		fd;
-	char	*line = NULL;
-	int		i;
+	char	*line;
+	char	*tmp;
+	char	buf[2];
+	int		ret;
 
-	i = 0;
-	fd = open(".21sh_history", O_RDONLY|O_CREAT, 0666);
-	while (get_next_line(fd, &line))
+	fd = open(".21sh_history", O_RDONLY);
+	line = ft_strdup("");
+	while ((ret = read(fd, buf, 1)))
 	{
-		history->line[i] = ft_strdup(line);
+		buf[ret] = '\0';
+		tmp = ft_strdup(line);
 		free(line);
+		line = ft_strjoin(tmp, buf);
+		free(tmp);
+	}
+	close(fd);
+	return (line);
+}
+
+static void		get_lines(void)
+{
+	int		i;
+	char	*bn;
+	char	*line;
+	char	*tmp;
+	int		len;
+
+	line = NULL;
+	i = 0;
+	line = read_file();
+	tmp = ft_strdup(line);
+	while ((bn = ft_strchr(tmp, '\n')))
+	{
+		*bn = '\0';
+		history->line[i] = ft_strdup(tmp);
+		len = ft_strlen(tmp) + 1;
+		free(tmp);
+		tmp = ft_strdup(line + len);
+		free(line);
+		line = ft_strdup(tmp);
 		i++;
 	}
 	history->line[i] = NULL;
 	free(line);
-	close(fd);
+	free(tmp);
 	history->nb_lines = i;
 }
 
@@ -138,30 +172,45 @@ static void	free_lines(void)
 	}
 }
 
-static int	history_open(void)
+static int	history_open(int fd)
 {
 	if (history->nb_lines < HISTORY_LIMIT)
-	{
-		history->fd = open(".21sh_history", O_RDWR|O_CREAT|O_APPEND, 0666);
-		return (1);
-	}
+		fd = open(".21sh_history", O_RDWR|O_CREAT|O_APPEND, 0666);
 	else
 	{
-		history->fd = open(".21sh_history", O_RDWR|O_CREAT|O_TRUNC, 0666);
+		fd = open(".21sh_history", O_RDWR|O_CREAT|O_TRUNC, 0666);
 		ft_putstr(BLUE);
 		ft_putstr("History limit reached, cleaning history...\n");
 		ft_putstr(BLANK);
 		history->nb_lines = 0;
-		return (0);
 	}
+	return (fd);
 }
 
 static void	history_init(void)
 {
+	int i = 0;
+	int	fd;
+
+	fd = 0;
 	history = malloc(sizeof(t_history));
-	history_open();
+	history->line = malloc(sizeof(char *) * HISTORY_LIMIT + 1);
+	fd = history_open(fd);
+	while (i <= HISTORY_LIMIT)
+	{
+		history->line[i] = NULL;
+		i++;
+	}
 	get_lines();
+	close(fd);
 	history->position = 0;
+}
+
+static void	history_free(void)
+{
+	free_lines();
+	free(history->line);
+	free(history);
 }
 
 static int	line_char(char *line)
@@ -176,6 +225,25 @@ static int	line_char(char *line)
 		i++;
 	}
 	return (0);
+}
+
+static void	write_file(void)
+{
+	int fd;
+	char	*tmp;
+
+	fd = 0;
+	if (line_char(g_data->line))
+	{
+		fd = history_open(fd);
+		tmp = ft_strjoin(g_data->line, "\n");
+		write(fd, tmp, ft_strlen(tmp));
+		free(tmp);
+		free_lines();
+		get_lines();
+		history->position = 0;
+		close(fd);
+	}
 }
 
 int			main(void)
@@ -198,21 +266,13 @@ int			main(void)
 		g_data->error = 0;
 		if (g_data->line)
 		{
-			if (line_char(g_data->line))
-			{
-				history_open();
-				write(history->fd, g_data->line, ft_strlen(g_data->line));
-				write(history->fd, "\n", 1);
-				free_lines();
-				get_lines();
-				history->position = 0;
-			}
+			write_file();
 			if (ft_minishell(&g_data->line))
 				break ;
 		}
 	}
 	tcsetattr(0, 0, g_data->bu);
 	data_free();
-	close(history->fd);
+	history_free();
 	return (0);
 }

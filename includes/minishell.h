@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/08 11:22:09 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/03/28 13:44:37 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/03/29 10:23:19 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,10 +50,9 @@ typedef struct		s_cursor
 
 typedef struct		s_history
 {
-	int		fd;
 	int		position;
 	int		nb_lines;
-	char	*line[HISTORY_LIMIT + 1];
+	char	**line;
 }					t_history;
 
 typedef struct		s_data
