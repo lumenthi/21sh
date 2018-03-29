@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/08 11:22:09 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/03/29 10:23:19 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/03/29 11:26:53 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@
 # define ORANGE "\033[38;5;214m"
 # define YELLOW "\033[38;5;227m"
 
-#define HISTORY_LIMIT 10
+#define HISTORY_LIMIT 5
 
 # define RIGHT (buf[0] == 27 && buf[1] == 79 && buf[2] == 67)
 # define LEFT (buf[0] == 27 && buf[1] == 79 && buf[2] == 68)
@@ -38,6 +38,7 @@
 # include <term.h>
 # include <sys/ioctl.h>
 # include <fcntl.h>
+# include <stdio.h>
 
 enum {ARGS, VAR_FOUND, FT_FOUND, QUOTES, EMPTY};
 

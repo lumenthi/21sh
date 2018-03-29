@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/08 11:24:59 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/03/29 10:37:36 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/03/29 11:25:37 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -107,8 +107,6 @@ static void	term_init(void)
 	tcsetattr(0, TCSADRAIN, &term);
 }
 
-#include <stdio.h>
-
 static char		*read_file(void)
 {
 	int		fd;
@@ -165,7 +163,7 @@ static void	free_lines(void)
 	int i;
 
 	i = 0;
-	while (history->line[i])
+	while (i <= history->nb_lines)
 	{
 		free(history->line[i]);
 		i++;
@@ -235,11 +233,11 @@ static void	write_file(void)
 	fd = 0;
 	if (line_char(g_data->line))
 	{
+		free_lines();
 		fd = history_open(fd);
 		tmp = ft_strjoin(g_data->line, "\n");
 		write(fd, tmp, ft_strlen(tmp));
 		free(tmp);
-		free_lines();
 		get_lines();
 		history->position = 0;
 		close(fd);
