@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/03/13 12:12:55 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/03/29 14:52:08 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/03/29 21:24:39 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -115,25 +115,33 @@ char	*ft_delete(char *line, int pos, int i)
 	return (after);
 }
 
-void	ft_print(void)
+void	ft_print(int len)
 {
 	int i;
+	int pos;
 
 	i = g_data->pos;
+	pos = i;
 	while (g_data->line[i])
 	{
 		ft_putchar(g_data->line[i]);
+		ft_put("le");
+		ft_move('r', len);
 		i++;
+	}
+	i ? --i : i;
+	while (i >= pos)
+	{
+		ft_move('l', len);
+		i--;
 	}
 }
 
 void	edit_line(int *i)
 {
-	ft_put("sc");
 	ft_put("cd");
 	g_data->line = ft_delete(g_data->line, g_data->pos, *i);
-	ft_print();
-	ft_put("rc");
+	ft_print(*i);
 	(*i) == 1 ? *i : (*i)--;
 }
 
@@ -164,12 +172,10 @@ void	ft_clear(int i)
 
 void	inser_char(char buf, int *i)
 {
-	ft_put("sc");
 	ft_put("cd");
 	g_data->line = ft_insert(g_data->line, buf, g_data->pos, *i);
-	ft_print();
-	ft_put("rc");
 	(*i)++;
+	ft_print(*i);
 	ft_move('r', *i);
 }
 
@@ -206,7 +212,33 @@ void	history_search(int *i, char a)
 	g_data->line ? ft_putstr(g_data->line) : 0;
 	*i = ft_strlen(g_data->line);
 	g_data->pos = *i;
-	g_data->cursor->x = g_data->pos;
+	g_data->cursor->y = (g_data->pos + g_data->cursor->start) / g_data->w_col;
+	if (!g_data->cursor->y)
+		g_data->cursor->x = g_data->pos;
+	else
+		g_data->cursor->x = (g_data->pos + g_data->cursor->start - 1) - (g_data->cursor->y * g_data->w_col);
+//	ft_putnbr(g_data->cursor->x);
+}
+
+/*void	print_key(char *buf)
+{
+	printf("\nbuf[0]: %d\n", buf[0]);
+	printf("buf[1]: %d\n", buf[1]);
+	printf("buf[2]: %d\n", buf[2]);
+	printf("buf[3]: %d\n", buf[3]);
+	printf("buf[4]: %d\n", buf[4]);
+}*/
+
+void	ft_home(int i)
+{
+	while (ft_move('l', i))
+		;
+}
+
+void	ft_end(int i)
+{
+	while (ft_move('r', i))
+		;
 }
 
 char	*gnl(void)
@@ -223,16 +255,22 @@ char	*gnl(void)
 		buf[1] = 0;
 		buf[2] = 0;
 		read(0, buf, 20);
-		if (buf[0] == 10)
+//		print_key(buf);
+		if (ENTER)
 		{
+			ft_end(i);
 			ft_putchar('\n');
 			break ;
 		}
-		else if (buf[0] == 127)
+		else if (BACKSPACE)
 		{
 			if (ft_move('l', i))
 				edit_line(&i);
 		}
+		else if (HOME)
+			ft_home(i);
+		else if (END)
+			ft_end(i);
 		else if (LEFT)
 			ft_move('l', i);
 		else if (RIGHT)
