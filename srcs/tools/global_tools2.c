@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/03/13 12:12:55 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/03/28 23:23:41 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/03/29 11:32:51 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -177,7 +177,7 @@ void	history_search(int *i, char a)
 		{
 			history->position--;
 			free(g_data->line);
-			g_data->line = ft_strdup("");
+			g_data->line = NULL;
 		}
 		else
 		{
