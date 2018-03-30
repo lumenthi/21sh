@@ -6,7 +6,7 @@
 #    By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2018/01/04 10:37:11 by lumenthi          #+#    #+#              #
-#    Updated: 2018/02/23 15:31:52 by lumenthi         ###   ########.fr        #
+#    Updated: 2018/03/30 11:07:48 by lumenthi         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -85,7 +85,7 @@ SRCS = ft_atoi.c \
 		ft_count_words.c \
 		ft_sqrt.c \
 		ft_intlen.c \
-		ft_is_space.c \
+		ft_isspace.c \
 		ft_realloc.c \
 		ft_strchr_index.c \
 		ft_strswap.c \

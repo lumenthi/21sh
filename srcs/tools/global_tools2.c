@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/03/13 12:12:55 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/03/29 21:24:39 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/03/30 11:08:44 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -217,17 +217,16 @@ void	history_search(int *i, char a)
 		g_data->cursor->x = g_data->pos;
 	else
 		g_data->cursor->x = (g_data->pos + g_data->cursor->start - 1) - (g_data->cursor->y * g_data->w_col);
-//	ft_putnbr(g_data->cursor->x);
 }
 
-/*void	print_key(char *buf)
+void	print_key(char *buf)
 {
 	printf("\nbuf[0]: %d\n", buf[0]);
 	printf("buf[1]: %d\n", buf[1]);
 	printf("buf[2]: %d\n", buf[2]);
 	printf("buf[3]: %d\n", buf[3]);
 	printf("buf[4]: %d\n", buf[4]);
-}*/
+}
 
 void	ft_home(int i)
 {
@@ -239,6 +238,52 @@ void	ft_end(int i)
 {
 	while (ft_move('r', i))
 		;
+}
+
+void	line_up(int i)
+{
+	int j;
+
+	j = 0;
+	while (j != g_data->w_col)
+	{
+		if (!ft_move('l', i))
+			break ;
+		j++;
+	}
+}
+
+void	line_down(int i)
+{
+	int j;
+
+	j = 0;
+	while (j != g_data->w_col)
+	{
+		if (!ft_move('r', i))
+			break ;
+		j++;
+	}
+}
+
+void	word_left(int i)
+{
+	while (ft_move('l', i))
+	{
+		if (ft_isalnum(g_data->line[g_data->pos]) &&
+			ft_isspace(g_data->line[g_data->pos + 1]))
+			break ;
+	}
+}
+
+void	word_right(int i)
+{
+	while (ft_move('r', i))
+	{
+		if (ft_isalnum(g_data->line[g_data->pos]) &&
+			ft_isspace(g_data->line[g_data->pos - 1]))
+			break ;
+	}
 }
 
 char	*gnl(void)
@@ -277,6 +322,14 @@ char	*gnl(void)
 			ft_move('r', i);
 		else if (UP)
 			history->nb_lines ? history_search(&i, 'u') : 0;
+		else if (A_RIGHT)
+			word_right(i);
+		else if (A_LEFT)
+			word_left(i);
+		else if (A_DOWN)
+			line_down(i);
+		else if (A_UP)
+			line_up(i);
 		else if (DOWN)
 			history->nb_lines ? history_search(&i, 'd') : 0;
 		else if (ECHAP)

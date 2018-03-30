@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/03/08 10:32:01 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/03/28 22:18:51 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/03/30 11:09:08 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,7 @@ static void	get_normal(int *c, char *line, char **str, int *j)
 	int lim;
 
 	lim = (int)ft_strlen(line);
-	while (*c < lim && !ft_is_space(line[*c]))
+	while (*c < lim && !ft_isspace(line[*c]))
 	{
 		if (!(*str))
 			*str = malloc(lim);
