@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/03/13 12:12:55 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/03/30 11:08:44 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/03/31 16:06:33 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -150,7 +150,11 @@ char	*ft_insert(char *line, char buf, int pos, int i)
 	char	*after;
 
 	if (i == 0)
+	{
+		if (line)
+			free(line);
 		line = ft_strdup("");
+	}
 	else
 		line[i] = '\0';
 	after = malloc(i + 2);
@@ -161,6 +165,21 @@ char	*ft_insert(char *line, char buf, int pos, int i)
 	after[i + 1] = '\0';
 	free(line);
 	return (after);
+}
+
+char	*insert_str(char *line, char *ins, int pos, int i)
+{
+	int		j;
+
+	j = 0;
+	while (ins[j])
+	{
+		line = ft_insert(line, ins[j], pos, i);
+		pos++;
+		j++;
+		i++;
+	}
+	return (line);
 }
 
 void	ft_clear(int i)
@@ -177,6 +196,19 @@ void	inser_char(char buf, int *i)
 	(*i)++;
 	ft_print(*i);
 	ft_move('r', *i);
+}
+
+void	ft_rewrite(int *i)
+{
+	ft_clear(*i);
+	g_data->line ? ft_putstr(g_data->line) : 0;
+	*i = ft_strlen(g_data->line);
+	g_data->pos = *i;
+	g_data->cursor->y = (g_data->pos + g_data->cursor->start) / g_data->w_col;
+	if (!g_data->cursor->y)
+		g_data->cursor->x = g_data->pos;
+	else
+		g_data->cursor->x = (g_data->pos + g_data->cursor->start - 1) - (g_data->cursor->y * g_data->w_col);
 }
 
 void	history_search(int *i, char a)
@@ -208,15 +240,7 @@ void	history_search(int *i, char a)
 			g_data->line = ft_strdup(history->line[pos]);
 		}
 	}
-	ft_clear(*i);
-	g_data->line ? ft_putstr(g_data->line) : 0;
-	*i = ft_strlen(g_data->line);
-	g_data->pos = *i;
-	g_data->cursor->y = (g_data->pos + g_data->cursor->start) / g_data->w_col;
-	if (!g_data->cursor->y)
-		g_data->cursor->x = g_data->pos;
-	else
-		g_data->cursor->x = (g_data->pos + g_data->cursor->start - 1) - (g_data->cursor->y * g_data->w_col);
+	ft_rewrite(i);
 }
 
 void	print_key(char *buf)
@@ -286,6 +310,109 @@ void	word_right(int i)
 	}
 }
 
+void	mode_icon(char icon)
+{
+	ft_put("sc");
+	tputs(tgoto(tgetstr("ch", NULL), 0, g_data->cursor->start - 2), 0, my_outc);
+	ft_putchar(icon);
+	ft_put("rc");
+}
+
+void	ft_write(int pos, int *i)
+{
+	ft_clear(*i);
+	ft_rewrite(i);
+	while (g_data->pos > pos)
+		ft_move('l', *i);
+}
+
+void	ft_sub(int len, int *i)
+{
+	while (len)
+	{
+		if (ft_move('l', *i))
+			edit_line(i);
+		len--;
+	}
+}
+
+void	copy_mode(int *i)
+{
+	char	buf[20];
+	int		select = 0;
+	char	*cpy = ft_strdup("");
+	char	*tmp;
+
+	mode_icon('C');
+	while (1)
+	{
+		buf[0] = 0;
+		buf[1] = 0;
+		buf[2] = 0;
+		read(0, buf, 20);
+		if ((RIGHT||SPACE) && g_data->line)
+		{
+			if (g_data->line[g_data->pos])
+			{
+				if (!select)
+				{
+					ft_put("us");
+					tmp = ft_charjoin(cpy, g_data->line[g_data->pos]);
+					free(cpy);
+					cpy = ft_strdup(tmp);
+					free(tmp);
+				}
+				ft_putchar(g_data->line[g_data->pos]);
+				ft_put("le");
+				if (!ft_move('r', *i))
+					ft_put("nd");
+				ft_put("ue");
+			}
+		}
+		else if (buf[0] == 'd')
+		{
+			mode_icon('P');
+			ft_sub(ft_strlen(cpy), i);
+			ft_write(g_data->pos, i);
+			select = 1;
+		}
+		else if (buf[0] == 'y')
+		{
+			mode_icon('P');
+			ft_write(g_data->pos, i);
+			select = 1;
+		}
+		else if (buf[0] == 'p')
+		{
+			g_data->line = insert_str(g_data->line, cpy, g_data->pos, *i);
+			select = 0;
+			ft_clear(*i);
+			*i = (int)ft_strlen(g_data->line);
+			break ;
+		}
+		else if (LEFT || BACKSPACE)
+		{
+			if (cpy && !select)
+				cpy[ft_strlen(cpy) - 1] = '\0';
+			if (ft_move('l', *i))
+			{
+				ft_put("ue");
+				ft_putchar(g_data->line[g_data->pos]);
+				ft_put("le");
+			}
+		}
+		else if (A_C || ECHAP)
+		{
+			if (select)
+				ft_put("ue");
+			break ;
+		}
+	}
+	ft_rewrite(i);
+	free(cpy);
+	mode_icon(' ');
+}
+
 char	*gnl(void)
 {
 	char	buf[20];
@@ -314,6 +441,8 @@ char	*gnl(void)
 		}
 		else if (HOME)
 			ft_home(i);
+		else if (A_C)
+			copy_mode(&i);
 		else if (END)
 			ft_end(i);
 		else if (LEFT)

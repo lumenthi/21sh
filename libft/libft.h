@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/11/11 10:50:56 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/03/30 11:08:07 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/03/30 14:05:28 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,5 +90,6 @@ int				ft_isspace(char c);
 void			*ft_realloc(void *ptr, size_t size);
 void			ft_strswap(char **s1, char **s2);
 int				get_next_line(int const fd, char **line);
+char			*ft_charjoin(char *s1, char s2);
 
 #endif

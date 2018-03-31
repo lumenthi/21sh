@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/08 11:22:09 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/03/30 10:52:22 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/03/31 15:05:05 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,10 +30,12 @@
 # define A_LEFT (buf[0] == 27 && buf[1] == 27  && buf[2] == 91 && buf[3] == 68)
 # define A_UP (buf[0] == 27 && buf[1] == 27  && buf[2] == 91 && buf[3] == 65)
 # define A_DOWN (buf[0] == 27 && buf[1] == 27  && buf[2] == 91 && buf[3] == 66)
+# define A_C (buf[0] == -61 && buf[1] == -89 && buf[2] == 0)
 # define ECHAP (buf[0] == 27 && buf[1] == 0 && buf[2] == 0)
 # define HOME (buf[0] == 27 && buf[1] == 79 && buf[2] == 72)
 # define END (buf[0] == 27 && buf[1] == 79 && buf[2] == 70)
 # define BACKSPACE (buf[0] == 127 && buf[1] == 0 && buf[2] == 0)
+# define SPACE (buf[0] == 32 && buf[1] == 0 && buf[2] == 0)
 # define ENTER (buf[0] == 10 && buf[1] == 0 && buf[2] == 0)
 
 # include "../libft/libft.h"

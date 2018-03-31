@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/08 11:24:59 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/03/29 14:23:17 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/03/30 12:29:37 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -116,7 +116,7 @@ static char		*read_file(void)
 	char	buf[2];
 	int		ret;
 
-	fd = open(".21sh_history", O_RDONLY);
+	fd = open("/tmp/.21sh_history", O_RDONLY);
 	line = ft_strdup("");
 	while ((ret = read(fd, buf, 1)))
 	{
@@ -174,10 +174,10 @@ static void	free_lines(void)
 static int	history_open(int fd)
 {
 	if (history->nb_lines < HISTORY_LIMIT)
-		fd = open(".21sh_history", O_RDWR|O_CREAT|O_APPEND, 0666);
+		fd = open("/tmp/.21sh_history", O_RDWR|O_CREAT|O_APPEND, 0666);
 	else
 	{
-		fd = open(".21sh_history", O_RDWR|O_CREAT|O_TRUNC, 0666);
+		fd = open("/tmp/.21sh_history", O_RDWR|O_CREAT|O_TRUNC, 0666);
 		ft_putstr(BLUE);
 		ft_putstr("History limit reached, cleaning history...\n");
 		ft_putstr(BLANK);
