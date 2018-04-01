@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/03/13 12:12:55 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/04/01 14:54:23 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/04/01 15:12:46 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -418,6 +418,7 @@ void	copy_mode(int *i)
 			select = 0;
 			ft_clear(*i);
 			*i = (int)ft_strlen(g_data->line);
+			ft_rewrite(i);
 			break ;
 		}
 		else if (LEFT || BACKSPACE)
@@ -436,11 +437,12 @@ void	copy_mode(int *i)
 		{
 			if (select)
 				ft_put("ue");
+			ft_write(g_data->pos, i);
 			break ;
 		}
 	}
-	ft_rewrite(i);
-	free(cpy);
+	if (cpy)
+		free(cpy);
 	mode_icon(' ', *i);
 }
 
