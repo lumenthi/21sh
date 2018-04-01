@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/08 11:24:59 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/03/30 12:29:37 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/03/31 16:25:10 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,23 @@ static void	inthandler(int sig)
 		g_data->error = 1;
 	ft_putchar('\n');
 	print_prompt(g_data->cpy);
+}
+
+void	ft_history(char **args)
+{
+	int i;
+	(void)args;
+
+	i = 0;
+	ft_putendl("history:\n");
+	while (history->line[i + 1])
+	{
+		ft_putnbr(i + 1);
+		ft_putstr(" - [");
+		ft_putstr(history->line[i]);
+		ft_putendl("]");
+		i++;
+	}
 }
 
 static void	ft_apply(char **line, char **args)
@@ -32,6 +49,8 @@ static void	ft_apply(char **line, char **args)
 		ft_unsetenv(&g_data->cpy, args);
 	else if (args[0] && ft_strcmp(args[0], "env") == 0)
 		ft_env(&g_data->cpy, args, line);
+	else if (args[0] && ft_strcmp(args[0], "history") == 0)
+		ft_history(args);
 	else
 		ft_execve(args, g_data->cpy);
 }

@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/03/13 12:12:55 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/03/31 16:06:33 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/04/01 14:54:23 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -163,7 +163,8 @@ char	*ft_insert(char *line, char buf, int pos, int i)
 	after[pos + 1] = '\0';
 	ft_strcat(after, line + pos);
 	after[i + 1] = '\0';
-	free(line);
+	if (line)
+		free(line);
 	return (after);
 }
 
@@ -310,12 +311,25 @@ void	word_right(int i)
 	}
 }
 
-void	mode_icon(char icon)
+void	mode_icon(char icon, int i)
 {
+	int		x;
+	int		y;
+	int		pos;
+
+	x = g_data->cursor->x;
+	y = g_data->cursor->y;
+	pos = g_data->pos;
 	ft_put("sc");
-	tputs(tgoto(tgetstr("ch", NULL), 0, g_data->cursor->start - 2), 0, my_outc);
+	while (ft_move('l', i))
+		;
+	g_data->cursor->x = g_data->cursor->x + g_data->cursor->start;
+	tputs(tgoto(tgetstr("ch", NULL), 0, g_data->cursor->x - 2), 0, my_outc);
 	ft_putchar(icon);
 	ft_put("rc");
+	g_data->pos = pos;
+	g_data->cursor->x = x;
+	g_data->cursor->y = y;
 }
 
 void	ft_write(int pos, int *i)
@@ -343,7 +357,7 @@ void	copy_mode(int *i)
 	char	*cpy = ft_strdup("");
 	char	*tmp;
 
-	mode_icon('C');
+	mode_icon('C', *i);
 	while (1)
 	{
 		buf[0] = 0;
@@ -362,23 +376,39 @@ void	copy_mode(int *i)
 					cpy = ft_strdup(tmp);
 					free(tmp);
 				}
-				ft_putchar(g_data->line[g_data->pos]);
-				ft_put("le");
-				if (!ft_move('r', *i))
-					ft_put("nd");
+				if (ft_move('r', *i))
+				{
+					ft_move('l', *i);
+					ft_put("sc");
+					ft_putchar(g_data->line[g_data->pos]);
+					ft_put("rc");
+					ft_move('r', *i);
+				}
 				ft_put("ue");
 			}
 		}
+		else if (HOME && select)
+			ft_home(*i);
+		else if (END && select)
+			ft_end(*i);
+		else if (A_RIGHT && select)
+			word_right(*i);
+		else if (A_LEFT && select)
+			word_left(*i);
+		else if (A_DOWN && select)
+			line_down(*i);
+		else if (A_UP && select)
+			line_up(*i);
 		else if (buf[0] == 'd')
 		{
-			mode_icon('P');
+			mode_icon('P', *i);
 			ft_sub(ft_strlen(cpy), i);
 			ft_write(g_data->pos, i);
 			select = 1;
 		}
 		else if (buf[0] == 'y')
 		{
-			mode_icon('P');
+			mode_icon('P', *i);
 			ft_write(g_data->pos, i);
 			select = 1;
 		}
@@ -396,9 +426,10 @@ void	copy_mode(int *i)
 				cpy[ft_strlen(cpy) - 1] = '\0';
 			if (ft_move('l', *i))
 			{
+				ft_put("sc");
 				ft_put("ue");
 				ft_putchar(g_data->line[g_data->pos]);
-				ft_put("le");
+				ft_put("rc");
 			}
 		}
 		else if (A_C || ECHAP)
@@ -410,7 +441,7 @@ void	copy_mode(int *i)
 	}
 	ft_rewrite(i);
 	free(cpy);
-	mode_icon(' ');
+	mode_icon(' ', *i);
 }
 
 char	*gnl(void)
