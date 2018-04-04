@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/08 11:24:59 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/03/31 16:25:10 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/04/04 11:17:44 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,11 +55,159 @@ static void	ft_apply(char **line, char **args)
 		ft_execve(args, g_data->cpy);
 }
 
+int		squote_invalid(char *line)
+{
+	int c;
+	int i;
+
+	c = 0;
+	i = 0;
+	while (line[i])
+	{
+		if (line[i] == 39)
+			c++;
+		i++;
+	}
+	return (c % 2 ? 1 : 0);
+}
+
+char		*quote_get(char *line)
+{
+	char	*old;
+	char	*new;
+	int		i;
+
+	i = 0;
+	new = NULL;
+	old = ft_strdup(line);
+	while (line[i])
+	{
+		if (line[i] == 39)
+		{
+			if (squote_invalid(line))
+			{
+				line = quote_mode(39);
+				new = ft_strjoin(old, g_data->line);
+				free(g_data->line);
+				g_data->line = ft_strdup(new);
+				break ;
+			}
+		}
+		else if (line[i] == 34)
+		{
+			if (quote_invalid(line))
+			{
+				line = quote_mode(34);
+				new = ft_strjoin(old, g_data->line);
+				free(g_data->line);
+				g_data->line = ft_strdup(new);
+				break ;
+			}
+		}
+		i++;
+	}
+	free(old);
+	free(new);
+	return (g_data->line);
+}
+
+char		*var_translate(char *line, int i)
+{
+	char	*tmp;
+	char	*env;
+	int		found;
+	int		len;
+
+	found = 0;
+	env = NULL;
+	tmp = ft_strjoin(line + i  + 1, "=");
+	while (ft_isalnum(tmp[found]))
+		found++;
+	if (found)
+		tmp[found + 1] = '\0';
+	len = ft_strlen(tmp);
+	env = get_var(g_data->cpy, tmp);
+	while (len && found)
+	{
+		line = ft_delete(line, i, ft_strlen(line));
+		len--;
+	}
+	if (env)
+		line = insert_str(line, env, i, ft_strlen(line));
+	free(tmp);
+	return (line);
+}
+
+char		*point_translate(char *line, int i)
+{
+	int		found;
+	char	*path;
+	char	*tmp;
+
+	found = 0;
+	while (line[found + i] == '.')
+		found++;
+	if (ft_isalnum(line[found + i]))
+		return (line);
+	path = NULL;
+	path = getcwd(path, 99);
+	while (found)
+	{
+		if (found - 1 && (tmp = ft_strrchr(path, '/')))
+			*tmp = '\0';
+		line = ft_delete(line, i, ft_strlen(line));
+		found--;
+	}
+	line = insert_str(line, path, i, ft_strlen(line));
+	free(path);
+	return (line);
+}
+
+char		*home_translate(char *line, int i)
+{
+	char	*env;
+	int		found;
+
+	found = 0;
+	env = NULL;
+	if (ft_isalnum(line[i + 1]))
+		return (line);
+	env = get_var(g_data->cpy, "HOME=");
+	line = ft_delete(line, i, ft_strlen(line));
+	if (env)
+		line = insert_str(line, env, i, ft_strlen(line));
+	return (line);
+}
+
+char		*args_translate(char *line)
+{
+	int	i;
+	int	q;
+	q = 0;
+	i = 0;
+	while (line[i])
+	{
+		if (line[i] == 39)
+			q = q ? 0 : 1;
+		if (line[i] == '$' && !q)
+			line = var_translate(line, i);
+		if (line[i] == '.' && !q)
+			line = point_translate(line, i);
+		if (line[i] == '~' && !q)
+			line = home_translate(line, i);
+		i++;
+	}
+//	printf("\nline |%s|\n", line);
+	return (line);
+}
+
 int			ft_minishell(char **line)
 {
 	char **args;
 
 	args = NULL;
+	*line = quote_get(*line);
+	*line = args_translate(*line);
 //	get_a("test", args);
 	args = ft_strsplit(*line, ' ');
 	if (!args)

@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/03/13 12:12:55 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/04/01 15:12:46 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/04/03 19:20:05 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -111,7 +111,8 @@ char	*ft_delete(char *line, int pos, int i)
 	after[pos] = '\0';
 	ft_strcat(after, line + (pos + 1));
 	after[i] = '\0';
-	free(line);
+	if (line)
+		free(line);
 	return (after);
 }
 
@@ -151,8 +152,7 @@ char	*ft_insert(char *line, char buf, int pos, int i)
 
 	if (i == 0)
 	{
-		if (line)
-			free(line);
+		free(line);
 		line = ft_strdup("");
 	}
 	else
@@ -399,20 +399,20 @@ void	copy_mode(int *i)
 			line_down(*i);
 		else if (A_UP && select)
 			line_up(*i);
-		else if (buf[0] == 'd')
+		else if (buf[0] == 'd' && !select)
 		{
 			mode_icon('P', *i);
 			ft_sub(ft_strlen(cpy), i);
 			ft_write(g_data->pos, i);
 			select = 1;
 		}
-		else if (buf[0] == 'y')
+		else if (buf[0] == 'y' && !select)
 		{
 			mode_icon('P', *i);
 			ft_write(g_data->pos, i);
 			select = 1;
 		}
-		else if (buf[0] == 'p')
+		else if (buf[0] == 'p' && select)
 		{
 			g_data->line = insert_str(g_data->line, cpy, g_data->pos, *i);
 			select = 0;
@@ -496,6 +496,89 @@ char	*gnl(void)
 			history->nb_lines ? history_search(&i, 'd') : 0;
 		else if (ECHAP)
 			return (ft_strdup("exit"));
+		else
+			inser_char(buf[0], &i);
+	}
+	ft_put("ke");
+	return (g_data->line);
+}
+
+char	*quote_mode(char mode)
+{
+	char	buf[20];
+	int		i;
+	char	*bu;
+	char	*new;
+
+	ft_put("ks");
+	free(g_data->line);
+	g_data->line = NULL;
+	i = 0;
+	g_data->pos = 0;
+	g_data->cursor->y = 0;
+	g_data->cursor->x = 0;
+	if (mode == 34)
+	{
+		ft_putstr("dquote> ");
+		g_data->cursor->start = 9;
+	}
+	else if (mode == 39)
+	{
+		ft_putstr("quote> ");
+		g_data->cursor->start = 8;
+	}
+	while (1)
+	{
+		buf[0] = 0;
+		buf[1] = 0;
+		buf[2] = 0;
+		read(0, buf, 20);
+		if (buf[0] == mode)
+		{
+			ft_end(i);
+			inser_char(mode, &i);
+			ft_putchar('\n');
+			break ;
+		}
+		else if (BACKSPACE)
+		{
+			if (ft_move('l', i))
+				edit_line(&i);
+		}
+		else if (ENTER)
+		{
+			ft_end(i);
+			inser_char('\n', &i);
+			ft_put("le");
+			bu = ft_strdup(g_data->line);
+			new = quote_mode(mode);
+			g_data->line = ft_strjoin(bu, new);
+			free(bu);
+			free(new);
+			break ;
+		}
+		else if (HOME)
+			ft_home(i);
+		else if (A_C)
+			copy_mode(&i);
+		else if (END)
+			ft_end(i);
+		else if (UP)
+			history->nb_lines ? history_search(&i, 'u') : 0;
+		else if (DOWN)
+			history->nb_lines ? history_search(&i, 'd') : 0;
+		else if (LEFT)
+			ft_move('l', i);
+		else if (RIGHT)
+			ft_move('r', i);
+		else if (A_RIGHT)
+			word_right(i);
+		else if (A_LEFT)
+			word_left(i);
+		else if (A_DOWN)
+			line_down(i);
+		else if (A_UP)
+			line_up(i);
 		else
 			inser_char(buf[0], &i);
 	}

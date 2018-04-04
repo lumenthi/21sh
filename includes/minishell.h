@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/08 11:22:09 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/03/31 15:05:05 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/04/04 11:18:47 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@
 # define ORANGE "\033[38;5;214m"
 # define YELLOW "\033[38;5;227m"
 
-#define HISTORY_LIMIT 5
+#define HISTORY_LIMIT 15
 
 # define RIGHT (buf[0] == 27 && buf[1] == 79 && buf[2] == 67)
 # define LEFT (buf[0] == 27 && buf[1] == 79 && buf[2] == 68)
@@ -115,6 +115,9 @@ void	move_cursor(int x, int y);
 void	get_winsize(void);
 void	ft_put(char *str);
 int		my_outc(int c);
+char	*quote_mode(char mode);
+char	*insert_str(char *line, char *ins, int pos, int i);
+char	*ft_delete(char *line, int pos, int i);
 
 t_data	*g_data;
 t_history	*history;
