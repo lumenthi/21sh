@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/28 14:08:43 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/03/20 13:55:37 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/04/04 17:56:35 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,7 +58,8 @@ static void		make_fake(char ***fake_env, char **args, int *j, char **line)
 		}
 		else
 			break ;
-		*line = *line + ft_strlen(args[*j]) + 1;
+		free(*line);
+		*line = ft_strdup(*line + ft_strlen(args[*j]) + 1);
 		(*j)++;
 	}
 }
@@ -74,6 +75,25 @@ static void		reset_env(char ***environ, char ***bu, char ***fake_env)
 	free(*bu);
 }
 
+static char		*remove_quotes(char *line)
+{
+	int i;
+
+	i = 0;
+	while (ft_isspace(line[i]))
+		line = ft_delete(line, i, ft_strlen(line));
+	while (line[i])
+	{
+		if (line[i] == 34 || line[i] == 39)
+		{
+			line = ft_delete(line, i, ft_strlen(line));
+			i--;
+		}
+		i++;
+	}
+	return (line);
+}
+
 void			ft_env(char ***environ, char **args, char **line)
 {
 	int		j;
@@ -84,20 +104,23 @@ void			ft_env(char ***environ, char **args, char **line)
 	environ_cpy(*environ, &fake_env);
 	environ_cpy(*environ, &bu);
 	j = 1;
-	line_cpy = *line + 3;
+	line_cpy = remove_quotes(ft_strdup(*line + 3));
 	make_fake(&fake_env, args, &j, &line_cpy);
 	fake_cpy(environ, fake_env);
 	if (j == tab_size(args))
+	{
 		print_environ(environ);
+		free(line_cpy);
+	}
 	else
 	{
 		if (ft_strcmp(args[1], "exit") != 0 && ft_strcmp(args[1], "q") != 0)
-		{
-			line_cpy = ft_strdup(line_cpy);
 			ft_minishell(&line_cpy);
-		}
 		else
+		{
 			env_error();
+			free(line_cpy);
+		}
 	}
 	reset_env(environ, &bu, &fake_env);
 }

@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/08 11:24:59 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/04/04 11:17:44 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/04/04 17:57:38 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,9 +87,9 @@ char		*quote_get(char *line)
 			if (squote_invalid(line))
 			{
 				line = quote_mode(39);
-				new = ft_strjoin(old, g_data->line);
-				free(g_data->line);
-				g_data->line = ft_strdup(new);
+				new = ft_strjoin(old, line);
+				free(line);
+				line = ft_strdup(new);
 				break ;
 			}
 		}
@@ -98,9 +98,9 @@ char		*quote_get(char *line)
 			if (quote_invalid(line))
 			{
 				line = quote_mode(34);
-				new = ft_strjoin(old, g_data->line);
-				free(g_data->line);
-				g_data->line = ft_strdup(new);
+				new = ft_strjoin(old, line);
+				free(line);
+				line = ft_strdup(new);
 				break ;
 			}
 		}
@@ -108,7 +108,7 @@ char		*quote_get(char *line)
 	}
 	free(old);
 	free(new);
-	return (g_data->line);
+	return (line);
 }
 
 char		*var_translate(char *line, int i)
@@ -192,7 +192,6 @@ char		*args_translate(char *line)
 		if (line[i] == '$' && !q)
 			line = var_translate(line, i);
 		if (line[i] == '.' && !q)
-			line = point_translate(line, i);
 		if (line[i] == '~' && !q)
 			line = home_translate(line, i);
 		i++;
@@ -203,13 +202,21 @@ char		*args_translate(char *line)
 
 int			ft_minishell(char **line)
 {
-	char **args;
+	char	**args;
+	int		i;
 
+	i = 0;
 	args = NULL;
+//	printf("\nline: |%s|\n", *line);
 	*line = quote_get(*line);
-	*line = args_translate(*line);
-//	get_a("test", args);
-	args = ft_strsplit(*line, ' ');
+	args = get_a(*line, args);
+	while (args[i] && ft_strcmp(args[0], "env") != 0 &&
+		ft_strcmp(args[0], "unsetenv") != 0 &&
+		ft_strcmp(args[0], "setenv") != 0)
+	{
+		args[i] = args_translate(args[i]);
+		i++;
+	}
 	if (!args)
 		ft_print_error(NULL, QUOTES, *line);
 	else if (args[0] &&
