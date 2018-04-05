@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/03/08 10:32:01 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/03/30 11:09:08 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/04/05 13:08:00 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,21 +45,41 @@ static void	get_quotes(int *c, char *line, char **str, int *j)
 	int		lim;
 
 	lim = (int)ft_strlen(line);
+	if (!(*str))
+		*str = malloc(lim);
+	*(*str + *j) = line[*c];
 	(*c)++;
-	if (line[*c] == '"')
-		*str = ft_strdup("");
-	else
+	(*j)++;
+	while (*c <= lim)
 	{
-		while (*c < lim && line[*c] != '"')
-		{
-			if (!(*str))
-				*str = malloc(lim);
-			*(*str + *j) = line[*c];
-			(*j)++;
-			(*c)++;
-		}
+		*(*str + *j) = line[*c];
+		(*j)++;
+		if (line[*c] == 34)
+			break ;
+		(*c)++;
 	}
 }
+
+static void	get_squotes(int *c, char *line, char **str, int *j)
+{
+	int		lim;
+
+	lim = (int)ft_strlen(line);
+	if (!(*str))
+		*str = malloc(lim);
+	*(*str + *j) = line[*c];
+	(*c)++;
+	(*j)++;
+	while (*c <= lim)
+	{
+		*(*str + *j) = line[*c];
+		(*j)++;
+		if (line[*c] == 39)
+			break ;
+		(*c)++;
+	}
+}
+
 
 static void	get_words(char *line, char ***args, char **str, int *i)
 {
@@ -72,8 +92,10 @@ static void	get_words(char *line, char ***args, char **str, int *i)
 	j = 0;
 	while (c < lim)
 	{
-		if (line[c] == '"')
+		if (line[c] == 34)
 			get_quotes(&c, line, str, &j);
+		else if (line[c] == 39)
+			get_squotes(&c, line, str, &j);
 		else
 			get_normal(&c, line, str, &j);
 		make_word(args, i, str, j);

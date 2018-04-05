@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/15 16:39:55 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/03/13 12:05:04 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/04/05 11:16:47 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,12 +46,9 @@ void		ft_cd(char ***environ, char **arg)
 	get_paths(&abs_path, &old_path, *environ);
 	if (tab_size(arg) > 2)
 		ft_print_error("cd", ARGS, NULL);
-	else if (arg[1] != NULL && arg[1][0] == '$')
-		cd_var(arg, environ, &abs_path);
 	else if (arg[1] && ft_strcmp(arg[1], "-") == 0)
 		cd_old(environ, &abs_path, old_path);
-	else if (arg[1] == NULL || ft_strcmp(arg[1], "~") == 0 ||
-		ft_strcmp(arg[1], "--") == 0)
+	else if (arg[1] == NULL || ft_strcmp(arg[1], "--") == 0)
 		cd_home(environ, &abs_path);
 	else
 		cd_path(arg, environ, &abs_path);

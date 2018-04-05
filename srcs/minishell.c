@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/08 11:24:59 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/04/04 17:57:38 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/04/05 13:15:31 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,7 @@ void	ft_history(char **args)
 static void	ft_apply(char **line, char **args)
 {
 	if (args[0] && ft_strcmp(args[0], "echo") == 0)
-		ft_echo(args, g_data->cpy);
+		ft_echo(args);
 	else if (args[0] && ft_strcmp(args[0], "cd") == 0)
 		ft_cd(&g_data->cpy, args);
 	else if (args[0] && ft_strcmp(args[0], "setenv") == 0)
@@ -117,16 +117,22 @@ char		*var_translate(char *line, int i)
 	char	*env;
 	int		found;
 	int		len;
+	char	*old;
 
 	found = 0;
 	env = NULL;
-	tmp = ft_strjoin(line + i  + 1, "=");
-	while (ft_isalnum(tmp[found]))
+	old = ft_strdup(line + i  + 1);
+//	ft_putstr(tmp);
+	while (ft_isalnum(old[found]))
 		found++;
 	if (found)
-		tmp[found + 1] = '\0';
+		old[found] = '\0';
+	tmp = ft_strjoin(old, "=");
+	free(old);
 	len = ft_strlen(tmp);
+//	ft_putstr(tmp);
 	env = get_var(g_data->cpy, tmp);
+//	ft_putstr(env);
 	while (len && found)
 	{
 		line = ft_delete(line, i, ft_strlen(line));
@@ -183,21 +189,51 @@ char		*args_translate(char *line)
 {
 	int	i;
 	int	q;
+	char *new;
+
 	q = 0;
 	i = 0;
+//	printf("line: |%s|\n", line);
+	if (line[0] == 39)
+	{
+		line = ft_delete(line, ft_strlen(line) - 1, ft_strlen(line));
+		line = ft_delete(line, 0, ft_strlen(line));
+		q = 1;
+	}
+	else if (line[0] == 34)
+	{
+		line = ft_delete(line, ft_strlen(line) - 1, ft_strlen(line));
+		line = ft_delete(line, 0, ft_strlen(line));
+	}
 	while (line[i])
 	{
-		if (line[i] == 39)
-			q = q ? 0 : 1;
 		if (line[i] == '$' && !q)
 			line = var_translate(line, i);
 		if (line[i] == '.' && !q)
+			line = point_translate(line, i);
 		if (line[i] == '~' && !q)
 			line = home_translate(line, i);
 		i++;
 	}
-//	printf("\nline |%s|\n", line);
-	return (line);
+	new = ft_strdup(line);
+	free(line);
+//	printf("line: |%s|\n", new);
+	return (new);
+}
+
+void		ft_printtab(char **ta)
+{
+	int i;
+
+	i = 0;
+	while (ta[i])
+	{
+		ft_putstr("tab[");
+		ft_putnbr(i);
+		ft_putstr("]: ");
+		ft_putendl(ta[i]);
+		i++;
+	}
 }
 
 int			ft_minishell(char **line)
@@ -207,9 +243,9 @@ int			ft_minishell(char **line)
 
 	i = 0;
 	args = NULL;
-//	printf("\nline: |%s|\n", *line);
 	*line = quote_get(*line);
 	args = get_a(*line, args);
+//	ft_printtab(args);
 	while (args[i] && ft_strcmp(args[0], "env") != 0 &&
 		ft_strcmp(args[0], "unsetenv") != 0 &&
 		ft_strcmp(args[0], "setenv") != 0)
@@ -217,6 +253,7 @@ int			ft_minishell(char **line)
 		args[i] = args_translate(args[i]);
 		i++;
 	}
+//	ft_printtab(args);
 	if (!args)
 		ft_print_error(NULL, QUOTES, *line);
 	else if (args[0] &&
