@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/08 11:24:59 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/04/05 13:15:31 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/04/05 21:24:31 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -246,9 +246,7 @@ int			ft_minishell(char **line)
 	*line = quote_get(*line);
 	args = get_a(*line, args);
 //	ft_printtab(args);
-	while (args[i] && ft_strcmp(args[0], "env") != 0 &&
-		ft_strcmp(args[0], "unsetenv") != 0 &&
-		ft_strcmp(args[0], "setenv") != 0)
+	while (args[i])
 	{
 		args[i] = args_translate(args[i]);
 		i++;
@@ -279,7 +277,6 @@ static void	data_free(void)
 	ft_tabdel(&g_data->cpy);
 	free(g_data->cpy);
 	free(g_data->cursor);
-	free(g_data->bu);
 	free(g_data->line);
 	free(g_data);
 }
@@ -457,13 +454,18 @@ static void	write_file(void)
 	}
 }
 
+static void		term_reset()
+{
+	tcsetattr(0, 0, g_data->bu);
+	free(g_data->bu);
+}
+
 int			main(void)
 {
 	extern char	**environ;
 
 	history_init();
 	data_init();
-	term_init();
 	get_winsize();
 	g_data->error = 0;
 	environ_cpy(environ, &g_data->cpy);
@@ -471,9 +473,11 @@ int			main(void)
 	while (1)
 	{
 		g_data->line = NULL;
+		term_init();
 		if (!g_data->error)
 			print_prompt(g_data->cpy);
 		g_data->line = gnl();
+		term_reset();
 		g_data->error = 0;
 		if (g_data->line)
 		{
@@ -482,7 +486,6 @@ int			main(void)
 				break ;
 		}
 	}
-	tcsetattr(0, 0, g_data->bu);
 	data_free();
 	history_free();
 	return (0);

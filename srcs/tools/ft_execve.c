@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/28 14:12:13 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/04/05 12:28:34 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/04/05 21:20:23 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,9 +42,18 @@ static int	do_execve(char **arg, char **env)
 
 static int	error_exec(char ***arg, char **env, char **fullpath, char **bu)
 {
+	int ret;
+
+	ret = 0;
 	if (tab_size(*arg) == 0)
 		return (1);
-	if (!get_var(env, "PATH="))
+	if (!get_var(env, "PATH=") && *arg[0][0] == '/')
+	{
+		if (((ret = do_execve(*arg, env))) && ret != 256 && g_data->error == 0)
+			ft_print_error(*arg[0], FT_FOUND, NULL);
+		return (2);
+	}
+	else if (!get_var(env, "PATH=") && *arg[0][0] != '/')
 	{
 		ft_print_error(*arg[0], VAR_FOUND, "$PATH");
 		return (1);
@@ -82,12 +91,6 @@ void		ft_execve(char **arg, char **env)
 	char	*old;
 	int		ret;
 
-	if (arg[0] && arg[0][0] == '/')
-	{
-		if (((ret = do_execve(arg, env))) && ret != 256 && g_data->error == 0)
-			ft_print_error(arg[0], FT_FOUND, NULL);
-		return ;
-	}
 	if (error_exec(&arg, env, &fullpath, &bu))
 		return ;
 	while ((path = make_string(fullpath)))
