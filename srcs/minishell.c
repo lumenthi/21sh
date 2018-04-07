@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/08 11:24:59 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/04/05 21:24:31 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/04/06 20:37:38 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,9 @@ static void	inthandler(int sig)
 		g_data->error = 1;
 	ft_putchar('\n');
 	print_prompt(g_data->cpy);
+	if (g_data->line)
+		free(g_data->line);
+	g_data->line = ft_strdup("");
 }
 
 void	ft_history(char **args)
@@ -236,6 +239,12 @@ void		ft_printtab(char **ta)
 	}
 }
 
+static void		term_reset()
+{
+	tcsetattr(0, 0, g_data->bu);
+	free(g_data->bu);
+}
+
 int			ft_minishell(char **line)
 {
 	char	**args;
@@ -251,6 +260,7 @@ int			ft_minishell(char **line)
 		args[i] = args_translate(args[i]);
 		i++;
 	}
+	term_reset();
 //	ft_printtab(args);
 	if (!args)
 		ft_print_error(NULL, QUOTES, *line);
@@ -454,12 +464,6 @@ static void	write_file(void)
 	}
 }
 
-static void		term_reset()
-{
-	tcsetattr(0, 0, g_data->bu);
-	free(g_data->bu);
-}
-
 int			main(void)
 {
 	extern char	**environ;
@@ -477,7 +481,6 @@ int			main(void)
 		if (!g_data->error)
 			print_prompt(g_data->cpy);
 		g_data->line = gnl();
-		term_reset();
 		g_data->error = 0;
 		if (g_data->line)
 		{
@@ -485,6 +488,8 @@ int			main(void)
 			if (ft_minishell(&g_data->line))
 				break ;
 		}
+		else
+			term_reset();
 	}
 	data_free();
 	history_free();

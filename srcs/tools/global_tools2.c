@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/03/13 12:12:55 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/04/03 19:20:05 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/04/06 20:46:59 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -364,6 +364,12 @@ void	copy_mode(int *i)
 		buf[1] = 0;
 		buf[2] = 0;
 		read(0, buf, 20);
+		if (g_data->error)
+		{
+			if (select)
+				ft_put("ue");
+			break ;
+		}
 		if ((RIGHT||SPACE) && g_data->line)
 		{
 			if (g_data->line[g_data->pos])
@@ -461,6 +467,11 @@ char	*gnl(void)
 		buf[2] = 0;
 		read(0, buf, 20);
 //		print_key(buf);
+		if (g_data->error)
+		{
+			i = 0;
+			g_data->error = 0;
+		}
 		if (ENTER)
 		{
 			ft_end(i);
@@ -471,6 +482,12 @@ char	*gnl(void)
 		{
 			if (ft_move('l', i))
 				edit_line(&i);
+		}
+		else if (CTRL_L)
+		{
+			if (g_data->line)
+				free(g_data->line);
+			return (ft_strdup("clear"));
 		}
 		else if (HOME)
 			ft_home(i);
@@ -495,7 +512,11 @@ char	*gnl(void)
 		else if (DOWN)
 			history->nb_lines ? history_search(&i, 'd') : 0;
 		else if (ECHAP)
+		{
+			if (g_data->line)
+				free(g_data->line);
 			return (ft_strdup("exit"));
+		}
 		else
 			inser_char(buf[0], &i);
 	}
@@ -533,6 +554,11 @@ char	*quote_mode(char mode)
 		buf[1] = 0;
 		buf[2] = 0;
 		read(0, buf, 20);
+		if (g_data->error)
+		{
+			i = 0;
+			return (ft_strdup(""));
+		}
 		if (buf[0] == mode)
 		{
 			ft_end(i);
