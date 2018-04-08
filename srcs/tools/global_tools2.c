@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/03/13 12:12:55 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/04/06 20:46:59 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/04/08 17:43:50 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -364,13 +364,18 @@ void	copy_mode(int *i)
 		buf[1] = 0;
 		buf[2] = 0;
 		read(0, buf, 20);
-		if (g_data->error)
+		if (CTRL_C)
 		{
-			if (select)
-				ft_put("ue");
+			ft_end(*i);
+			if (g_data->line)
+				free(g_data->line);
+			g_data->line = NULL;
+			ft_putchar('\n');
+			print_prompt(g_data->cpy);
+			*i = 0;
 			break ;
 		}
-		if ((RIGHT||SPACE) && g_data->line)
+		else if ((RIGHT||SPACE) && g_data->line)
 		{
 			if (g_data->line[g_data->pos])
 			{
@@ -467,16 +472,19 @@ char	*gnl(void)
 		buf[2] = 0;
 		read(0, buf, 20);
 //		print_key(buf);
-		if (g_data->error)
-		{
-			i = 0;
-			g_data->error = 0;
-		}
 		if (ENTER)
 		{
 			ft_end(i);
 			ft_putchar('\n');
 			break ;
+		}
+		else if (CTRL_C)
+		{
+			ft_end(i);
+			if (g_data->line)
+				free(g_data->line);
+			ft_putchar('\n');
+			return (ft_strdup(""));
 		}
 		else if (BACKSPACE)
 		{
@@ -492,7 +500,9 @@ char	*gnl(void)
 		else if (HOME)
 			ft_home(i);
 		else if (A_C)
+		{
 			copy_mode(&i);
+		}
 		else if (END)
 			ft_end(i);
 		else if (LEFT)
@@ -554,10 +564,13 @@ char	*quote_mode(char mode)
 		buf[1] = 0;
 		buf[2] = 0;
 		read(0, buf, 20);
-		if (g_data->error)
+		if (CTRL_C)
 		{
-			i = 0;
-			return (ft_strdup(""));
+			ft_end(i);
+			free(g_data->line);
+			g_data->line = NULL;
+			ft_putchar('\n');
+			break ;
 		}
 		if (buf[0] == mode)
 		{
@@ -585,8 +598,6 @@ char	*quote_mode(char mode)
 		}
 		else if (HOME)
 			ft_home(i);
-		else if (A_C)
-			copy_mode(&i);
 		else if (END)
 			ft_end(i);
 		else if (UP)

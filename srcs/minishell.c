@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/08 11:24:59 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/04/06 20:37:38 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/04/08 17:46:17 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,9 @@ static void	inthandler(int sig)
 {
 	if (sig == 2)
 		g_data->error = 1;
+	ft_putstr("\b ");
+	ft_putstr("\b\b ");
+	ft_putstr("\b");
 	ft_putchar('\n');
 	print_prompt(g_data->cpy);
 	if (g_data->line)
@@ -89,10 +92,12 @@ char		*quote_get(char *line)
 		{
 			if (squote_invalid(line))
 			{
-				line = quote_mode(39);
-				new = ft_strjoin(old, line);
-				free(line);
-				line = ft_strdup(new);
+				if ((line = quote_mode(39)))
+				{
+					new = ft_strjoin(old, line);
+					free(line);
+					line = ft_strdup(new);
+				}
 				break ;
 			}
 		}
@@ -100,10 +105,12 @@ char		*quote_get(char *line)
 		{
 			if (quote_invalid(line))
 			{
-				line = quote_mode(34);
-				new = ft_strjoin(old, line);
-				free(line);
-				line = ft_strdup(new);
+				if ((line = quote_mode(34)))
+				{
+					new = ft_strjoin(old, line);
+					free(line);
+					line = ft_strdup(new);
+				}
 				break ;
 			}
 		}
@@ -253,6 +260,7 @@ int			ft_minishell(char **line)
 	i = 0;
 	args = NULL;
 	*line = quote_get(*line);
+//	printf("line: |%s|", *line);
 	args = get_a(*line, args);
 //	ft_printtab(args);
 	while (args[i])
@@ -302,7 +310,7 @@ static void	data_init(void)
 
 static void	flag_init(struct termios *term)
 {
-	if (term->c_lflag == ISIG)
+	if (term->c_lflag != ISIG)
 		term->c_lflag &= ~(ISIG);
 	if (term->c_lflag != ICANON)
 		term->c_lflag &= ~(ICANON);

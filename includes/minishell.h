@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/08 11:22:09 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/04/06 14:38:51 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/04/08 17:03:23 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,6 +38,7 @@
 # define SPACE (buf[0] == 32 && buf[1] == 0 && buf[2] == 0)
 # define ENTER (buf[0] == 10 && buf[1] == 0 && buf[2] == 0)
 # define CTRL_L (buf[0] == 12 && buf[1] == 0 && buf[2] == 0)
+# define CTRL_C (buf[0] == 3 && buf[1] == 0 && buf[2] == 0)
 
 # include "../libft/libft.h"
 # include <sys/types.h>
