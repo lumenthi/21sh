@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/03/13 12:12:55 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/04/08 17:43:50 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/04/09 14:10:46 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -486,6 +486,16 @@ char	*gnl(void)
 			ft_putchar('\n');
 			return (ft_strdup(""));
 		}
+		else if (CTRL_D)
+		{
+			if (ft_strlen(g_data->line) == 0)
+			{
+				ft_putstr("exit");
+				return (ft_strdup("exit"));
+			}
+			if (g_data->pos <= i)
+				edit_line(&i);
+		}
 		else if (BACKSPACE)
 		{
 			if (ft_move('l', i))
@@ -500,9 +510,7 @@ char	*gnl(void)
 		else if (HOME)
 			ft_home(i);
 		else if (A_C)
-		{
 			copy_mode(&i);
-		}
 		else if (END)
 			ft_end(i);
 		else if (LEFT)
@@ -525,6 +533,7 @@ char	*gnl(void)
 		{
 			if (g_data->line)
 				free(g_data->line);
+			ft_putstr("exit\n");
 			return (ft_strdup("exit"));
 		}
 		else
@@ -570,6 +579,7 @@ char	*quote_mode(char mode)
 			free(g_data->line);
 			g_data->line = NULL;
 			ft_putchar('\n');
+//			g_data->error = 1;
 			break ;
 		}
 		if (buf[0] == mode)

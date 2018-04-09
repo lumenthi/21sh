@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/08 11:24:59 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/04/08 17:46:17 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/04/09 14:12:38 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -246,6 +246,29 @@ void		ft_printtab(char **ta)
 	}
 }
 
+static void	flag_init(struct termios *term)
+{
+	term->c_lflag &= ~(ISIG);
+	term->c_lflag &= ~(ICANON);
+	term->c_lflag &= ~(ECHO);
+	term->c_cc[VMIN] = 1;
+	term->c_cc[VTIME] = 0;
+}
+
+static void	term_init(void)
+{
+	char	*name_term;
+	struct	termios term;
+
+	g_data->bu = malloc(sizeof(struct termios));
+	name_term = getenv("TERM");
+	tgetent(NULL, name_term);
+	tcgetattr(0, g_data->bu);
+	tcgetattr(0, &term);
+	flag_init(&term);
+	tcsetattr(0, TCSADRAIN, &term);
+}
+
 static void		term_reset()
 {
 	tcsetattr(0, 0, g_data->bu);
@@ -256,10 +279,22 @@ int			ft_minishell(char **line)
 {
 	char	**args;
 	int		i;
+	char	*tmp2 = NULL;
 
 	i = 0;
 	args = NULL;
-	*line = quote_get(*line);
+	term_init();
+	if ((tmp2 = quote_get(*line)))
+	{
+		free(*line);
+		*line = ft_strdup(tmp2);
+	}
+	else
+	{
+		free(*line);
+		*line = NULL;
+	}
+	term_reset();
 //	printf("line: |%s|", *line);
 	args = get_a(*line, args);
 //	ft_printtab(args);
@@ -268,8 +303,6 @@ int			ft_minishell(char **line)
 		args[i] = args_translate(args[i]);
 		i++;
 	}
-	term_reset();
-//	ft_printtab(args);
 	if (!args)
 		ft_print_error(NULL, QUOTES, *line);
 	else if (args[0] &&
@@ -306,32 +339,6 @@ static void	data_init(void)
 	g_data->pos = 0;
 	g_data->cursor->x = 0;
 	g_data->cursor->y = 0;
-}
-
-static void	flag_init(struct termios *term)
-{
-	if (term->c_lflag != ISIG)
-		term->c_lflag &= ~(ISIG);
-	if (term->c_lflag != ICANON)
-		term->c_lflag &= ~(ICANON);
-	if (term->c_lflag != ECHO)
-		term->c_lflag &= ~(ECHO);
-	term->c_cc[VMIN] = 1;
-	term->c_cc[VTIME] = 0;
-}
-
-static void	term_init(void)
-{
-	char	*name_term;
-	struct	termios term;
-
-	g_data->bu = malloc(sizeof(struct termios));
-	name_term = getenv("TERM");
-	tgetent(NULL, name_term);
-	tcgetattr(0, g_data->bu);
-	tcgetattr(0, &term);
-	flag_init(&term);
-	tcsetattr(0, TCSADRAIN, &term);
 }
 
 static char		*read_file(void)
@@ -472,32 +479,73 @@ static void	write_file(void)
 	}
 }
 
+int		ft_commands(char **line)
+{
+	char	*str = NULL;
+	char	*found = NULL;
+	char	*base = NULL;
+	char	*tmp = NULL;
+
+	base = ft_strdup(*line);
+	str = ft_strdup(*line);
+	while ((found = strchr(str, ';')))
+	{
+		*(found + 1) = '\0';
+		str[ft_strlen(str) - 1] = '\0';
+		tmp = ft_strdup(base);
+		free(base);
+		base = ft_strdup(tmp + ft_strlen(str) + 1);
+		if (ft_minishell(&str))
+		{
+			free(base);
+			free(str);
+			return (1);
+		}
+		free(tmp);
+		if (g_data->error)
+		{
+			free(base);
+			free(*line);
+			return (0);
+		}
+		str = ft_strdup(base);
+	}
+	if (ft_minishell(&str))
+	{
+		free(base);
+		free(str);
+		return (1);
+	}
+	free(base);
+	free(*line);
+	return (0);
+}
+
 int			main(void)
 {
 	extern char	**environ;
 
 	history_init();
 	data_init();
-	get_winsize();
 	g_data->error = 0;
 	environ_cpy(environ, &g_data->cpy);
 	signal(SIGINT, inthandler);
 	while (1)
 	{
 		g_data->line = NULL;
+		get_winsize();
 		term_init();
 		if (!g_data->error)
 			print_prompt(g_data->cpy);
 		g_data->line = gnl();
+		term_reset();
 		g_data->error = 0;
 		if (g_data->line)
 		{
 			write_file();
-			if (ft_minishell(&g_data->line))
+			if (ft_commands(&g_data->line))
 				break ;
 		}
-		else
-			term_reset();
 	}
 	data_free();
 	history_free();
