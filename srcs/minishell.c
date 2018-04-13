@@ -6,16 +6,25 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/08 11:24:59 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/04/09 14:12:38 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/04/13 16:28:13 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/minishell.h"
 
+static void	dup_std()
+{
+	if (g_input->std0 != 0)
+		dup2(g_input->std0, 0);
+	if (g_input->std1 != 0)
+		dup2(g_input->std1, 1);
+}
+
 static void	inthandler(int sig)
 {
 	if (sig == 2)
 		g_data->error = 1;
+	dup_std();
 	ft_putstr("\b ");
 	ft_putstr("\b\b ");
 	ft_putstr("\b");
@@ -43,8 +52,248 @@ void	ft_history(char **args)
 	}
 }
 
+void		ft_printtab(char **ta)
+{
+	int i;
+
+	i = 0;
+	while (ta[i])
+	{
+		ft_putstr("tab[");
+		ft_putnbr(i);
+		ft_putstr("]: ");
+		ft_putendl(ta[i]);
+		i++;
+	}
+}
+
+static void	ft_retab(char **args, int i)
+{
+	int	j = 0;
+	char	*tmp;
+
+	while (j <= i)
+	{
+		tmp = ft_strdup(args[j]);
+		free(args[j]);
+		args[j] = ft_strdup(tmp);
+		free(tmp);
+		j++;
+	}
+	while (args[i])
+	{
+		if (args[i + 1])
+		{
+			free(args[i]);
+			args[i] = ft_strdup(args[i + 1]);
+		}
+		else
+		{
+			free(args[i]);
+			args[i] = NULL;
+			break ;
+		}
+		i++;
+    }
+}
+
+char	*get_content(int fd)
+{
+	char	*line;
+	char	*tmp;
+	char	buf[2];
+	int		ret;
+
+	line = ft_strdup("");
+	while ((ret = read(fd, buf, 1)))
+	{
+		buf[ret] = '\0';
+		tmp = ft_strdup(line);
+		free(line);
+		line = ft_strjoin(tmp, buf);
+		free(tmp);
+	}
+	return (line);
+}
+
+static int	is_redirect(char *line)
+{
+	int		i;
+	int		red;
+
+	i = 0;
+	red = 0;
+	while (line[i])
+	{
+		if (line[i] == '&' || line[i] == '<' ||
+			line[i] == '>' || line[i] == '|')
+			red = 1;
+		else if (!ft_isalnum(line[i]))
+			return (0);
+		i++;
+	}
+	if (red == 1)
+		return (1);
+	else
+		return (0);
+}
+
+static void	inputs_init()
+{
+	g_input = malloc(sizeof(g_input));
+	g_input->std0 = 0;
+	g_input->std1 = 0;
+	g_input->std2 = 0;
+	g_input->op = 0;
+}
+
+static void	inputs_reset()
+{
+	free(g_input);
+}
+
+static void	input_error(char *line)
+{
+	ft_putstr_fd(RED, 2);
+	ft_putstr_fd(line, 2);
+	ft_putstr_fd(BLANK, 2);
+	ft_putstr_fd(": no such file or directory\n", 2);
+}
+
+void		parse_error(void)
+{
+	ft_putstr_fd(RED, 2);
+	ft_putstr_fd("21sh", 2);
+	ft_putstr_fd(BLANK, 2);
+	ft_putstr_fd(": parse error\n", 2);
+}
+
 static void	ft_apply(char **line, char **args)
 {
+	int		i;
+	int		fd;
+	int		tube[2];
+
+	tube[0] = 0;
+	tube[1] = 0;
+	g_input->op = 0;
+	g_input->std0 = 0;
+	g_input->std1 = 0;
+	fd = 0;
+	i = 0;
+	while (args[i])
+	{
+		if (ft_strcmp(args[i], "<<") == 0)
+		{
+			if (!args[i + 1])
+			{
+				parse_error();
+				return;
+			}
+			if (tube[0] != 0)
+			{
+				ft_retab(args, i + 1);
+				ft_retab(args, i);
+			}
+			else
+			{
+				pipe(tube);
+				term_init();
+				write_mode(tube[1], args[i + 1]);
+				term_reset();
+				ft_retab(args, i + 1);
+				ft_retab(args, i);
+				close(tube[1]);
+			}
+		}
+		i++;
+	}
+	i = 0;
+	while (args[i])
+	{
+		if ((ft_strcmp(args[i], "<") == 0 && args[i + 1]) || tube[0] != 0)
+		{
+			if (fd > 0)
+				close(fd);
+			if (tube[0] != 0)
+				fd = tube[0];
+			else
+			{
+				if ((fd = open(args[i + 1], O_RDWR)) < 0)
+				{
+					input_error(args[i + 1]);
+					if (g_input->op != 0)
+						close(fd);
+					dup_std();
+					return ;
+				}
+			ft_retab(args, i + 1);
+			ft_retab(args, i);
+			i--;
+			}
+			if (g_input->std0 != 0)
+				dup2(g_input->std0, 0);
+			g_input->std0 = dup(0);
+			dup2(fd, 0);
+			g_input->op = 1;
+			if (tube[0] != 0)
+			{
+				close(tube[0]);
+				tube[0] = 0;
+			}
+		}
+		else if (ft_strcmp(args[i], ">>") == 0 && args[i + 1] && i != 0)
+		{
+			if (fd > 0)
+				close(fd);
+			if ((fd = open(args[i + 1], O_RDWR|O_CREAT|O_APPEND, 0666)) < 0)
+			{
+				input_error(args[i + 1]);
+				if (g_input->op != 0)
+					close(fd);
+				dup_std();
+				return ;
+			}
+			else
+			{
+				ft_retab(args, i + 1);
+				ft_retab(args, i);
+				i--;
+				if (g_input->std1 != 0)
+					dup2(g_input->std1, 1);
+				g_input->std1 = dup(1);
+				dup2(fd, 1);
+				g_input->op = 1;
+			}
+		}
+		else if (ft_strcmp(args[i], ">") == 0 && args[i + 1] && i != 0)
+		{
+			if (fd > 0)
+				close(fd);
+			if ((fd = open(args[i + 1], O_RDWR|O_CREAT|O_TRUNC, 0666)) < 0)
+			{
+				input_error(args[i + 1]);
+				if (g_input->op != 0)
+					close(fd);
+				dup_std();
+				return ;
+			}
+			else
+			{
+				ft_retab(args, i + 1);
+				ft_retab(args, i);
+				i--;
+				if (g_input->std1 != 0)
+					dup2(g_input->std1, 1);
+				g_input->std1 = dup(1);
+				dup2(fd, 1);
+				g_input->op = 1;
+			}
+		}
+		else if (is_redirect(args[i]))
+			;
+		i++;
+	}
 	if (args[0] && ft_strcmp(args[0], "echo") == 0)
 		ft_echo(args);
 	else if (args[0] && ft_strcmp(args[0], "cd") == 0)
@@ -59,6 +308,9 @@ static void	ft_apply(char **line, char **args)
 		ft_history(args);
 	else
 		ft_execve(args, g_data->cpy);
+	if (g_input->op != 0)
+		close(fd);
+	dup_std();
 }
 
 int		squote_invalid(char *line)
@@ -93,11 +345,7 @@ char		*quote_get(char *line)
 			if (squote_invalid(line))
 			{
 				if ((line = quote_mode(39)))
-				{
 					new = ft_strjoin(old, line);
-					free(line);
-					line = ft_strdup(new);
-				}
 				break ;
 			}
 		}
@@ -106,19 +354,21 @@ char		*quote_get(char *line)
 			if (quote_invalid(line))
 			{
 				if ((line = quote_mode(34)))
-				{
 					new = ft_strjoin(old, line);
-					free(line);
-					line = ft_strdup(new);
-				}
 				break ;
 			}
 		}
 		i++;
 	}
 	free(old);
-	free(new);
-	return (line);
+	if (new)
+		return (new);
+	else
+	{
+		if (line)
+			return (ft_strdup(line));
+		return (NULL);
+	}
 }
 
 char		*var_translate(char *line, int i)
@@ -231,21 +481,6 @@ char		*args_translate(char *line)
 	return (new);
 }
 
-void		ft_printtab(char **ta)
-{
-	int i;
-
-	i = 0;
-	while (ta[i])
-	{
-		ft_putstr("tab[");
-		ft_putnbr(i);
-		ft_putstr("]: ");
-		ft_putendl(ta[i]);
-		i++;
-	}
-}
-
 static void	flag_init(struct termios *term)
 {
 	term->c_lflag &= ~(ISIG);
@@ -255,7 +490,7 @@ static void	flag_init(struct termios *term)
 	term->c_cc[VTIME] = 0;
 }
 
-static void	term_init(void)
+void	term_init(void)
 {
 	char	*name_term;
 	struct	termios term;
@@ -269,7 +504,7 @@ static void	term_init(void)
 	tcsetattr(0, TCSADRAIN, &term);
 }
 
-static void		term_reset()
+void		term_reset()
 {
 	tcsetattr(0, 0, g_data->bu);
 	free(g_data->bu);
@@ -279,25 +514,17 @@ int			ft_minishell(char **line)
 {
 	char	**args;
 	int		i;
-	char	*tmp2 = NULL;
+	char	*tmp;
 
 	i = 0;
 	args = NULL;
 	term_init();
-	if ((tmp2 = quote_get(*line)))
-	{
-		free(*line);
-		*line = ft_strdup(tmp2);
-	}
-	else
-	{
-		free(*line);
-		*line = NULL;
-	}
+	tmp = ft_strdup(*line);
+	free(*line);
+	*line = quote_get(tmp);
+	free(tmp);
 	term_reset();
-//	printf("line: |%s|", *line);
 	args = get_a(*line, args);
-//	ft_printtab(args);
 	while (args[i])
 	{
 		args[i] = args_translate(args[i]);
@@ -505,7 +732,6 @@ int		ft_commands(char **line)
 		if (g_data->error)
 		{
 			free(base);
-			free(*line);
 			return (0);
 		}
 		str = ft_strdup(base);
@@ -516,8 +742,8 @@ int		ft_commands(char **line)
 		free(str);
 		return (1);
 	}
-	free(base);
 	free(*line);
+	free(base);
 	return (0);
 }
 
@@ -527,6 +753,7 @@ int			main(void)
 
 	history_init();
 	data_init();
+	inputs_init();
 	g_data->error = 0;
 	environ_cpy(environ, &g_data->cpy);
 	signal(SIGINT, inthandler);
@@ -547,6 +774,7 @@ int			main(void)
 				break ;
 		}
 	}
+	inputs_reset();
 	data_free();
 	history_free();
 	return (0);

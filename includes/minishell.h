@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/08 11:22:09 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/04/09 12:13:30 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/04/13 12:50:44 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,6 +61,14 @@ typedef struct		s_cursor
 	int	y;
 	int	start;
 }					t_cursor;
+
+typedef struct		s_inputs
+{
+	int		std0;
+	int		std1;
+	int		std2;
+	int		op;
+}					t_inputs;
 
 typedef struct		s_history
 {
@@ -121,7 +129,13 @@ int		my_outc(int c);
 char	*quote_mode(char mode);
 char	*insert_str(char *line, char *ins, int pos, int i);
 char	*ft_delete(char *line, int pos, int i);
+void	write_mode(int fd, char *lim);
+void	term_init(void);
+void	term_reset(void);
+void	ft_printtab(char **ta);
+char	*get_content(int fd);
 
+t_inputs *g_input;
 t_data	*g_data;
 t_history	*history;
 

@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/28 14:12:13 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/04/05 23:10:53 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/04/13 23:20:35 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,7 +75,7 @@ static void	end_execve(char *path, char **arg, char ***env, char **bu)
 	free(*bu);
 }
 
-void		ft_execve(char **arg, char **env)
+void		just_execve(char **arg, char **env)
 {
 	char	*fullpath;
 	char	*path;
@@ -102,4 +102,44 @@ void		ft_execve(char **arg, char **env)
 	}
 	free(fullpath);
 	end_execve(path, arg, &env, &bu);
+}
+
+void		ft_execve(char **arg, char **env)
+{
+	int		i;
+	int		j;
+	int		tube[2];
+	char	*args[20];
+	int		std;
+	int		std1;
+
+	i = 0;
+	j = 0;
+	tube[0] = 0;
+	tube[1] = 0;
+	std = dup(0);
+	std1 = dup(1);
+	while (arg[i])
+	{
+		args[j] = arg[i];
+		if (ft_strcmp(arg[i], "|") == 0)
+		{
+			pipe(tube);
+			dup2(tube[1], 1);
+			args[j] = NULL;
+//			ft_printtab(args);
+			just_execve(args, env);
+			j = -1;
+			dup2(tube[0], 0);
+			close(tube[1]);
+		}
+		j++;
+		i++;
+	}
+	args[j] = NULL;
+//	ft_putstr(get_content(tube[0]));
+//	ft_printtab(args);
+	dup2(std1, 1);
+	just_execve(args, env);
+	dup2(std, 0);
 }

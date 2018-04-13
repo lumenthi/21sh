@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/03/13 11:42:41 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/03/13 11:42:44 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/04/09 23:57:37 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,20 +32,20 @@ void	print_quotes(char *arg)
 
 void	print_ft_found(char *ft)
 {
-	ft_putstr(RED);
-	ft_putstr(ft);
-	ft_putstr(BLANK);
-	ft_putstr(": ");
-	ft_putendl("command not found");
+	ft_putstr_fd(RED, 2);
+	ft_putstr_fd(ft, 2);
+	ft_putstr_fd(BLANK, 2);
+	ft_putstr_fd(": ", 2);
+	ft_putendl_fd("command not found", 2);
 }
 
 void	print_args(char *ft)
 {
-	ft_putstr(RED);
-	ft_putstr(ft);
-	ft_putstr(BLANK);
-	ft_putstr(": ");
-	ft_putendl("arguments problem");
+	ft_putstr_fd(RED, 2);
+	ft_putstr_fd(ft, 2);
+	ft_putstr_fd(BLANK, 2);
+	ft_putstr_fd(": ", 2);
+	ft_putendl_fd("arguments problem", 2);
 }
 
 void	print_var_found(char *ft, char *arg)
