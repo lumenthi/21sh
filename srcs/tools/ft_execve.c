@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/28 14:12:13 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/04/13 23:20:35 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/04/17 19:02:43 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -129,10 +129,22 @@ void		ft_execve(char **arg, char **env)
 			args[j] = NULL;
 //			ft_printtab(args);
 			just_execve(args, env);
+//			ft_putstr_fd("END", 2);
 			j = -1;
 			dup2(tube[0], 0);
 			close(tube[1]);
 		}
+		if (g_data->error)
+		{
+			args[j] = NULL;
+			dup2(std1, 1);
+			dup2(std, 0);
+			ioctl(0, TIOCSTI, "\n");
+			ft_putstr("\033[F");
+			ft_putstr("^C");
+			return ;
+		}
+//		printf("g_data->error: %d\n", g_data->error);
 		j++;
 		i++;
 	}
