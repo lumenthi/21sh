@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/03/08 10:32:01 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/04/05 13:08:00 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/04/24 20:30:22 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,7 +54,7 @@ static void	get_quotes(int *c, char *line, char **str, int *j)
 	{
 		*(*str + *j) = line[*c];
 		(*j)++;
-		if (line[*c] == 34)
+		if (line[*c] == 34 && (!line[*c + 1] || ft_isspace(line[*c + 1])))
 			break ;
 		(*c)++;
 	}
@@ -74,12 +74,11 @@ static void	get_squotes(int *c, char *line, char **str, int *j)
 	{
 		*(*str + *j) = line[*c];
 		(*j)++;
-		if (line[*c] == 39)
+		if (line[*c] == 39 && (!line[*c + 1] || ft_isspace(line[*c + 1])))
 			break ;
 		(*c)++;
 	}
 }
-
 
 static void	get_words(char *line, char ***args, char **str, int *i)
 {
@@ -93,9 +92,19 @@ static void	get_words(char *line, char ***args, char **str, int *i)
 	while (c < lim)
 	{
 		if (line[c] == 34)
-			get_quotes(&c, line, str, &j);
+		{
+			if (c == 0)
+				get_quotes(&c, line, str, &j);
+			else if (ft_isspace(line[c - 1]))
+				get_quotes(&c, line, str, &j);
+		}
 		else if (line[c] == 39)
-			get_squotes(&c, line, str, &j);
+		{
+			if (c == 0)
+				get_squotes(&c, line, str, &j);
+			else if (ft_isspace(line[c - 1]))
+				get_squotes(&c, line, str, &j);
+		}
 		else
 			get_normal(&c, line, str, &j);
 		make_word(args, i, str, j);
@@ -109,8 +118,8 @@ char		**get_a(char *line, char **args)
 	int		i;
 	char	*str;
 
-	if (line && quote_invalid(line))
-		return (NULL);
+//	if (line && quote_invalid(line))
+//		return (NULL);
 	i = 0;
 	str = NULL;
 	args = NULL;

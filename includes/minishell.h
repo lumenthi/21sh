@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/08 11:22:09 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/04/22 14:12:07 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/04/24 12:39:01 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@
 # define ORANGE "\033[38;5;214m"
 # define YELLOW "\033[38;5;227m"
 
-#define HISTORY_LIMIT 15
+#define HISTORY_LIMIT 50
 
 # define RIGHT (buf[0] == 27 && buf[1] == 79 && buf[2] == 67)
 # define LEFT (buf[0] == 27 && buf[1] == 79 && buf[2] == 68)
@@ -120,6 +120,7 @@ char	*make_string(char *fullpath);
 void	print_prompt(char **cpy);
 char	*gnl(void);
 int		ft_minishell(char **line);
+void	ft_apply(char **line, char **args);
 void	env_error(void);
 void	fake_cpy(char ***environ, char **fake_env);
 void	move_cursor(int x, int y);
@@ -135,6 +136,7 @@ void	term_reset(void);
 void	ft_printtab(char **ta);
 char	*get_content(int fd);
 char	*args_translate(char *line);
+char	*ft_insert(char *line, char buf, int pos, int i);
 
 t_inputs *g_input;
 t_data	*g_data;

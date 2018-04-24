@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/08 11:24:59 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/04/22 14:30:35 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/04/24 22:54:53 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -562,8 +562,9 @@ static char	**retab_pipes(char **args)
 	while (args[i])
 	{
 		cpy = ft_strdup(args[i]);
-		if ((found = ft_strchr(cpy, '|')) && ft_strlen(args[i]) != 1 &&
-			args[i][0] != 39 && args[i][0] != 34)
+		if (cpy[0] == 39 || cpy[0] == 34)
+			;
+		else if ((found = ft_strchr(cpy, '|')) && ft_strlen(args[i]) != 1)
 		{
 			if (*(found + 1) == '|' || *(found + 1) == '|')
 			{
@@ -608,11 +609,9 @@ static int	ft_redir(char ***arg)
 		return (-1);
 	else
 		*arg = args;
-//	ft_printtab(args);
 	fd = first_redir(args);
 	if (fd == 1 || fd == 2 || fd == 0)
 		fd = 3;
-//	ft_printtab(args);
 	while (args[i])
 	{
 		if (ft_strcmp(args[i], "<<") == 0)
@@ -638,6 +637,11 @@ static int	ft_redir(char ***arg)
 				close(tube[1]);
 			}
 		}
+		if (g_data->error == 1)
+		{
+			print_prompt(g_data->cpy);
+			return (-1);
+		}
 		i++;
 	}
 	i = 0;
@@ -645,6 +649,8 @@ static int	ft_redir(char ***arg)
 	{
 		if ((ft_strcmp(args[i], "<") == 0 && args[i + 1]) || tube[0] != 0)
 		{
+			if (args[i + 1])
+				args[i + 1] = args_translate(args[i + 1]);
 			if (fd > 0)
 				close(fd);
 			if (tube[0] != 0)
@@ -659,9 +665,9 @@ static int	ft_redir(char ***arg)
 					dup_std();
 					return (fd);
 				}
-			ft_retab(args, i + 1);
-			ft_retab(args, i);
-			i--;
+				ft_retab(args, i + 1);
+				ft_retab(args, i);
+				i--;
 			}
 			if (g_input->std0 != 0)
 				dup2(g_input->std0, 0);
@@ -676,6 +682,7 @@ static int	ft_redir(char ***arg)
 		}
 		else if (ft_strcmp(args[i], ">>") == 0 && args[i + 1] && i != 0)
 		{
+			args[i + 1] = args_translate(args[i + 1]);
 			if (fd > 0)
 				close(fd);
 			if ((fd = open(args[i + 1], O_RDWR|O_CREAT|O_APPEND, 0666)) < 0)
@@ -725,11 +732,10 @@ static int	ft_redir(char ***arg)
 		}
 		i++;
 	}
-//	ft_printtab(args);
 	return (fd);
 }
 
-static void	ft_apply(char **line, char **args)
+void	ft_apply(char **line, char **args)
 {
 	if (args[0] && ft_strcmp(args[0], "echo") == 0)
 		ft_echo(args);
@@ -745,6 +751,7 @@ static void	ft_apply(char **line, char **args)
 		ft_history(args);
 	else
 		ft_execve(args, g_data->cpy);
+//	ft_printtab(args);
 }
 
 int		squote_invalid(char *line)
@@ -763,69 +770,64 @@ int		squote_invalid(char *line)
 	return (c % 2 ? 1 : 0);
 }
 
-/*char		*quote_get2(char *line)
+void	get_quote(char **file, int mode)
+{
+	char	*new;
+	char	*old;
+	int		invalid;
+	char	*line;
+
+	line = *file;
+	invalid = 0;
+	new = NULL;
+	if (mode == 34)
+		invalid = quote_invalid(line);
+	else if (mode == 39)
+		invalid = squote_invalid(line);
+	if (invalid)
+	{
+		old = ft_strdup(line);
+		new = quote_mode(mode);
+		if (new)
+		{
+			free(line);
+			line = ft_strjoin(old, new);
+			*file = line;
+		}
+		else
+		{
+			free(*file);
+			*file = NULL;
+		}
+		free(old);
+	}
+}
+
+void	quote_get2(char **file)
 {
 	int		i;
-	char	*old;
-	char	*new;
 	int		sq;
 	int		dq;
+	char	*line = NULL;
 
+	free(*file);
+	*file = ft_strdup(*file);
+	line = *file;
 	sq = 0;
 	dq = 0;
 	i = 0;
-	new = NULL;
-	old = ft_strdup(line);
 	while (line[i])
 	{
 		if (line[i] == 39 && !dq)
-			sq = sq ? (sq = 0) : (sq = 1);
+			sq = sq ? 0 : 1;
 		if (line[i] == 34 && !sq)
-			dq = dq ? (dq = 0) : (dq = 1);
-	}
-	
-}*/
-
-char		*quote_get(char *line)
-{
-	char	*old;
-	char	*new;
-	int		i;
-
-	i = 0;
-	new = NULL;
-	old = ft_strdup(line);
-	while (line[i])
-	{
-		if (line[i] == 39)
-		{
-			if (squote_invalid(line))
-			{
-				if ((line = quote_mode(39)))
-					new = ft_strjoin(old, line);
-				break ;
-			}
-		}
-		else if (line[i] == 34)
-		{
-			if (quote_invalid(line))
-			{
-				if ((line = quote_mode(34)))
-					new = ft_strjoin(old, line);
-				break ;
-			}
-		}
+			dq = dq ? 0 : 1;
 		i++;
 	}
-	free(old);
-	if (new)
-		return (new);
-	else
-	{
-		if (line)
-			return (ft_strdup(line));
-		return (NULL);
-	}
+	if (dq)
+		get_quote(file, 34);
+	else if (sq)
+		get_quote(file, 39);
 }
 
 char		*var_translate(char *line, int i)
@@ -904,31 +906,31 @@ char		*home_translate(char *line, int i)
 
 char		*args_translate(char *line)
 {
-	int	i;
-	int	q;
-	char *new;
+	int		i;
+	char	*new;
+	char	mode;
 
-	q = 0;
 	i = 0;
-//	printf("line: |%s|\n", line);
-	if (line[0] == 39)
-	{
-		line = ft_delete(line, ft_strlen(line) - 1, ft_strlen(line));
-		line = ft_delete(line, 0, ft_strlen(line));
-		q = 1;
-	}
-	else if (line[0] == 34)
-	{
-		line = ft_delete(line, ft_strlen(line) - 1, ft_strlen(line));
-		line = ft_delete(line, 0, ft_strlen(line));
-	}
+	mode = 0;
+	if (ft_strcmp(line, "\"|\"") == 0)
+		return (line);
 	while (line[i])
 	{
-		if (line[i] == '$' && !q)
+		if (line[i] == 34 && !mode)
+			mode = mode ? 0 : 34;
+		if (line[i] == 39 && !mode)
+			mode = mode ? 0 : 39;
+		if (line[i] == mode)
+		{
+//			printf("line[%d]: %c, mode: %c\n", i, line[i], mode);
+			line = ft_delete(line, i, ft_strlen(line));
+			i--;
+		}
+		if (line[i] == '$' && mode != 39)
 			line = var_translate(line, i);
-		if (line[i] == '.' && !q)
+		if (line[i] == '.' && mode != 39)
 			line = point_translate(line, i);
-		if (line[i] == '~' && !q)
+		if (line[i] == '~' && mode != 39)
 			line = home_translate(line, i);
 		i++;
 	}
@@ -971,18 +973,18 @@ int			ft_minishell(char **line)
 {
 	char	**args;
 	int		i;
-	char	*tmp;
 	int		fd;
 
 	i = 0;
 	args = NULL;
 	term_init();
-	tmp = ft_strdup(*line);
-	free(*line);
-	*line = quote_get(tmp);
-	free(tmp);
+	quote_get2(line);
+//	printf("after quote_get: |%s|\n", *line);
 	term_reset();
 	args = get_a(*line, args);
+//	ft_putstr("after tab:\n");
+//	ft_putstr(*line);
+//	ft_printtab(args);
 	if ((fd = ft_redir(&args)) == -1)
 	{
 		dup_std();
@@ -1000,6 +1002,8 @@ int			ft_minishell(char **line)
 		args[i] = args_translate(args[i]);
 		i++;
 	}
+//	ft_putstr("after translate:\n");
+//	ft_printtab(args);
 	if (!args)
 		ft_print_error(NULL, QUOTES, *line);
 	else if (args[0] &&
@@ -1182,6 +1186,28 @@ static void	write_file(void)
 	}
 }
 
+char	*strchr_quote(char *line, int elem)
+{
+	int		i;
+	char	*found;
+	int		mode;
+
+	mode = 0;
+	i = 0;
+	found = NULL;
+	while (line[i])
+	{
+		if (line[i] == 34 && mode != 39)
+			mode = mode ? 0 : 34;
+		if (line[i] == 39 && mode != 34)
+			mode = mode ? 0 : 39;
+		if (line[i] == elem && !mode)
+			return (found = line + i);
+		i++;
+	}
+	return (NULL);
+}
+
 int		ft_commands(char **line)
 {
 	char	*str = NULL;
@@ -1191,7 +1217,7 @@ int		ft_commands(char **line)
 
 	base = ft_strdup(*line);
 	str = ft_strdup(*line);
-	while ((found = strchr(str, ';')))
+	while ((found = strchr_quote(str, ';')))
 	{
 		*(found + 1) = '\0';
 		str[ft_strlen(str) - 1] = '\0';
@@ -1207,6 +1233,7 @@ int		ft_commands(char **line)
 		free(tmp);
 		if (g_data->error)
 		{
+			free(*line);
 			free(base);
 			return (0);
 		}

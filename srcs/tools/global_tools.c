@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/16 10:20:13 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/03/24 10:56:10 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/04/24 12:11:51 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,10 +29,11 @@ int		quote_invalid(char *line)
 	i = 0;
 	while (line[i])
 	{
-		if (line[i] == '"')
+		if (line[i] == 34)
 			c++;
 		i++;
 	}
+//	ft_putnbr(c);
 	return (c % 2 ? 1 : 0);
 }
 

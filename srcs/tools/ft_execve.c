@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/28 14:12:13 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/04/17 19:02:43 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/04/24 13:08:24 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -122,7 +122,16 @@ void		ft_execve(char **arg, char **env)
 	while (arg[i])
 	{
 		args[j] = arg[i];
-		if (ft_strcmp(arg[i], "|") == 0)
+		if ((arg[i][0] == 34 || arg[i][0] == 39) && (ft_strchr(arg[i], '|')))
+		{
+//			printf("i: %d\n", i);
+//			printf("arg: |%s|\n", arg[i]);
+			arg[i] = ft_delete(arg[i], ft_strlen(arg[i]) - 1, ft_strlen(arg[i]));
+//			printf("arg: |%s|\n", arg[i]);
+			arg[i] = ft_delete(arg[i], 0, ft_strlen(arg[i]));
+//			printf("arg: |%s|\n", arg[i]);
+		}
+		else if (ft_strcmp(arg[i], "|") == 0)
 		{
 			pipe(tube);
 			dup2(tube[1], 1);

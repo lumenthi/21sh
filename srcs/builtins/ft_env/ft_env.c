@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/28 14:08:43 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/04/04 17:56:35 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/04/23 11:17:44 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -114,13 +114,12 @@ void			ft_env(char ***environ, char **args, char **line)
 	}
 	else
 	{
+//		ft_printtab(args);
 		if (ft_strcmp(args[1], "exit") != 0 && ft_strcmp(args[1], "q") != 0)
-			ft_minishell(&line_cpy);
+			ft_apply(&line_cpy, args + j);
 		else
-		{
 			env_error();
-			free(line_cpy);
-		}
+		free(line_cpy);
 	}
 	reset_env(environ, &bu, &fake_env);
 }

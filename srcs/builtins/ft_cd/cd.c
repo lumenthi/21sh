@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/03/13 11:51:16 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/04/05 11:19:32 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/04/23 11:43:53 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,11 +14,11 @@
 
 static void	cd_error(char *path)
 {
-	ft_putstr(RED);
-	ft_putstr("cd");
-	ft_putstr(BLANK);
-	ft_putstr(": no such file or directory: ");
-	ft_putendl(path);
+	ft_putstr_fd(RED, 2);
+	ft_putstr_fd("cd", 2);
+	ft_putstr_fd(BLANK, 2);
+	ft_putstr_fd(": no such file or directory: ", 2);
+	ft_putendl_fd(path, 2);
 }
 
 void		cd_home(char ***environ, char **abs_path)
