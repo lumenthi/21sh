@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/08 11:24:59 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/04/24 22:54:53 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/04/26 13:16:45 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,19 +39,31 @@ static void	inthandler(int sig)
 
 void	ft_history(char **args)
 {
-	int i;
-	(void)args;
+	int	i;
+//	int	fd;
 
 	i = 0;
-	ft_putendl("history:\n");
-	while (history->line[i + 1])
+	if (tab_size(args) == 1)
 	{
-		ft_putnbr(i + 1);
-		ft_putstr(" - [");
-		ft_putstr(history->line[i]);
-		ft_putendl("]");
-		i++;
+		ft_putendl("history:\n");
+		while (history->line[i + 1])
+		{
+			ft_putnbr(i + 1);
+			ft_putstr(" - [");
+			ft_putstr(history->line[i]);
+			ft_putendl("]");
+			i++;
+		}
 	}
+//	else if (ft_strcmp(args[1], "clean") == 0)
+//	{
+//		fd = open("/tmp/.21sh_history", O_RDWR|O_CREAT|O_TRUNC, 0666);
+//		ft_putstr(BLUE);
+//		ft_putstr("History limit reached, cleaning history...\n");
+//		ft_putstr(BLANK);
+//		history->nb_lines = 0;
+//		close(fd);
+//	}
 }
 
 void		ft_printtab(char **ta)
@@ -96,7 +108,7 @@ static void	ft_retab(char **args, int i)
 			break ;
 		}
 		i++;
-    }
+	}
 }
 
 char	*get_content(int fd)
@@ -904,12 +916,63 @@ char		*home_translate(char *line, int i)
 	return (line);
 }
 
+char		*remove_quote(char *line)
+{
+	char	*str;
+	int		i;
+	int		mode;
+	char	*tmp;
+	int		end;
+
+//	ft_putstr("IN");
+	mode = 0;
+	i = 0;
+	end = 0;
+	str = ft_strdup("");
+	while (line[i])
+	{
+//		ft_putnbr(i);
+		if (line[i] == 34 && mode != 39)
+		{
+			if (mode)
+			{
+				mode = 0;
+				end = 1;
+			}
+			else if (!mode)
+				mode = 34;
+		}
+		else if (line[i] == 39 && mode != 34)
+		{
+			if (mode)
+			{
+				mode = 0;
+				end = 1;
+			}
+			else if (!mode)
+				mode = 39;
+		}
+		if (line[i] && line[i] != mode && !end)
+		{
+			tmp = ft_strdup(str);
+			free(str);
+			str = ft_charjoin(tmp, line[i]);
+			free(tmp);
+		}
+		end = 0;
+		i++;
+	}
+//	printf("str: %s\n", str);
+	return (str);
+}
+
 char		*args_translate(char *line)
 {
 	int		i;
 	char	*new;
 	char	mode;
 
+//	ft_putstr("IN");
 	i = 0;
 	mode = 0;
 	if (ft_strcmp(line, "\"|\"") == 0)
@@ -918,14 +981,8 @@ char		*args_translate(char *line)
 	{
 		if (line[i] == 34 && !mode)
 			mode = mode ? 0 : 34;
-		if (line[i] == 39 && !mode)
+		else if (line[i] == 39 && !mode)
 			mode = mode ? 0 : 39;
-		if (line[i] == mode)
-		{
-//			printf("line[%d]: %c, mode: %c\n", i, line[i], mode);
-			line = ft_delete(line, i, ft_strlen(line));
-			i--;
-		}
 		if (line[i] == '$' && mode != 39)
 			line = var_translate(line, i);
 		if (line[i] == '.' && mode != 39)
@@ -934,9 +991,10 @@ char		*args_translate(char *line)
 			line = home_translate(line, i);
 		i++;
 	}
-	new = ft_strdup(line);
+//	ft_putstr("END_LOOP");
+	new = remove_quote(line);
+//	ft_putstr("end");
 	free(line);
-//	printf("line: |%s|\n", new);
 	return (new);
 }
 
@@ -978,13 +1036,16 @@ int			ft_minishell(char **line)
 	i = 0;
 	args = NULL;
 	term_init();
+//	printf("before quote_get\n");
+//	ft_printtab(g_data->cpy);
 	quote_get2(line);
-//	printf("after quote_get: |%s|\n", *line);
+//	printf("after quote_get\n");
+//	ft_printtab(g_data->cpy);
 	term_reset();
 	args = get_a(*line, args);
-//	ft_putstr("after tab:\n");
+//	ft_putstr("after tab\n");
 //	ft_putstr(*line);
-//	ft_printtab(args);
+//	ft_printtab(g_data->cpy);
 	if ((fd = ft_redir(&args)) == -1)
 	{
 		dup_std();
@@ -997,13 +1058,17 @@ int			ft_minishell(char **line)
 	}
 //	dprintf(2, "fd: %d\n", fd);
 //	ft_printtab(args);
+//	ft_putstr("after_redir\n");
 	while (args[i])
 	{
+//		ft_putstr("IN");
 		args[i] = args_translate(args[i]);
 		i++;
 	}
+//	ft_putstr("after_translate\n");
 //	ft_putstr("after translate:\n");
-//	ft_printtab(args);
+//	ft_printtab(g_data->cpy);
+//	ft_printtab(g_data->cpy);
 	if (!args)
 		ft_print_error(NULL, QUOTES, *line);
 	else if (args[0] &&
@@ -1111,7 +1176,7 @@ static void	free_lines(void)
 	}
 }
 
-static int	history_open(int fd)
+int		history_open(int fd)
 {
 	if (history->nb_lines < HISTORY_LIMIT)
 		fd = open("/tmp/.21sh_history", O_RDWR|O_CREAT|O_APPEND, 0666);
@@ -1160,7 +1225,7 @@ static int	line_char(char *line)
 	i = 0;
 	while (line[i])
 	{
-		if (ft_isalnum(line[i]))
+		if (ft_isalnum(line[i]) || line[i] == 34 || line[i] == 39)
 			return (1);
 		i++;
 	}

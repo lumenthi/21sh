@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/03/13 12:12:55 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/04/23 16:33:28 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/04/25 13:19:19 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -457,6 +457,15 @@ void	copy_mode(int *i)
 	mode_icon(' ', *i);
 }
 
+int		ft_isprintable(int c)
+{
+	if (c >= 32 && c <= 126)
+		return (1);
+	else if (c == '\n')
+		return (1);
+	return (0);
+}
+
 char	*gnl(void)
 {
 	char	buf[20];
@@ -536,7 +545,7 @@ char	*gnl(void)
 			ft_putstr("exit\n");
 			return (ft_strdup("exit"));
 		}
-		else
+		else if (ft_isprintable(buf[0]))
 			inser_char(buf[0], &i);
 	}
 	ft_put("ke");
@@ -623,10 +632,6 @@ char	*quote_mode(char mode)
 			ft_home(i);
 		else if (END)
 			ft_end(i);
-		else if (UP)
-			history->nb_lines ? history_search(&i, 'u') : 0;
-		else if (DOWN)
-			history->nb_lines ? history_search(&i, 'd') : 0;
 		else if (LEFT)
 			ft_move('l', i);
 		else if (RIGHT)
@@ -639,7 +644,7 @@ char	*quote_mode(char mode)
 			line_down(i);
 		else if (A_UP)
 			line_up(i);
-		else
+		else if (ft_isprintable(buf[0]))
 			inser_char(buf[0], &i);
 	}
 	ft_put("ke");
@@ -716,7 +721,7 @@ void		write_mode(int fd, char *lim)
 			ft_move('l', i);
 		else if (RIGHT)
 			ft_move('r', i);
-		else
+		else if (ft_isprintable(buf[0]))
 			inser_char(buf[0], &i);
 	}
 	ft_put("ke");

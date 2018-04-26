@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/03/08 10:32:01 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/04/24 20:30:22 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/04/26 12:38:14 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,8 +54,13 @@ static void	get_quotes(int *c, char *line, char **str, int *j)
 	{
 		*(*str + *j) = line[*c];
 		(*j)++;
-		if (line[*c] == 34 && (!line[*c + 1] || ft_isspace(line[*c + 1])))
-			break ;
+		if (line[*c] == 34)
+		{
+			if (*c == lim - 2)
+				break ;
+			else if (ft_isspace(line[(*c) + 1]))
+				break ;
+		}
 		(*c)++;
 	}
 }
@@ -74,8 +79,13 @@ static void	get_squotes(int *c, char *line, char **str, int *j)
 	{
 		*(*str + *j) = line[*c];
 		(*j)++;
-		if (line[*c] == 39 && (!line[*c + 1] || ft_isspace(line[*c + 1])))
-			break ;
+		if (line[*c] == 39)
+		{
+			if (*c == lim - 2)
+				break ;
+			else if (ft_isspace(line[(*c) + 1]))
+				break ;
+		}
 		(*c)++;
 	}
 }
@@ -124,6 +134,7 @@ char		**get_a(char *line, char **args)
 	str = NULL;
 	args = NULL;
 	get_words(line, &args, &str, &i);
+//	ft_putstr("end_getword");
 	args = (char **)ft_realloc(args, sizeof(char *) * (i + 1));
 	args[i] = NULL;
 	free(str);

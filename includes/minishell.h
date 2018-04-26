@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/08 11:22:09 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/04/24 12:39:01 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/04/25 15:08:07 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -137,6 +137,7 @@ void	ft_printtab(char **ta);
 char	*get_content(int fd);
 char	*args_translate(char *line);
 char	*ft_insert(char *line, char buf, int pos, int i);
+int		history_open(int fd);
 
 t_inputs *g_input;
 t_data	*g_data;
