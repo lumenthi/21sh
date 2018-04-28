@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/08 11:24:59 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/04/28 11:40:32 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/04/28 23:15:18 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -703,9 +703,7 @@ static char	**retab_pipes(char **args)
 	while (args[i])
 	{
 		cpy = ft_strdup(args[i]);
-		if (cpy[0] == 39 || cpy[0] == 34)
-			;
-		else if ((found = ft_strchr(cpy, '|')) && ft_strlen(args[i]) != 1)
+		if ((found = strchr_quote(cpy, '|')) && ft_strlen(args[i]) != 1)
 		{
 			if (*(found + 1) == '|' || *(found + 1) == '<' ||
 				*(found + 1) == '>')
@@ -713,6 +711,15 @@ static char	**retab_pipes(char **args)
 				parse_error();
 				free(cpy);
 				return (NULL);
+			}
+			if (ft_strlen(args[i]) != ft_strlen(found))
+			{
+				if (*(found - 1) == '<' || *(found - 1) == '>')
+				{
+					parse_error();
+					free(cpy);
+					return (NULL);
+				}
 			}
 			after = ft_strdup(found + 1);
 			*found = '\0';
@@ -747,6 +754,7 @@ static int	ft_redir(char ***arg)
 	i = 0;
 	if (!(args = retab_pipes(*arg)))
 		return (-1);
+//	ft_printtab(*arg);
 	if (!(args = retab_dirs(args)))
 		return (-1);
 	else
@@ -905,10 +913,11 @@ void	ft_apply(char **line, char **arg)
 	int		i;
 	int		j;
 	int		tube[2];
-	char	*args[20];
+	char	**args;
 	int		std;
 	int		std1;
 
+	args = (char **)malloc(sizeof(char *) * tab_size(arg));
 	i = 0;
 	j = 0;
 	tube[0] = 0;
@@ -917,18 +926,20 @@ void	ft_apply(char **line, char **arg)
 	std1 = dup(1);
 	while (arg[i])
 	{
-		args[j] = arg[i];
-		if ((arg[i][0] == 34 || arg[i][0] == 39) && (ft_strchr(arg[i], '|')))
+		args[j] = ft_strdup(arg[i]);
+		if ((args[j][0] == 34 || args[j][0] == 39) && (ft_strchr(args[j], '|')))
 		{
-			arg[i] = ft_delete(arg[i], ft_strlen(arg[i]) - 1, ft_strlen(arg[i]));
-			arg[i] = ft_delete(arg[i], 0, ft_strlen(arg[i]));
+			free(args[j]);
+			args[j] = ft_strdup("|");
 		}
-		else if (ft_strcmp(arg[i], "|") == 0)
+		else if (ft_strcmp(args[j], "|") == 0)
 		{
 			pipe(tube);
 			dup2(tube[1], 1);
+			free(args[j]);
 			args[j] = NULL;
 			just_apply(line, args);
+			ft_tabdel(&args);
 			j = -1;
 			dup2(tube[0], 0);
 			close(tube[1]);
@@ -950,6 +961,8 @@ void	ft_apply(char **line, char **arg)
 	dup2(std1, 1);
 	just_apply(line, args);
 	dup2(std, 0);
+	ft_tabdel(&args);
+	free(args);
 }
 
 int		squote_invalid(char *line)
@@ -1250,11 +1263,12 @@ int			ft_minishell(char **line)
 	{
 //		ft_putstr("IN");
 		args[i] = args_translate(args[i]);
+//		printf("args[i]: %s\n", args[i]);
 		i++;
 	}
 //	ft_putstr("after_translate\n");
 //	ft_putstr("after translate:\n");
-//	ft_printtab(g_data->cpy);
+//	ft_printtab(args);
 //	ft_printtab(g_data->cpy);
 	if (!args)
 		ft_print_error(NULL, QUOTES, *line);
@@ -1270,6 +1284,7 @@ int			ft_minishell(char **line)
 	}
 	else
 		ft_apply(line, args);
+//	ft_putstr("end apply\n");
 	if (args)
 	{
 		ft_tabdel(&args);
