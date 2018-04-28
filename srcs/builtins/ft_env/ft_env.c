@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/28 14:08:43 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/04/23 11:17:44 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/04/26 14:52:04 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,25 +75,6 @@ static void		reset_env(char ***environ, char ***bu, char ***fake_env)
 	free(*bu);
 }
 
-static char		*remove_quotes(char *line)
-{
-	int i;
-
-	i = 0;
-	while (ft_isspace(line[i]))
-		line = ft_delete(line, i, ft_strlen(line));
-	while (line[i])
-	{
-		if (line[i] == 34 || line[i] == 39)
-		{
-			line = ft_delete(line, i, ft_strlen(line));
-			i--;
-		}
-		i++;
-	}
-	return (line);
-}
-
 void			ft_env(char ***environ, char **args, char **line)
 {
 	int		j;
@@ -104,7 +85,7 @@ void			ft_env(char ***environ, char **args, char **line)
 	environ_cpy(*environ, &fake_env);
 	environ_cpy(*environ, &bu);
 	j = 1;
-	line_cpy = remove_quotes(ft_strdup(*line + 3));
+	line_cpy = ft_strdup(*line + 3);
 	make_fake(&fake_env, args, &j, &line_cpy);
 	fake_cpy(environ, fake_env);
 	if (j == tab_size(args))

@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/08 11:24:59 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/04/26 13:16:45 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/04/28 11:40:32 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -182,6 +182,23 @@ void	fd_error(char *str)
 	ft_putstr(": not a valid fd\n");
 }
 
+void	last_redir(char **after)
+{
+	char *found;
+
+	found = NULL;
+	if (!(found = ft_strrchr(*after, '>')))
+		found = ft_strrchr(*after, '<');
+	if (!found)
+		;
+	else
+	{
+		free(*after);
+		*after = ft_strdup(found + 1);
+	}
+//	dprintf(2, "after: |%s|\n", after);
+}
+
 static int	is_redir(char *line)
 {
 	char	*found;
@@ -214,6 +231,8 @@ static int	is_redir(char *line)
 			sign = 1;
 		}
 		*found = '\0';
+//		last_redir(&after);
+//		dprintf(2, "after: |%s|\n", after);
 		if (ft_strchr(after, '&'))
 		{
 			if (ft_strcmp(after, "&-") == 0)
@@ -245,6 +264,7 @@ static int	is_redir(char *line)
 		}
 		if (ft_isnum(cpy))
 		{
+//			ft_putstr_fd("IN", 2);
 //			dprintf(2, "cpy: |%s|\n", cpy);
 //			dprintf(2, "cpy: |%d|\nnew_fd: |%d|\n", ft_atoi(cpy), new_fd);
 			if (ft_atoi(cpy) == 0)
@@ -445,46 +465,150 @@ static char **nb_lastredir(char **args, int i)
 	return (args);
 }
 
+static int	opin_quote(char *str)
+{
+	int		i;
+	int		mode;
+
+	i = 0;
+	mode = 0;
+	while (str[i])
+	{
+		if (str[i] == 34 && mode != 39)
+		{
+			if (mode)
+				mode = 0;
+			else if (!mode)
+				mode = 34;
+		}
+		else if (str[i] == 39 && mode != 34)
+		{
+			if (mode)
+				mode = 0;
+			else if (!mode)
+				mode = 39;
+		}
+		if ((str[i] == '>' || str[i] == '<') && mode != 0)
+			return (1);
+		else if ((str[i] == '>' || str[i] == '<') && mode == 0)
+			return (0);
+		i++;
+	}
+	return (0);
+}
+
+char	*strchr_quote(char *line, int elem);
+
+static int	valid_redir(char *str)
+{
+	char	*found;
+	int		i;
+	int		j;
+	int		other;
+	char	*tmp;
+
+	i = 0;
+	j = 0;
+	found = strchr_quote(str, '>');
+	tmp = strchr_quote(str, '<');
+	if (!found && !tmp)
+		return (1);
+	else
+	{
+		if (ft_strlen(found) < ft_strlen(tmp))
+			found = tmp;
+		if (found[0] == '<')
+			other = '>';
+		else if (found[0] == '>')
+			other = '<';
+		while (found[j] == found[0])
+			j++;
+		if (j > 2 || found[j] == '|' || found[j] == ';' || found[j] == other)
+			return (0);
+		if (!valid_redir(found + j))
+			return (0);
+	}
+	return (1);
+}
+
+static int	arg_last_redir(char **str)
+{
+	char	*found;
+	char	*after;
+	char	*cpy;
+
+	if (!(valid_redir(*str)))
+	{
+		parse_error();
+		return (-1);
+	}
+	cpy = ft_strdup(*str);
+	if (!(found = ft_strrchr(cpy, '<')))
+		found = ft_strrchr(cpy, '>');
+	if (*(found - 1) == '>')
+		found = found - 1;
+	after = ft_strdup(found);
+	if (!(found = ft_strchr(cpy, '<')))
+		found = ft_strchr(cpy, '>');
+	*found = '\0';
+	free(*str);
+	*str = ft_strjoin(cpy, after);
+	if (ft_strchr(after, '&'))
+	{
+		free(after);
+		free(cpy);
+		return (0);
+	}
+	free(after);
+	free(cpy);
+	return (1);
+}
 static char	**retab_dirs(char **args)
 {
 	int		i;
 	char	*after;
 	char	*found;
 	char	*cpy;
-	int		fd;
+	int		ret;
 
-	fd = 0;
 	i = 0;
+	ret = 0;
 	while (args[i])
 	{
+		
 		cpy = ft_strdup(args[i]);
-		if (cpy[0] == 39 || cpy[0] == 34)
+		if (opin_quote(cpy))
 			;
-		else if (((found = ft_strchr(cpy, '>')) || (found = ft_strchr(cpy, '<'))) &&
+		else if (((found = ft_strchr(cpy, '>')) ||
+			(found = ft_strchr(cpy, '<'))) &&
 			ft_strcmp(cpy, ">>") != 0 && (ft_strcmp(cpy, "<<") != 0) &&
-			ft_strlen(args[i]) != 1 && *(found + 1) != '&')
+			ft_strlen(args[i]) != 1)
 		{
 //			dprintf(2, "1 - args[i]: |%s|\n", args[i]);
-			if (*(found + 2) == '>' || *(found + 2) == '<')
+			if ((ret = arg_last_redir(&args[i])) == -1)
 			{
-				parse_error();
 				free(cpy);
 				return (NULL);
 			}
-			after = ft_strdup(found + 1);
-			*found = '\0';
-//			dprintf(2, "cpy: |%s|\n", cpy);
-//			dprintf(2, "after: |%s|\n", after);
-			if (ft_isnum(cpy) && ft_strcmp(cpy, "") != 0)
-				args = nb_lastredir(args, i);
-			else if (ft_strcmp(cpy, "") == 0)
-				args = before_resize(args, i);
-			else if (ft_strcmp(after, "") == 0 || ft_strcmp(after, ">") == 0 ||
-				ft_strcmp(after, "<") == 0)
-				args = after_resize(args, i);
+			else if (ret == 0)
+				;
 			else
-				args = tab_resize(args, i);
-			free(after);
+			{
+				after = ft_strdup(found + 1);
+				*found = '\0';
+//				dprintf(2, "cpy: |%s|\n", cpy);
+//				dprintf(2, "after: |%s|\n", after);
+				if (ft_isnum(cpy) && ft_strcmp(cpy, "") != 0)
+					args = nb_lastredir(args, i);
+				else if (ft_strcmp(cpy, "") == 0)
+					args = before_resize(args, i);
+				else if (ft_strcmp(after, "") == 0 || ft_strcmp(after, ">") == 0 ||
+					ft_strcmp(after, "<") == 0)
+					args = after_resize(args, i);
+				else
+					args = tab_resize(args, i);
+				free(after);
+			}
 		}
 		free(cpy);
 		i++;
@@ -549,6 +673,11 @@ static char **resize_pipes(char **args, int i)
 	found = NULL;
 	before = ft_strdup(args[i]);
 	found = ft_strchr(before, '|');
+	if (*(found + 1) == '|')
+	{
+		parse_error();
+		return (NULL);
+	}
 	after = ft_strdup(found + 1);
 	sign = ft_strdup(found);
 	sign[1] = '\0';
@@ -578,7 +707,8 @@ static char	**retab_pipes(char **args)
 			;
 		else if ((found = ft_strchr(cpy, '|')) && ft_strlen(args[i]) != 1)
 		{
-			if (*(found + 1) == '|' || *(found + 1) == '|')
+			if (*(found + 1) == '|' || *(found + 1) == '<' ||
+				*(found + 1) == '>')
 			{
 				parse_error();
 				free(cpy);
@@ -615,17 +745,22 @@ static int	ft_redir(char ***arg)
 	g_input->std2 = 0;
 	fd = 3;
 	i = 0;
-	if (!(args = retab_dirs(*arg)))
+	if (!(args = retab_pipes(*arg)))
 		return (-1);
-	if (!(args = retab_pipes(args)))
+	if (!(args = retab_dirs(args)))
 		return (-1);
 	else
 		*arg = args;
+//	ft_printtab(args);
 	fd = first_redir(args);
+//	ft_putnbr(fd);
 	if (fd == 1 || fd == 2 || fd == 0)
 		fd = 3;
 	while (args[i])
 	{
+//		dprintf(2, "args[i]: %s\n", args[i]);
+//		if (!(valid_redir(args[i])))
+//			return (-1);
 		if (ft_strcmp(args[i], "<<") == 0)
 		{
 			if (!args[i + 1])
@@ -747,7 +882,7 @@ static int	ft_redir(char ***arg)
 	return (fd);
 }
 
-void	ft_apply(char **line, char **args)
+void	just_apply(char **line, char **args)
 {
 	if (args[0] && ft_strcmp(args[0], "echo") == 0)
 		ft_echo(args);
@@ -763,7 +898,58 @@ void	ft_apply(char **line, char **args)
 		ft_history(args);
 	else
 		ft_execve(args, g_data->cpy);
-//	ft_printtab(args);
+}
+
+void	ft_apply(char **line, char **arg)
+{
+	int		i;
+	int		j;
+	int		tube[2];
+	char	*args[20];
+	int		std;
+	int		std1;
+
+	i = 0;
+	j = 0;
+	tube[0] = 0;
+	tube[1] = 0;
+	std = dup(0);
+	std1 = dup(1);
+	while (arg[i])
+	{
+		args[j] = arg[i];
+		if ((arg[i][0] == 34 || arg[i][0] == 39) && (ft_strchr(arg[i], '|')))
+		{
+			arg[i] = ft_delete(arg[i], ft_strlen(arg[i]) - 1, ft_strlen(arg[i]));
+			arg[i] = ft_delete(arg[i], 0, ft_strlen(arg[i]));
+		}
+		else if (ft_strcmp(arg[i], "|") == 0)
+		{
+			pipe(tube);
+			dup2(tube[1], 1);
+			args[j] = NULL;
+			just_apply(line, args);
+			j = -1;
+			dup2(tube[0], 0);
+			close(tube[1]);
+		}
+		if (g_data->error)
+		{
+			args[j] = NULL;
+			dup2(std1, 1);
+			dup2(std, 0);
+			ioctl(0, TIOCSTI, "\n");
+			ft_putstr("\033[F");
+			ft_putstr("^C");
+			return ;
+		}
+		j++;
+		i++;
+	}
+	args[j] = NULL;
+	dup2(std1, 1);
+	just_apply(line, args);
+	dup2(std, 0);
 }
 
 int		squote_invalid(char *line)
@@ -1045,7 +1231,7 @@ int			ft_minishell(char **line)
 	args = get_a(*line, args);
 //	ft_putstr("after tab\n");
 //	ft_putstr(*line);
-//	ft_printtab(g_data->cpy);
+//	ft_printtab(args);
 	if ((fd = ft_redir(&args)) == -1)
 	{
 		dup_std();
@@ -1059,6 +1245,7 @@ int			ft_minishell(char **line)
 //	dprintf(2, "fd: %d\n", fd);
 //	ft_printtab(args);
 //	ft_putstr("after_redir\n");
+//	ft_printtab(args);
 	while (args[i])
 	{
 //		ft_putstr("IN");
@@ -1225,7 +1412,9 @@ static int	line_char(char *line)
 	i = 0;
 	while (line[i])
 	{
-		if (ft_isalnum(line[i]) || line[i] == 34 || line[i] == 39)
+		if (ft_isalnum(line[i]) || line[i] == 34 || line[i] == 39 ||
+			line[i] == '<' || line[i] == '>' || line[i] == '|' ||
+			line[i] == ';')
 			return (1);
 		i++;
 	}

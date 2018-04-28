@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/28 14:12:13 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/04/24 13:08:24 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/04/28 11:31:39 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,7 +75,7 @@ static void	end_execve(char *path, char **arg, char ***env, char **bu)
 	free(*bu);
 }
 
-void		just_execve(char **arg, char **env)
+void		ft_execve(char **arg, char **env)
 {
 	char	*fullpath;
 	char	*path;
@@ -102,65 +102,4 @@ void		just_execve(char **arg, char **env)
 	}
 	free(fullpath);
 	end_execve(path, arg, &env, &bu);
-}
-
-void		ft_execve(char **arg, char **env)
-{
-	int		i;
-	int		j;
-	int		tube[2];
-	char	*args[20];
-	int		std;
-	int		std1;
-
-	i = 0;
-	j = 0;
-	tube[0] = 0;
-	tube[1] = 0;
-	std = dup(0);
-	std1 = dup(1);
-	while (arg[i])
-	{
-		args[j] = arg[i];
-		if ((arg[i][0] == 34 || arg[i][0] == 39) && (ft_strchr(arg[i], '|')))
-		{
-//			printf("i: %d\n", i);
-//			printf("arg: |%s|\n", arg[i]);
-			arg[i] = ft_delete(arg[i], ft_strlen(arg[i]) - 1, ft_strlen(arg[i]));
-//			printf("arg: |%s|\n", arg[i]);
-			arg[i] = ft_delete(arg[i], 0, ft_strlen(arg[i]));
-//			printf("arg: |%s|\n", arg[i]);
-		}
-		else if (ft_strcmp(arg[i], "|") == 0)
-		{
-			pipe(tube);
-			dup2(tube[1], 1);
-			args[j] = NULL;
-//			ft_printtab(args);
-			just_execve(args, env);
-//			ft_putstr_fd("END", 2);
-			j = -1;
-			dup2(tube[0], 0);
-			close(tube[1]);
-		}
-		if (g_data->error)
-		{
-			args[j] = NULL;
-			dup2(std1, 1);
-			dup2(std, 0);
-			ioctl(0, TIOCSTI, "\n");
-			ft_putstr("\033[F");
-			ft_putstr("^C");
-			return ;
-		}
-//		printf("g_data->error: %d\n", g_data->error);
-		j++;
-		i++;
-	}
-	args[j] = NULL;
-//	ft_putstr(get_content(tube[0]));
-//	ft_printtab(args);
-	dup2(std1, 1);
-	just_execve(args, env);
-	dup2(std, 0);
 }
