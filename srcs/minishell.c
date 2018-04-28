@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/08 11:24:59 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/04/28 23:15:18 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/04/28 23:27:17 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -917,7 +917,7 @@ void	ft_apply(char **line, char **arg)
 	int		std;
 	int		std1;
 
-	args = (char **)malloc(sizeof(char *) * tab_size(arg));
+	args = (char **)malloc(sizeof(char *) * tab_size(arg) + 1);
 	i = 0;
 	j = 0;
 	tube[0] = 0;
@@ -954,10 +954,13 @@ void	ft_apply(char **line, char **arg)
 			ft_putstr("^C");
 			return ;
 		}
+//		printf("args[%d]: %s\n", j, args[j]);
 		j++;
 		i++;
 	}
 	args[j] = NULL;
+//	printf("after apply parsing (j: %d)\n", j);
+//	ft_printtab(args);
 	dup2(std1, 1);
 	just_apply(line, args);
 	dup2(std, 0);
