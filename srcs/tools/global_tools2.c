@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/03/13 12:12:55 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/04/25 13:19:19 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/04/29 22:44:58 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,6 +79,7 @@ int		ft_move(char dir, int i)
 	}
 	else if (dir == 'r')
 	{
+//		ft_putnbr(i);
 		if (x == g_data->w_col - 1)
 		{
 				ft_put("cr");
@@ -103,6 +104,32 @@ int		ft_move(char dir, int i)
 char	*ft_delete(char *line, int pos, int i)
 {
 	char	*after;
+	char	*tmp;
+	int		j;
+
+	j = 0;
+	line[i] = '\0';
+	after = ft_strdup("");
+	while (line[j])
+	{
+		if (j != pos)
+		{
+			tmp = ft_strdup(after);
+			free(after);
+			after = ft_charjoin(tmp, line[j]);
+			free(tmp);
+		}
+		j++;
+	}
+	if (line)
+		free(line);
+//	printf("len after: |%d|\n", (int)ft_strlen(after));
+	return (after);
+}
+
+/*char	*ft_delete(char *line, int pos, int i)
+{
+	char	*after;
 
 	after = NULL;
 	line[i] = '\0';
@@ -114,7 +141,7 @@ char	*ft_delete(char *line, int pos, int i)
 	if (line)
 		free(line);
 	return (after);
-}
+}*/
 
 void	ft_print(int len)
 {
@@ -143,7 +170,7 @@ void	edit_line(int *i)
 	ft_put("cd");
 	g_data->line = ft_delete(g_data->line, g_data->pos, *i);
 	ft_print(*i);
-	(*i) == 1 ? *i : (*i)--;
+	(*i) == 0 ? *i : (*i)--;
 }
 
 char	*ft_insert(char *line, char buf, int pos, int i)

@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/08 11:24:59 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/04/28 23:27:17 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/04/29 22:46:30 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -1245,7 +1245,7 @@ int			ft_minishell(char **line)
 //	ft_printtab(g_data->cpy);
 	term_reset();
 	args = get_a(*line, args);
-//	ft_putstr("after tab\n");
+//	ft_putstr("after get_a\n");
 //	ft_putstr(*line);
 //	ft_printtab(args);
 	if ((fd = ft_redir(&args)) == -1)
@@ -1287,6 +1287,7 @@ int			ft_minishell(char **line)
 	}
 	else
 		ft_apply(line, args);
+//	ft_putstr("after apply:\n");
 //	ft_putstr("end apply\n");
 	if (args)
 	{
@@ -1297,6 +1298,7 @@ int			ft_minishell(char **line)
 	if (g_input->op != 0)
 		close(fd);
 	free(*line);
+//	ft_putstr("after free\n");
 	return (0);
 }
 
