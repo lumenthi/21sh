@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/08 11:22:09 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/04/25 15:08:07 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/04/30 16:18:26 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,8 @@
 # define ORANGE "\033[38;5;214m"
 # define YELLOW "\033[38;5;227m"
 
-#define HISTORY_LIMIT 50
+# define HISTORY_LIMIT 50
+# define HISTORY_PATH "/tmp/.21sh_history"
 
 # define RIGHT (buf[0] == 27 && buf[1] == 79 && buf[2] == 67)
 # define LEFT (buf[0] == 27 && buf[1] == 79 && buf[2] == 68)
@@ -75,6 +76,8 @@ typedef struct		s_history
 	int		position;
 	int		nb_lines;
 	char	**line;
+	int		error;
+	int		special;
 }					t_history;
 
 typedef struct		s_data
@@ -141,6 +144,6 @@ int		history_open(int fd);
 
 t_inputs *g_input;
 t_data	*g_data;
-t_history	*history;
+t_history	*g_history;
 
 #endif

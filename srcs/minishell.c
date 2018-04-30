@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/08 11:24:59 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/04/29 22:46:30 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/04/30 16:21:30 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,33 +37,45 @@ static void	inthandler(int sig)
 	g_data->line = ft_strdup("");
 }
 
+static void	history_free(void);
+static void	free_lines(void);
+static void	history_error(void);
+
 void	ft_history(char **args)
 {
 	int	i;
-//	int	fd;
+	int	fd;
 
 	i = 0;
 	if (tab_size(args) == 1)
 	{
 		ft_putendl("history:\n");
-		while (history->line[i + 1])
+		while (g_history->line[i + 1])
 		{
 			ft_putnbr(i + 1);
 			ft_putstr(" - [");
-			ft_putstr(history->line[i]);
+			ft_putstr(g_history->line[i]);
 			ft_putendl("]");
 			i++;
 		}
 	}
-//	else if (ft_strcmp(args[1], "clean") == 0)
-//	{
-//		fd = open("/tmp/.21sh_history", O_RDWR|O_CREAT|O_TRUNC, 0666);
-//		ft_putstr(BLUE);
-//		ft_putstr("History limit reached, cleaning history...\n");
-//		ft_putstr(BLANK);
-//		history->nb_lines = 0;
-//		close(fd);
-//	}
+	else if (ft_strcmp(args[1], "clean") == 0 ||
+		ft_strcmp(args[1], "clear") == 0)
+	{
+		free_lines();
+		fd = open(HISTORY_PATH, O_RDWR|O_CREAT|O_TRUNC, 0666);
+		if (fd < 0)
+		{
+			history_error();
+			return ;
+		}
+		ft_putstr(GREEN);
+		ft_putstr("Cleaning history...");
+		ft_putstr(BLANK);
+		ft_putchar('\n');
+		g_history->nb_lines = 0;
+		close(fd);
+	}
 }
 
 void		ft_printtab(char **ta)
@@ -750,7 +762,7 @@ static int	ft_redir(char ***arg)
 	g_input->std0 = 0;
 	g_input->std1 = 0;
 	g_input->std2 = 0;
-	fd = 3;
+	fd = 0;
 	i = 0;
 	if (!(args = retab_pipes(*arg)))
 		return (-1);
@@ -762,8 +774,8 @@ static int	ft_redir(char ***arg)
 //	ft_printtab(args);
 	fd = first_redir(args);
 //	ft_putnbr(fd);
-	if (fd == 1 || fd == 2 || fd == 0)
-		fd = 3;
+//	if (fd == 1 || fd == 2 || fd == 0)
+//		fd = 3;
 	while (args[i])
 	{
 //		dprintf(2, "args[i]: %s\n", args[i]);
@@ -783,12 +795,15 @@ static int	ft_redir(char ***arg)
 			}
 			else
 			{
+//				dprintf(2, "before pipe | tube[1]: %d, tube[0]: %d\n", tube[1], tube[0]);
 				pipe(tube);
+//				dprintf(2, "after pipe | tube[1]: %d, tube[0]: %d\n", tube[1], tube[0]);
 				term_init();
 				write_mode(tube[1], args[i + 1]);
 				term_reset();
 				ft_retab(args, i + 1);
 				ft_retab(args, i);
+//				dprintf(2, "closing fd[%d]\n", tube[1]);
 				close(tube[1]);
 			}
 		}
@@ -806,7 +821,7 @@ static int	ft_redir(char ***arg)
 		{
 			if (args[i + 1])
 				args[i + 1] = args_translate(args[i + 1]);
-			if (fd > 0)
+			if (fd > 0 && fd != 0 && fd != 1 && fd != 2)
 				close(fd);
 			if (tube[0] != 0)
 				fd = tube[0];
@@ -815,7 +830,7 @@ static int	ft_redir(char ***arg)
 				if ((fd = open(args[i + 1], O_RDWR)) < 0)
 				{
 					input_error(args[i + 1]);
-					if (g_input->op != 0)
+					if (g_input->op != 0 && fd > 0 && fd != 0 && fd != 1 && fd != 2)
 						close(fd);
 					dup_std();
 					return (fd);
@@ -827,6 +842,7 @@ static int	ft_redir(char ***arg)
 			if (g_input->std0 != 0)
 				dup2(g_input->std0, 0);
 			g_input->std0 = dup(0);
+//			printf("fd: %d\n", fd);
 			dup2(fd, 0);
 			g_input->op = 1;
 			if (tube[0] != 0)
@@ -838,12 +854,12 @@ static int	ft_redir(char ***arg)
 		else if (ft_strcmp(args[i], ">>") == 0 && args[i + 1] && i != 0)
 		{
 			args[i + 1] = args_translate(args[i + 1]);
-			if (fd > 0)
+			if (fd > 0 && fd != 0 && fd != 1 && fd != 2)
 				close(fd);
 			if ((fd = open(args[i + 1], O_RDWR|O_CREAT|O_APPEND, 0666)) < 0)
 			{
 				input_error(args[i + 1]);
-				if (g_input->op != 0)
+				if (g_input->op != 0 && fd > 0 && fd != 0 && fd != 1 && fd != 2)
 					close(fd);
 				dup_std();
 				return (fd);
@@ -863,12 +879,12 @@ static int	ft_redir(char ***arg)
 		else if (ft_strcmp(args[i], ">") == 0 && args[i + 1] && i != 0)
 		{
 			args[i + 1] = args_translate(args[i + 1]);
-			if (fd > 0)
+			if (fd > 0 && fd != 0 && fd != 1 && fd != 2)
 				close(fd);
 			if ((fd = open(args[i + 1], O_RDWR|O_CREAT|O_TRUNC, 0666)) < 0)
 			{
 				input_error(args[i + 1]);
-				if (g_input->op != 0)
+				if (g_input->op != 0 && fd > 0 && fd != 0 && fd != 1 && fd != 2)
 					close(fd);
 				dup_std();
 				return (fd);
@@ -887,6 +903,7 @@ static int	ft_redir(char ***arg)
 		}
 		i++;
 	}
+//	printf("final fd: %d\n", fd);
 	return (fd);
 }
 
@@ -1215,7 +1232,7 @@ void	term_init(void)
 	struct	termios term;
 
 	g_data->bu = malloc(sizeof(struct termios));
-	name_term = getenv("TERM");
+	name_term = get_var(g_data->cpy, "TERM=");
 	tgetent(NULL, name_term);
 	tcgetattr(0, g_data->bu);
 	tcgetattr(0, &term);
@@ -1251,7 +1268,7 @@ int			ft_minishell(char **line)
 	if ((fd = ft_redir(&args)) == -1)
 	{
 		dup_std();
-		if (g_input->op != 0)
+		if (g_input->op != 0 && fd > 0 && fd != 0 && fd != 1 && fd != 2)
 			close(fd);
 		free(*line);
 		ft_tabdel(&args);
@@ -1275,11 +1292,10 @@ int			ft_minishell(char **line)
 //	ft_printtab(g_data->cpy);
 	if (!args)
 		ft_print_error(NULL, QUOTES, *line);
-	else if (args[0] &&
-		(ft_strcmp(args[0], "exit") == 0 || ft_strcmp(args[0], "q") == 0))
+	else if (args[0] && ft_strcmp(args[0], "exit") == 0)
 	{
 		dup_std();
-		if (g_input->op != 0)
+		if (g_input->op != 0 && fd > 0 && fd != 0 && fd != 1 && fd != 2)
 			close(fd);
 		ft_tabdel(&args);
 		free(args);
@@ -1295,7 +1311,7 @@ int			ft_minishell(char **line)
 		free(args);
 	}
 	dup_std();
-	if (g_input->op != 0)
+	if (g_input->op != 0 && fd > 0 && fd != 0 && fd != 1 && fd != 2)
 		close(fd);
 	free(*line);
 //	ft_putstr("after free\n");
@@ -1320,6 +1336,15 @@ static void	data_init(void)
 	g_data->cursor->y = 0;
 }
 
+static void		history_error()
+{
+	g_history->error = 1;
+	ft_putstr_fd(RED, 2);
+	ft_putstr_fd("21sh", 2);
+	ft_putstr_fd(BLANK, 2);
+	ft_putstr_fd(": cant initialize history\n", 2);
+}
+
 static char		*read_file(void)
 {
 	int		fd;
@@ -1328,7 +1353,7 @@ static char		*read_file(void)
 	char	buf[2];
 	int		ret;
 
-	fd = open("/tmp/.21sh_history", O_RDONLY);
+	fd = open(HISTORY_PATH, O_RDONLY);
 	line = ft_strdup("");
 	while ((ret = read(fd, buf, 1)))
 	{
@@ -1357,7 +1382,7 @@ static void		get_lines(void)
 	while ((bn = ft_strchr(tmp, '\n')))
 	{
 		*bn = '\0';
-		history->line[i] = ft_strdup(tmp);
+		g_history->line[i] = ft_strdup(tmp);
 		len = ft_strlen(tmp) + 1;
 		free(tmp);
 		tmp = ft_strdup(line + len);
@@ -1365,10 +1390,10 @@ static void		get_lines(void)
 		line = ft_strdup(tmp);
 		i++;
 	}
-	history->line[i] = NULL;
+	g_history->line[i] = NULL;
 	free(line);
 	free(tmp);
-	history->nb_lines = i;
+	g_history->nb_lines = i;
 }
 
 static void	free_lines(void)
@@ -1376,24 +1401,26 @@ static void	free_lines(void)
 	int i;
 
 	i = 0;
-	while (i <= history->nb_lines)
+	if (g_history->nb_lines == 0)
+		return ;
+	while (i <= g_history->nb_lines)
 	{
-		free(history->line[i]);
+		free(g_history->line[i]);
 		i++;
 	}
 }
 
 int		history_open(int fd)
 {
-	if (history->nb_lines < HISTORY_LIMIT)
-		fd = open("/tmp/.21sh_history", O_RDWR|O_CREAT|O_APPEND, 0666);
+	if (g_history->nb_lines < HISTORY_LIMIT)
+		fd = open(HISTORY_PATH, O_RDWR|O_CREAT|O_APPEND, 0666);
 	else
 	{
-		fd = open("/tmp/.21sh_history", O_RDWR|O_CREAT|O_TRUNC, 0666);
+		fd = open(HISTORY_PATH, O_RDWR|O_CREAT|O_TRUNC, 0666);
 		ft_putstr(BLUE);
 		ft_putstr("History limit reached, cleaning history...\n");
 		ft_putstr(BLANK);
-		history->nb_lines = 0;
+		g_history->nb_lines = 0;
 	}
 	return (fd);
 }
@@ -1404,25 +1431,32 @@ static void	history_init(void)
 	int	fd;
 
 	fd = 0;
-	history = malloc(sizeof(t_history));
-	history->line = malloc(sizeof(char *) * HISTORY_LIMIT + 1);
-	history->nb_lines = 0;
+	g_history = malloc(sizeof(t_history));
+	g_history->line = malloc(sizeof(char *) * HISTORY_LIMIT + 1);
+	g_history->nb_lines = 0;
+	g_history->error = 0;
+	g_history->special = 0;
 	fd = history_open(fd);
-	while (i <= HISTORY_LIMIT)
+	if (fd > 0)
 	{
-		history->line[i] = NULL;
-		i++;
+		while (i <= HISTORY_LIMIT)
+		{
+			g_history->line[i] = NULL;
+			i++;
+		}
+		get_lines();
+		close(fd);
 	}
-	get_lines();
-	close(fd);
-	history->position = 0;
+	else if (fd < 0)
+		history_error();
+	g_history->position = 0;
 }
 
 static void	history_free(void)
 {
 	free_lines();
-	free(history->line);
-	free(history);
+	free(g_history->line);
+	free(g_history);
 }
 
 static int	line_char(char *line)
@@ -1443,11 +1477,11 @@ static int	line_char(char *line)
 
 static void	write_file(void)
 {
-	int fd;
+	int		fd;
 	char	*tmp;
 
 	fd = 0;
-	if (line_char(g_data->line))
+	if (!g_history->error && line_char(g_data->line) && !g_history->special)
 	{
 		free_lines();
 		fd = history_open(fd);
@@ -1455,9 +1489,10 @@ static void	write_file(void)
 		write(fd, tmp, ft_strlen(tmp));
 		free(tmp);
 		get_lines();
-		history->position = 0;
+		g_history->position = 0;
 		close(fd);
 	}
+	g_history->special = 0;
 }
 
 char	*strchr_quote(char *line, int elem)

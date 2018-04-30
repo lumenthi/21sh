@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/03/13 12:12:55 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/04/29 22:44:58 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/04/30 16:20:45 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -243,29 +243,29 @@ void	history_search(int *i, char a)
 {
 	int		pos;
 
-	if (a == 'u' && history->position <= history->nb_lines)
+	if (a == 'u' && g_history->position <= g_history->nb_lines)
 	{
-		if (history->position == history->nb_lines)
-			history->position--;
-		pos = history->nb_lines - history->position - 1;
+		if (g_history->position == g_history->nb_lines)
+			g_history->position--;
+		pos = g_history->nb_lines - g_history->position - 1;
 		free(g_data->line);
-		g_data->line = ft_strdup(history->line[pos]);
-		history->position++;
+		g_data->line = ft_strdup(g_history->line[pos]);
+		g_history->position++;
 	}
-	else if (a == 'd' && history->position >= 1)
+	else if (a == 'd' && g_history->position >= 1)
 	{
-		if (history->position == 1)
+		if (g_history->position == 1)
 		{
-			history->position--;
+			g_history->position--;
 			free(g_data->line);
 			g_data->line = NULL;
 		}
 		else
 		{
-			history->position--;
-			pos = history->nb_lines - history->position;
+			g_history->position--;
+			pos = g_history->nb_lines - g_history->position;
 			free(g_data->line);
-			g_data->line = ft_strdup(history->line[pos]);
+			g_data->line = ft_strdup(g_history->line[pos]);
 		}
 	}
 	ft_rewrite(i);
@@ -524,12 +524,14 @@ char	*gnl(void)
 		}
 		else if (CTRL_D)
 		{
+		//	printf("g_data->pos: %d, i: %d\n", g_data->pos, i);
 			if (ft_strlen(g_data->line) == 0)
 			{
+				g_history->special = 1;
 				ft_putstr("exit");
 				return (ft_strdup("exit"));
 			}
-			if (g_data->pos <= i)
+			if (g_data->pos < i)
 				edit_line(&i);
 		}
 		else if (BACKSPACE)
@@ -541,6 +543,7 @@ char	*gnl(void)
 		{
 			if (g_data->line)
 				free(g_data->line);
+			g_history->special = 1;
 			return (ft_strdup("clear"));
 		}
 		else if (HOME)
@@ -554,7 +557,7 @@ char	*gnl(void)
 		else if (RIGHT)
 			ft_move('r', i);
 		else if (UP)
-			history->nb_lines ? history_search(&i, 'u') : 0;
+			g_history->nb_lines ? history_search(&i, 'u') : 0;
 		else if (A_RIGHT)
 			word_right(i);
 		else if (A_LEFT)
@@ -564,11 +567,12 @@ char	*gnl(void)
 		else if (A_UP)
 			line_up(i);
 		else if (DOWN)
-			history->nb_lines ? history_search(&i, 'd') : 0;
+			g_history->nb_lines ? history_search(&i, 'd') : 0;
 		else if (ECHAP)
 		{
 			if (g_data->line)
 				free(g_data->line);
+			g_history->special = 1;
 			ft_putstr("exit\n");
 			return (ft_strdup("exit"));
 		}
@@ -635,7 +639,7 @@ char	*quote_mode(char mode)
 				ft_putchar('\n');
 				break ;
 			}
-			if (g_data->pos <= i)
+			if (g_data->pos < i)
 				edit_line(&i);
 		}
 		else if (BACKSPACE)
@@ -714,15 +718,14 @@ void		write_mode(int fd, char *lim)
 		}
 		else if (CTRL_D)
 		{
-			if (ft_strlen(g_data->line) == 0)
+		//	printf("g_data->pos: %d, i: %d\n", g_data->pos, i);
+			if (ft_strlen(g_data->line) == 0 || g_data->line == NULL)
 			{
-				ft_end(i);
-				free(g_data->line);
-				g_data->line = NULL;
-				ft_putchar('\n');
+				inser_char('\n', &i);
+				ft_put("le");
 				break ;
 			}
-			if (g_data->pos <= i)
+			else if (g_data->pos < i)
 				edit_line(&i);
 		}
 		else if (ENTER)
