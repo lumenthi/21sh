@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/08 11:24:59 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/04/30 16:21:30 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/05/02 13:54:05 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,15 +60,18 @@ void	ft_history(char **args)
 		}
 	}
 	else if (ft_strcmp(args[1], "clean") == 0 ||
-		ft_strcmp(args[1], "clear") == 0)
+		ft_strcmp(args[1], "clear") == 0 || ft_strcmp(args[1], "reset") == 0)
 	{
-		free_lines();
 		fd = open(HISTORY_PATH, O_RDWR|O_CREAT|O_TRUNC, 0666);
 		if (fd < 0)
 		{
+			g_history->error = 1;
 			history_error();
 			return ;
 		}
+		else
+			g_history->error = 0;
+		free_lines();
 		ft_putstr(GREEN);
 		ft_putstr("Cleaning history...");
 		ft_putstr(BLANK);
@@ -188,10 +191,10 @@ int		ft_isnum(char *str)
 
 void	fd_error(char *str)
 {
-	ft_putstr(RED);
-	ft_putstr(str);
-	ft_putstr(BLANK);
-	ft_putstr(": not a valid fd\n");
+	ft_putstr_fd(RED, 2);
+	ft_putstr_fd(str, 2);
+	ft_putstr_fd(BLANK, 2);
+	ft_putstr_fd(": not a valid fd\n", 2);
 }
 
 void	last_redir(char **after)
@@ -1226,6 +1229,27 @@ static void	flag_init(struct termios *term)
 	term->c_cc[VTIME] = 0;
 }
 
+void	termios_error(void)
+{
+	ft_putstr_fd(RED, 2);
+	ft_putstr_fd("21sh", 2);
+	ft_putstr_fd(BLANK, 2);
+	ft_putstr_fd(": cant initialize struct termios\n", 2);
+}
+
+int		valid_term(void)
+{
+	char	*name_term;
+
+	name_term = get_var(g_data->cpy, "TERM=");
+	if (!name_term)
+	{
+		termios_error();
+		return (0);
+	}
+	return (1);
+}
+
 void	term_init(void)
 {
 	char	*name_term;
@@ -1483,14 +1507,19 @@ static void	write_file(void)
 	fd = 0;
 	if (!g_history->error && line_char(g_data->line) && !g_history->special)
 	{
-		free_lines();
 		fd = history_open(fd);
-		tmp = ft_strjoin(g_data->line, "\n");
-		write(fd, tmp, ft_strlen(tmp));
-		free(tmp);
-		get_lines();
-		g_history->position = 0;
-		close(fd);
+		if (fd > 0)
+		{
+			free_lines();
+			tmp = ft_strjoin(g_data->line, "\n");
+			write(fd, tmp, ft_strlen(tmp));
+			free(tmp);
+			get_lines();
+			g_history->position = 0;
+			close(fd);
+		}
+		else
+			g_history->error = 1;
 	}
 	g_history->special = 0;
 }
@@ -1559,6 +1588,23 @@ int		ft_commands(char **line)
 	return (0);
 }
 
+void		set_lvl(void)
+{
+	int		nb;
+	char	*line;
+
+	line = get_var(g_data->cpy, "SHLVL=");
+	if (line)
+	{
+		nb = ft_atoi(line) + 1;
+		line = ft_itoa(nb);
+	}
+	else
+		line = ft_strdup("1");
+	set_var(&g_data->cpy, "SHLVL=", line);
+	free(line);
+}
+
 int			main(void)
 {
 	extern char	**environ;
@@ -1569,6 +1615,8 @@ int			main(void)
 	g_data->error = 0;
 	environ_cpy(environ, &g_data->cpy);
 	signal(SIGINT, inthandler);
+	valid_term();
+	set_lvl();
 	while (1)
 	{
 		g_data->line = NULL;

@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/03/20 13:44:34 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/03/20 13:54:25 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/05/02 13:59:46 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,10 +14,10 @@
 
 void	env_error(void)
 {
-	ft_putstr(RED);
-	ft_putstr("env");
-	ft_putstr(BLANK);
-	ft_putendl(": can't leave through env commad");
+	ft_putstr_fd(RED, 2);
+	ft_putstr_fd("env", 2);
+	ft_putstr_fd(BLANK, 2);
+	ft_putendl_fd(": can't leave through env commad", 2);
 }
 
 void	fake_cpy(char ***environ, char **fake_env)

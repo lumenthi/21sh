@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/03/13 12:12:55 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/04/30 16:20:45 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/04/30 23:07:26 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -410,6 +410,7 @@ void	copy_mode(int *i)
 				{
 					ft_put("us");
 					tmp = ft_charjoin(cpy, g_data->line[g_data->pos]);
+//					ft_putstr_fd("free1\n", 2);
 					free(cpy);
 					cpy = ft_strdup(tmp);
 					free(tmp);
@@ -462,7 +463,7 @@ void	copy_mode(int *i)
 		else if (LEFT || BACKSPACE)
 		{
 			if (cpy && !select)
-				cpy[ft_strlen(cpy) - 1] = '\0';
+				cpy = ft_delete(cpy, ft_strlen(cpy) - 1, ft_strlen(cpy));
 			if (ft_move('l', *i))
 			{
 				ft_put("sc");
@@ -479,8 +480,7 @@ void	copy_mode(int *i)
 			break ;
 		}
 	}
-	if (cpy)
-		free(cpy);
+	free(cpy);
 	mode_icon(' ', *i);
 }
 

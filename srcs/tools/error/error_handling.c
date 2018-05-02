@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/03/13 11:42:41 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/04/09 23:57:37 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/05/02 13:57:05 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,20 +14,20 @@
 
 void	print_empty(char *ft)
 {
-	ft_putstr(RED);
-	ft_putstr(ft);
-	ft_putstr(BLANK);
-	ft_putstr(": ");
-	ft_putendl("no environment variables");
+	ft_putstr_fd(RED, 2);
+	ft_putstr_fd(ft, 2);
+	ft_putstr_fd(BLANK, 2);
+	ft_putstr_fd(": ", 2);
+	ft_putendl_fd("no environment variables", 2);
 }
 
 void	print_quotes(char *arg)
 {
-	ft_putstr(RED);
-	ft_putstr(arg);
-	ft_putstr(BLANK);
-	ft_putstr(": ");
-	ft_putendl("quote error");
+	ft_putstr_fd(RED, 2);
+	ft_putstr_fd(arg, 2);
+	ft_putstr_fd(BLANK, 2);
+	ft_putstr_fd(": ", 2);
+	ft_putendl_fd("quote error", 2);
 }
 
 void	print_ft_found(char *ft)
@@ -50,10 +50,10 @@ void	print_args(char *ft)
 
 void	print_var_found(char *ft, char *arg)
 {
-	ft_putstr(RED);
-	ft_putstr(ft);
-	ft_putstr(BLANK);
-	ft_putstr(": ");
-	ft_putstr(arg);
-	ft_putendl(" no such a variable");
+	ft_putstr_fd(RED, 2);
+	ft_putstr_fd(ft, 2);
+	ft_putstr_fd(BLANK, 2);
+	ft_putstr_fd(": ", 2);
+	ft_putstr_fd(arg, 2);
+	ft_putendl_fd(" no such a variable", 2);
 }
