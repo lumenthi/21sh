@@ -6,11 +6,11 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/03/08 10:32:01 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/04/26 12:38:14 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/05/03 12:44:47 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../includes/minishell.h"
+#include "../../includes/21sh.h"
 
 static void	make_word(char ***args, int *i, char **str, int j)
 {
@@ -33,7 +33,10 @@ static void	get_normal(int *c, char *line, char **str, int *j)
 	while (*c < lim && !ft_isspace(line[*c]))
 	{
 		if (!(*str))
-			*str = malloc(lim);
+		{
+			if (!(*str = malloc(lim)))
+				exit(-1);
+		}
 		*(*str + *j) = line[*c];
 		(*j)++;
 		(*c)++;
@@ -46,7 +49,10 @@ static void	get_quotes(int *c, char *line, char **str, int *j)
 
 	lim = (int)ft_strlen(line);
 	if (!(*str))
-		*str = malloc(lim);
+	{
+		if (!(*str = malloc(lim)))
+			exit(-1);
+	}
 	*(*str + *j) = line[*c];
 	(*c)++;
 	(*j)++;
@@ -71,7 +77,10 @@ static void	get_squotes(int *c, char *line, char **str, int *j)
 
 	lim = (int)ft_strlen(line);
 	if (!(*str))
-		*str = malloc(lim);
+	{
+		if (!(*str = malloc(lim)))
+			exit(-1);
+	}
 	*(*str + *j) = line[*c];
 	(*c)++;
 	(*j)++;

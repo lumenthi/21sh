@@ -6,11 +6,11 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/08 11:24:59 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/05/02 13:54:05 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/05/03 14:55:03 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../includes/minishell.h"
+#include "../includes/21sh.h"
 
 static void	dup_std()
 {
@@ -50,6 +50,8 @@ void	ft_history(char **args)
 	if (tab_size(args) == 1)
 	{
 		ft_putendl("history:\n");
+		if (g_history->nb_lines <= 0)
+			return ;
 		while (g_history->line[i + 1])
 		{
 			ft_putnbr(i + 1);
@@ -78,21 +80,6 @@ void	ft_history(char **args)
 		ft_putchar('\n');
 		g_history->nb_lines = 0;
 		close(fd);
-	}
-}
-
-void		ft_printtab(char **ta)
-{
-	int i;
-
-	i = 0;
-	while (ta[i])
-	{
-		ft_putstr("tab[");
-		ft_putnbr(i);
-		ft_putstr("]: ");
-		ft_putendl(ta[i]);
-		i++;
 	}
 }
 
@@ -125,11 +112,10 @@ static void	ft_retab(char **args, int i)
 		i++;
 	}
 }
-
+/*
 char	*get_content(int fd)
 {
 	char	*line;
-	char	*tmp;
 	char	buf[2];
 	int		ret;
 
@@ -137,17 +123,15 @@ char	*get_content(int fd)
 	while ((ret = read(fd, buf, 1)))
 	{
 		buf[ret] = '\0';
-		tmp = ft_strdup(line);
-		free(line);
-		line = ft_strjoin(tmp, buf);
-		free(tmp);
+		line = ft_strjoinl(line, buf);
 	}
 	return (line);
 }
-
+*/
 static void	inputs_init()
 {
-	g_input = malloc(sizeof(g_input));
+	if (!(g_input = malloc(sizeof(g_input))))
+		exit(-1);
 	g_input->std0 = 0;
 	g_input->std1 = 0;
 	g_input->std2 = 0;
@@ -937,7 +921,8 @@ void	ft_apply(char **line, char **arg)
 	int		std;
 	int		std1;
 
-	args = (char **)malloc(sizeof(char *) * tab_size(arg) + 1);
+	if (!(args = (char **)malloc(sizeof(char *) * tab_size(arg) + 1)))
+		exit(-1);
 	i = 0;
 	j = 0;
 	tube[0] = 0;
@@ -1255,7 +1240,8 @@ void	term_init(void)
 	char	*name_term;
 	struct	termios term;
 
-	g_data->bu = malloc(sizeof(struct termios));
+	if (!(g_data->bu = malloc(sizeof(struct termios))))
+		exit(-1);
 	name_term = get_var(g_data->cpy, "TERM=");
 	tgetent(NULL, name_term);
 	tcgetattr(0, g_data->bu);
@@ -1353,8 +1339,10 @@ static void	data_free(void)
 
 static void	data_init(void)
 {
-	g_data = (t_data *)malloc(sizeof(t_data));
-	g_data->cursor = (t_cursor *)malloc(sizeof(t_cursor));
+	if (!(g_data = (t_data *)malloc(sizeof(t_data))))
+		exit(-1);
+	if (!(g_data->cursor = (t_cursor *)malloc(sizeof(t_cursor))))
+		exit(-1);
 	g_data->pos = 0;
 	g_data->cursor->x = 0;
 	g_data->cursor->y = 0;
@@ -1373,7 +1361,6 @@ static char		*read_file(void)
 {
 	int		fd;
 	char	*line;
-	char	*tmp;
 	char	buf[2];
 	int		ret;
 
@@ -1382,10 +1369,7 @@ static char		*read_file(void)
 	while ((ret = read(fd, buf, 1)))
 	{
 		buf[ret] = '\0';
-		tmp = ft_strdup(line);
-		free(line);
-		line = ft_strjoin(tmp, buf);
-		free(tmp);
+		line = ft_strjoinl(line, buf);
 	}
 	close(fd);
 	return (line);
@@ -1425,7 +1409,7 @@ static void	free_lines(void)
 	int i;
 
 	i = 0;
-	if (g_history->nb_lines == 0)
+	if (g_history->nb_lines <= 0)
 		return ;
 	while (i <= g_history->nb_lines)
 	{
@@ -1455,12 +1439,20 @@ static void	history_init(void)
 	int	fd;
 
 	fd = 0;
-	g_history = malloc(sizeof(t_history));
-	g_history->line = malloc(sizeof(char *) * HISTORY_LIMIT + 1);
+	if (!(g_history = malloc(sizeof(t_history))))
+		exit(-1);
+	if (!(g_history->line = malloc(sizeof(char *) * HISTORY_LIMIT + 1)))
+		exit(-1);
 	g_history->nb_lines = 0;
 	g_history->error = 0;
 	g_history->special = 0;
 	fd = history_open(fd);
+	if (HISTORY_LIMIT < 0)
+	{
+		history_error();
+		g_history->position = 0;
+		return ;
+	}
 	if (fd > 0)
 	{
 		while (i <= HISTORY_LIMIT)
@@ -1507,10 +1499,10 @@ static void	write_file(void)
 	fd = 0;
 	if (!g_history->error && line_char(g_data->line) && !g_history->special)
 	{
+		free_lines();
 		fd = history_open(fd);
 		if (fd > 0)
 		{
-			free_lines();
 			tmp = ft_strjoin(g_data->line, "\n");
 			write(fd, tmp, ft_strlen(tmp));
 			free(tmp);

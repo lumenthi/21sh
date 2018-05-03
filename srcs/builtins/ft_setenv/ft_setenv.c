@@ -6,11 +6,11 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/16 10:15:47 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/03/07 12:02:41 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/05/03 12:42:49 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../../includes/minishell.h"
+#include "../../../includes/21sh.h"
 
 void	rep_var(char ***environ, char *var, char *value)
 {
@@ -64,7 +64,8 @@ void	set_var(char ***cpy, char *var, char *value)
 {
 	char	**args;
 
-	args = malloc(sizeof(char *) * 4);
+	if (!(args = malloc(sizeof(char *) * 4)))
+		exit(-1);
 	args[0] = ft_strdup("setenv");
 	args[1] = ft_strdup(var);
 	args[1][ft_strlen(args[1]) - 1] = '\0';

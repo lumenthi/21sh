@@ -1,31 +1,29 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_echo.c                                          :+:      :+:    :+:   */
+/*   ft_strjoinl.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2018/02/28 19:00:43 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/05/03 12:17:35 by lumenthi         ###   ########.fr       */
+/*   Created: 2018/05/03 14:44:37 by lumenthi          #+#    #+#             */
+/*   Updated: 2018/05/03 14:57:27 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../../includes/21sh.h"
+#include "libft.h"
+#include "stdlib.h"
 
-void	ft_echo(char **args)
+char	*ft_strjoinl(char *s1, char *s2)
 {
-	int		i;
-	int		f;
+	char	*tmp;
 
-	i = 1;
-	f = 0;
-	while (args[i])
-	{
-		ft_putstr(args[i]);
-		if (args[i + 1] && f == 0)
-			ft_putchar(' ');
-		f = 0;
-		i++;
-	}
-	ft_putchar('\n');
+	if (!s1)
+		return (NULL);
+	if (!(tmp = ft_strdup(s1)))
+		return (NULL);
+	free(s1);
+	if (!(s1 = ft_strjoin(tmp, s2)))
+		return (NULL);
+	free(tmp);
+	return (s1);
 }

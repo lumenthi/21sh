@@ -6,11 +6,11 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/28 10:57:23 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/03/13 12:05:52 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/05/03 12:18:53 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../../includes/minishell.h"
+#include "../../../includes/21sh.h"
 
 char		*env_get(char *cpy)
 {

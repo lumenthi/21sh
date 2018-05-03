@@ -6,11 +6,11 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/28 14:08:43 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/04/26 14:52:04 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/05/03 13:10:53 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../../includes/minishell.h"
+#include "../../../includes/21sh.h"
 
 static int		set_env(char ***environ, char *env)
 {
@@ -24,7 +24,11 @@ static int		set_env(char ***environ, char *env)
 	*tmp = '\0';
 	set_var(environ, key, value);
 	if (key[0] == '=')
+	{
+		free(key);
+		free(value);
 		return (0);
+	}
 	free(key);
 	free(value);
 	return (1);
@@ -44,7 +48,7 @@ static void		print_environ(char ***environ)
 		ft_print_error("env", EMPTY, NULL);
 }
 
-static void		make_fake(char ***fake_env, char **args, int *j, char **line)
+static int		make_fake(char ***fake_env, char **args, int *j, char **line)
 {
 	while (args[*j])
 	{
@@ -53,7 +57,7 @@ static void		make_fake(char ***fake_env, char **args, int *j, char **line)
 			if (!set_env(fake_env, args[*j]))
 			{
 				ft_print_error("env", ARGS, NULL);
-				return ;
+				return (0);
 			}
 		}
 		else
@@ -62,6 +66,7 @@ static void		make_fake(char ***fake_env, char **args, int *j, char **line)
 		*line = ft_strdup(*line + ft_strlen(args[*j]) + 1);
 		(*j)++;
 	}
+	return (1);
 }
 
 static void		reset_env(char ***environ, char ***bu, char ***fake_env)
@@ -86,7 +91,12 @@ void			ft_env(char ***environ, char **args, char **line)
 	environ_cpy(*environ, &bu);
 	j = 1;
 	line_cpy = ft_strdup(*line + 3);
-	make_fake(&fake_env, args, &j, &line_cpy);
+	if (!make_fake(&fake_env, args, &j, &line_cpy))
+	{
+		free(line_cpy);
+		reset_env(environ, &bu, &fake_env);
+		return ;
+	}
 	fake_cpy(environ, fake_env);
 	if (j == tab_size(args))
 	{

@@ -6,11 +6,11 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/03/13 11:40:30 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/05/02 13:57:34 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/05/03 12:17:03 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../../includes/minishell.h"
+#include "../../../includes/21sh.h"
 
 void	ft_print_error(char *ft, int error, char *arg)
 {

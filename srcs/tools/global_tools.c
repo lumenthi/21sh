@@ -6,11 +6,11 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/16 10:20:13 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/04/24 12:11:51 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/05/03 12:16:28 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../includes/minishell.h"
+#include "../../includes/21sh.h"
 
 pid_t	new_process(void)
 {

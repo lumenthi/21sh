@@ -6,7 +6,7 @@
 #    By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2018/01/04 10:37:11 by lumenthi          #+#    #+#              #
-#    Updated: 2018/03/30 14:04:45 by lumenthi         ###   ########.fr        #
+#    Updated: 2018/05/03 14:44:25 by lumenthi         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -90,7 +90,11 @@ SRCS = ft_atoi.c \
 		ft_strchr_index.c \
 		ft_strswap.c \
 		get_next_line.c \
-		ft_charjoin.c
+		ft_charjoin.c \
+		ft_delete.c \
+		ft_printtab.c \
+		ft_isprintable.c \
+		ft_strjoinl.c
 
 OBJDIR = objs
 

@@ -6,11 +6,11 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/15 16:39:55 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/04/05 11:16:47 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/05/03 12:18:04 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../../includes/minishell.h"
+#include "../../../includes/21sh.h"
 
 char		*var_conv(char *arg, char **env)
 {

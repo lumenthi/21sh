@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   minishell.h                                        :+:      :+:    :+:   */
+/*   21sh.h                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/08 11:22:09 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/05/01 23:01:35 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/05/03 14:40:59 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -132,11 +132,9 @@ void	ft_put(char *str);
 int		my_outc(int c);
 char	*quote_mode(char mode);
 char	*insert_str(char *line, char *ins, int pos, int i);
-char	*ft_delete(char *line, int pos, int i);
 void	write_mode(int fd, char *lim);
 void	term_init(void);
 void	term_reset(void);
-void	ft_printtab(char **ta);
 char	*get_content(int fd);
 char	*args_translate(char *line);
 char	*ft_insert(char *line, char buf, int pos, int i);

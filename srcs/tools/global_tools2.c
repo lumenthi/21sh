@@ -6,11 +6,11 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/03/13 12:12:55 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/04/30 23:07:26 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/05/03 14:41:47 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../includes/minishell.h"
+#include "../../includes/21sh.h"
 
 char	**tab_conv(char **args, char **env)
 {
@@ -101,48 +101,6 @@ int		ft_move(char dir, int i)
 	return (0);
 }
 
-char	*ft_delete(char *line, int pos, int i)
-{
-	char	*after;
-	char	*tmp;
-	int		j;
-
-	j = 0;
-	line[i] = '\0';
-	after = ft_strdup("");
-	while (line[j])
-	{
-		if (j != pos)
-		{
-			tmp = ft_strdup(after);
-			free(after);
-			after = ft_charjoin(tmp, line[j]);
-			free(tmp);
-		}
-		j++;
-	}
-	if (line)
-		free(line);
-//	printf("len after: |%d|\n", (int)ft_strlen(after));
-	return (after);
-}
-
-/*char	*ft_delete(char *line, int pos, int i)
-{
-	char	*after;
-
-	after = NULL;
-	line[i] = '\0';
-	after = malloc(i);
-	ft_strncpy(after, line, pos);
-	after[pos] = '\0';
-	ft_strcat(after, line + (pos + 1));
-	after[i] = '\0';
-	if (line)
-		free(line);
-	return (after);
-}*/
-
 void	ft_print(int len)
 {
 	int i;
@@ -184,7 +142,8 @@ char	*ft_insert(char *line, char buf, int pos, int i)
 	}
 	else
 		line[i] = '\0';
-	after = malloc(i + 2);
+	if (!(after = malloc(i + 2)))
+		exit(-1);
 	ft_strncpy(after, line, pos);
 	after[pos] = buf;
 	after[pos + 1] = '\0';
@@ -484,15 +443,6 @@ void	copy_mode(int *i)
 	mode_icon(' ', *i);
 }
 
-int		ft_isprintable(int c)
-{
-	if (c >= 32 && c <= 126)
-		return (1);
-	else if (c == '\n')
-		return (1);
-	return (0);
-}
-
 char	*gnl(void)
 {
 	char	buf[20];
@@ -764,7 +714,8 @@ void	environ_cpy(char **environ, char ***cpy)
 	i = 0;
 	while (*(environ + i))
 		i++;
-	*cpy = malloc(sizeof(char *) * (i + 1));
+	if (!(*cpy = malloc(sizeof(char *) * (i + 1))))
+		exit(-1);
 	i = 0;
 	while (*(environ + i))
 	{

@@ -1,31 +1,28 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_echo.c                                          :+:      :+:    :+:   */
+/*   ft_printtab.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2018/02/28 19:00:43 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/05/03 12:17:35 by lumenthi         ###   ########.fr       */
+/*   Created: 2018/05/03 14:31:40 by lumenthi          #+#    #+#             */
+/*   Updated: 2018/05/03 14:35:05 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../../includes/21sh.h"
+#include "libft.h"
 
-void	ft_echo(char **args)
+void	ft_printtab(char **ta)
 {
 	int		i;
-	int		f;
 
-	i = 1;
-	f = 0;
-	while (args[i])
+	i = 0;
+	while (ta[i])
 	{
-		ft_putstr(args[i]);
-		if (args[i + 1] && f == 0)
-			ft_putchar(' ');
-		f = 0;
+		ft_putstr("tab[");
+		ft_putnbr(i);
+		ft_putstr("]: ");
+		ft_putendl(ta[i]);
 		i++;
 	}
-	ft_putchar('\n');
 }

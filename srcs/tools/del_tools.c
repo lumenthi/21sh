@@ -6,11 +6,11 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/16 10:19:26 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/03/24 10:55:37 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/05/03 12:16:09 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../includes/minishell.h"
+#include "../../includes/21sh.h"
 
 void	ft_tabdel(char ***tabs)
 {

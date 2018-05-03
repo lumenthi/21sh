@@ -1,31 +1,22 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_echo.c                                          :+:      :+:    :+:   */
+/*   ft_isprintable.c                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2018/02/28 19:00:43 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/05/03 12:17:35 by lumenthi         ###   ########.fr       */
+/*   Created: 2018/05/03 14:38:59 by lumenthi          #+#    #+#             */
+/*   Updated: 2018/05/03 14:39:49 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../../includes/21sh.h"
+#include "libft.h"
 
-void	ft_echo(char **args)
+int		ft_isprintable(int c)
 {
-	int		i;
-	int		f;
-
-	i = 1;
-	f = 0;
-	while (args[i])
-	{
-		ft_putstr(args[i]);
-		if (args[i + 1] && f == 0)
-			ft_putchar(' ');
-		f = 0;
-		i++;
-	}
-	ft_putchar('\n');
+	if (c >= 32 && c <= 126)
+		return (1);
+	else if (c == '\n')
+		return (1);
+	return (0);
 }

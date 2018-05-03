@@ -6,11 +6,11 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/03/20 13:44:34 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/05/02 13:59:46 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/05/03 12:18:38 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../../includes/minishell.h"
+#include "../../../includes/21sh.h"
 
 void	env_error(void)
 {

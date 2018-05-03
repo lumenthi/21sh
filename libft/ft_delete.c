@@ -1,31 +1,40 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_echo.c                                          :+:      :+:    :+:   */
+/*   ft_delete.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2018/02/28 19:00:43 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/05/03 12:17:35 by lumenthi         ###   ########.fr       */
+/*   Created: 2018/05/03 14:24:38 by lumenthi          #+#    #+#             */
+/*   Updated: 2018/05/03 14:27:00 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../../includes/21sh.h"
+#include "libft.h"
+#include <stdlib.h>
 
-void	ft_echo(char **args)
+char	*ft_delete(char *line, int pos, int len)
 {
-	int		i;
-	int		f;
+	char	*after;
+	char	*tmp;
+	int		j;
 
-	i = 1;
-	f = 0;
-	while (args[i])
+	j = 0;
+	line[len] = '\0';
+	if (!(after = ft_strdup("")))
+		return (NULL);
+	while (line[j])
 	{
-		ft_putstr(args[i]);
-		if (args[i + 1] && f == 0)
-			ft_putchar(' ');
-		f = 0;
-		i++;
+		if (j != pos)
+		{
+			tmp = ft_strdup(after);
+			free(after);
+			after = ft_charjoin(tmp, line[j]);
+			free(tmp);
+		}
+		j++;
 	}
-	ft_putchar('\n');
+	if (line)
+		free(line);
+	return (after);
 }
