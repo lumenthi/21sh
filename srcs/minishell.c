@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/08 11:24:59 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/05/03 14:55:03 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/05/05 12:22:39 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,19 +22,28 @@ static void	dup_std()
 		dup2(g_input->std2, 2);
 }
 
-static void	inthandler(int sig)
+static void	signal_handler(int sig)
 {
-	if (sig == 2)
+	if (sig == SIGINT)
+	{
 		g_data->error = 1;
-	dup_std();
-	ft_putstr("\b ");
-	ft_putstr("\b\b ");
-	ft_putstr("\b");
-	ft_putchar('\n');
-	print_prompt(g_data->cpy);
-	if (g_data->line)
-		free(g_data->line);
-	g_data->line = ft_strdup("");
+		dup_std();
+		ft_putstr("\b ");
+		ft_putstr("\b\b ");
+		ft_putstr("\b");
+		ft_putchar('\n');
+		print_prompt(g_data->cpy);
+		if (g_data->line)
+			free(g_data->line);
+		g_data->line = ft_strdup("");
+	}
+	else if (sig == SIGABRT || sig == SIGSTOP || sig == SIGQUIT
+		|| sig == SIGKILL || sig == SIGTERM || sig == SIGALRM
+		|| sig == SIGHUP || sig == SIGPIPE)
+	{
+		term_reset();
+		exit(-1);
+	}
 }
 
 static void	history_free(void);
@@ -83,7 +92,7 @@ void	ft_history(char **args)
 	}
 }
 
-static void	ft_retab(char **args, int i)
+void	ft_retab(char **args, int i)
 {
 	int	j = 0;
 	char	*tmp;
@@ -562,7 +571,7 @@ static int	arg_last_redir(char **str)
 	free(cpy);
 	return (1);
 }
-static char	**retab_dirs(char **args)
+char	**retab_dirs(char **args)
 {
 	int		i;
 	char	*after;
@@ -807,7 +816,7 @@ static int	ft_redir(char ***arg)
 		if ((ft_strcmp(args[i], "<") == 0 && args[i + 1]) || tube[0] != 0)
 		{
 			if (args[i + 1])
-				args[i + 1] = args_translate(args[i + 1]);
+				args[i + 1] = args_translate(args[i + 1], args);
 			if (fd > 0 && fd != 0 && fd != 1 && fd != 2)
 				close(fd);
 			if (tube[0] != 0)
@@ -840,7 +849,7 @@ static int	ft_redir(char ***arg)
 		}
 		else if (ft_strcmp(args[i], ">>") == 0 && args[i + 1] && i != 0)
 		{
-			args[i + 1] = args_translate(args[i + 1]);
+			args[i + 1] = args_translate(args[i + 1], args);
 			if (fd > 0 && fd != 0 && fd != 1 && fd != 2)
 				close(fd);
 			if ((fd = open(args[i + 1], O_RDWR|O_CREAT|O_APPEND, 0666)) < 0)
@@ -865,7 +874,7 @@ static int	ft_redir(char ***arg)
 		}
 		else if (ft_strcmp(args[i], ">") == 0 && args[i + 1] && i != 0)
 		{
-			args[i + 1] = args_translate(args[i + 1]);
+			args[i + 1] = args_translate(args[i + 1], args);
 			if (fd > 0 && fd != 0 && fd != 1 && fd != 2)
 				close(fd);
 			if ((fd = open(args[i + 1], O_RDWR|O_CREAT|O_TRUNC, 0666)) < 0)
@@ -894,7 +903,7 @@ static int	ft_redir(char ***arg)
 	return (fd);
 }
 
-void	just_apply(char **line, char **args)
+void	just_apply(char **args)
 {
 	if (args[0] && ft_strcmp(args[0], "echo") == 0)
 		ft_echo(args);
@@ -905,14 +914,14 @@ void	just_apply(char **line, char **args)
 	else if (args[0] && ft_strcmp(args[0], "unsetenv") == 0)
 		ft_unsetenv(&g_data->cpy, args);
 	else if (args[0] && ft_strcmp(args[0], "env") == 0)
-		ft_env(&g_data->cpy, args, line);
+		ft_env(&g_data->cpy, args);
 	else if (args[0] && ft_strcmp(args[0], "history") == 0)
 		ft_history(args);
 	else
 		ft_execve(args, g_data->cpy);
 }
 
-void	ft_apply(char **line, char **arg)
+void	ft_apply(char **arg)
 {
 	int		i;
 	int		j;
@@ -943,7 +952,7 @@ void	ft_apply(char **line, char **arg)
 			dup2(tube[1], 1);
 			free(args[j]);
 			args[j] = NULL;
-			just_apply(line, args);
+			just_apply(args);
 			ft_tabdel(&args);
 			j = -1;
 			dup2(tube[0], 0);
@@ -967,7 +976,7 @@ void	ft_apply(char **line, char **arg)
 //	printf("after apply parsing (j: %d)\n", j);
 //	ft_printtab(args);
 	dup2(std1, 1);
-	just_apply(line, args);
+	just_apply(args);
 	dup2(std, 0);
 	ft_tabdel(&args);
 	free(args);
@@ -1173,26 +1182,26 @@ char		*remove_quote(char *line)
 	return (str);
 }
 
-char		*args_translate(char *line)
+char		*args_translate(char *line, char **args)
 {
 	int		i;
 	char	*new;
 	char	mode;
 
-//	ft_putstr("IN");
+//	ft_putendl(line);
 	i = 0;
 	mode = 0;
 	if (ft_strcmp(line, "\"|\"") == 0)
 		return (line);
 	while (line[i])
 	{
-		if (line[i] == 34 && !mode)
+		if (line[i] == 34 && mode != 39)
 			mode = mode ? 0 : 34;
-		else if (line[i] == 39 && !mode)
+		else if (line[i] == 39 && mode != 34)
 			mode = mode ? 0 : 39;
-		if (line[i] == '$' && mode != 39)
+		if (line[i] == '$' && mode != 39 && ft_strcmp(args[0], "env") != 0)
 			line = var_translate(line, i);
-		if (line[i] == '.' && mode != 39)
+		if (line[i] == '.' && mode != 39 && ft_strcmp(args[0], "echo") != 0)
 			line = point_translate(line, i);
 		if (line[i] == '~' && mode != 39)
 			line = home_translate(line, i);
@@ -1235,6 +1244,22 @@ int		valid_term(void)
 	return (1);
 }
 
+void		all_signals(void)
+{
+	signal(SIGWINCH, signal_handler);
+	signal(SIGABRT, signal_handler);
+	signal(SIGINT, signal_handler);
+	signal(SIGSTOP, signal_handler);
+	signal(SIGCONT, signal_handler);
+	signal(SIGTSTP, signal_handler);
+	signal(SIGKILL, signal_handler);
+	signal(SIGQUIT, signal_handler);
+	signal(SIGTERM, signal_handler);
+	signal(SIGALRM, signal_handler);
+	signal(SIGHUP, signal_handler);
+	signal(SIGPIPE, signal_handler);
+}
+
 void	term_init(void)
 {
 	char	*name_term;
@@ -1254,6 +1279,7 @@ void		term_reset()
 {
 	tcsetattr(0, 0, g_data->bu);
 	free(g_data->bu);
+	g_data->bu = NULL;
 }
 
 int			ft_minishell(char **line)
@@ -1292,7 +1318,7 @@ int			ft_minishell(char **line)
 	while (args[i])
 	{
 //		ft_putstr("IN");
-		args[i] = args_translate(args[i]);
+		args[i] = args_translate(args[i], args);
 //		printf("args[i]: %s\n", args[i]);
 		i++;
 	}
@@ -1312,7 +1338,7 @@ int			ft_minishell(char **line)
 		return (1);
 	}
 	else
-		ft_apply(line, args);
+		ft_apply(args);
 //	ft_putstr("after apply:\n");
 //	ft_putstr("end apply\n");
 	if (args)
@@ -1606,7 +1632,7 @@ int			main(void)
 	inputs_init();
 	g_data->error = 0;
 	environ_cpy(environ, &g_data->cpy);
-	signal(SIGINT, inthandler);
+	all_signals();
 	valid_term();
 	set_lvl();
 	while (1)

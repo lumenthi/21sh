@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/08 11:22:09 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/05/03 14:40:59 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/05/03 20:39:09 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,7 +101,7 @@ void	print_env(char **environ);
 void	ft_unsetenv(char ***cpy, char **args);
 void	ft_setenv(char ***cpy, char **args);
 void	environ_cpy(char **environ, char ***cpy);
-void	ft_env(char ***environ, char **arg, char **line);
+void	ft_env(char ***environ, char **arg);
 void	ft_execve(char **arg, char **env);
 void	ft_echo(char **tabs);
 int		tab_size(char **tabs);
@@ -123,7 +123,7 @@ char	*make_string(char *fullpath);
 void	print_prompt(char **cpy);
 char	*gnl(void);
 int		ft_minishell(char **line);
-void	ft_apply(char **line, char **args);
+void	ft_apply(char **args);
 void	env_error(void);
 void	fake_cpy(char ***environ, char **fake_env);
 void	move_cursor(int x, int y);
@@ -136,9 +136,12 @@ void	write_mode(int fd, char *lim);
 void	term_init(void);
 void	term_reset(void);
 char	*get_content(int fd);
-char	*args_translate(char *line);
+char	*args_translate(char *line, char **args);
 char	*ft_insert(char *line, char buf, int pos, int i);
 int		history_open(int fd);
+char	*strchr_quote(char *line, int elem);
+void	ft_retab(char **args, int i);
+char	**retab_dirs(char **args);
 
 t_inputs *g_input;
 t_data	*g_data;

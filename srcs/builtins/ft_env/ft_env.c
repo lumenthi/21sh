@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/28 14:08:43 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/05/03 13:10:53 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/05/03 21:10:15 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,7 +48,7 @@ static void		print_environ(char ***environ)
 		ft_print_error("env", EMPTY, NULL);
 }
 
-static int		make_fake(char ***fake_env, char **args, int *j, char **line)
+static int		make_fake(char ***fake_env, char **args, int *j)
 {
 	while (args[*j])
 	{
@@ -59,14 +59,12 @@ static int		make_fake(char ***fake_env, char **args, int *j, char **line)
 				ft_print_error("env", ARGS, NULL);
 				return (0);
 			}
+			(*j)++;
 		}
 		else
 			break ;
-		free(*line);
-		*line = ft_strdup(*line + ft_strlen(args[*j]) + 1);
-		(*j)++;
 	}
-	return (1);
+	return (*j);
 }
 
 static void		reset_env(char ***environ, char ***bu, char ***fake_env)
@@ -80,37 +78,37 @@ static void		reset_env(char ***environ, char ***bu, char ***fake_env)
 	free(*bu);
 }
 
-void			ft_env(char ***environ, char **args, char **line)
+void			ft_env(char ***environ, char **args)
 {
 	int		j;
 	char	**fake_env;
 	char	**bu;
-	char	*line_cpy;
+	int		i = 0;
 
 	environ_cpy(*environ, &fake_env);
 	environ_cpy(*environ, &bu);
 	j = 1;
-	line_cpy = ft_strdup(*line + 3);
-	if (!make_fake(&fake_env, args, &j, &line_cpy))
+//	ft_printtab(args + j);
+	if (!(j = make_fake(&fake_env, args, &j)))
 	{
-		free(line_cpy);
 		reset_env(environ, &bu, &fake_env);
 		return ;
 	}
 	fake_cpy(environ, fake_env);
+//	ft_printtab(args + j);
 	if (j == tab_size(args))
-	{
 		print_environ(environ);
-		free(line_cpy);
-	}
 	else
 	{
-//		ft_printtab(args);
+		while ((args + j)[i])
+		{
+			(args + j)[i] = args_translate((args + j)[i], (args + j));
+			i++;
+		}
 		if (ft_strcmp(args[1], "exit") != 0 && ft_strcmp(args[1], "q") != 0)
-			ft_apply(&line_cpy, args + j);
+			ft_apply(args + j);
 		else
 			env_error();
-		free(line_cpy);
 	}
 	reset_env(environ, &bu, &fake_env);
 }
