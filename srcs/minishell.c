@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/08 11:24:59 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/05/05 12:22:39 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/05/05 12:45:43 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -1277,9 +1277,12 @@ void	term_init(void)
 
 void		term_reset()
 {
-	tcsetattr(0, 0, g_data->bu);
-	free(g_data->bu);
-	g_data->bu = NULL;
+	if (g_data->bu != NULL)
+	{
+		tcsetattr(0, 0, g_data->bu);
+		free(g_data->bu);
+		g_data->bu = NULL;
+	}
 }
 
 int			ft_minishell(char **line)
