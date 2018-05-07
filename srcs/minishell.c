@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/08 11:24:59 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/05/05 12:45:43 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/05/07 16:08:35 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -207,6 +207,32 @@ void	last_redir(char **after)
 //	dprintf(2, "after: |%s|\n", after);
 }
 
+static int	heredoc_nb(char *cpy, char *found)
+{
+	char	*after;
+	int		tube[2];
+
+	*found = '\0';
+	after = ft_strdup(found + 2);
+	pipe(tube);
+	term_init();
+	write_mode(tube[1], after);
+	term_reset();
+	close(tube[1]);
+//	dprintf(2, "after: %s\n", after);
+//	dprintf(2, "cpy: %s\n", cpy);
+	if (ft_atoi(cpy) == 0)
+		g_input->std0 = dup(ft_atoi(cpy));
+	else if (ft_atoi(cpy) == 1)
+		g_input->std1 = dup(ft_atoi(cpy));
+	else if (ft_atoi(cpy) == 2)
+		g_input->std2 = dup(ft_atoi(cpy));
+	dup2(tube[0], ft_atoi(cpy));
+	g_input->op = 1;
+	free(after);
+	return (tube[0]);
+}
+
 static int	is_redir(char *line)
 {
 	char	*found;
@@ -227,8 +253,21 @@ static int	is_redir(char *line)
 	if ((found = ft_strchr(cpy, '<'))
 	|| (found = ft_strchr(cpy, '>')))
 	{
+//		dprintf(2, "found: %s\n", found);
 //		ft_putstr("IN");
-		if (*(found + 1) == '<' || *(found + 1) == '>')
+		if (*found == '<')
+		{
+			if (*(found + 1) == '<')
+			{
+				new_fd = heredoc_nb(cpy, found);
+				free(cpy);
+				return (new_fd);
+			}
+			else
+				after = ft_strdup(found + 1);
+			sign = 2;
+		}
+		else if (*(found + 1) == '>')
 		{
 			after = ft_strdup(found + 2);
 			sign = 2;
@@ -241,6 +280,7 @@ static int	is_redir(char *line)
 		*found = '\0';
 //		last_redir(&after);
 //		dprintf(2, "after: |%s|\n", after);
+//		dprintf(2, "sign: %d\n", sign);
 		if (ft_strchr(after, '&'))
 		{
 			if (ft_strcmp(after, "&-") == 0)
@@ -258,6 +298,7 @@ static int	is_redir(char *line)
 		}
 		else
 		{
+//			ft_putstr("IN");
 			if (sign == 1)
 				new_fd = open(after, O_RDWR|O_CREAT|O_TRUNC, 0666);
 			else
@@ -289,6 +330,7 @@ static int	is_redir(char *line)
 		return (new_fd);
 	}
 	free(cpy);
+//	ft_putstr("END\n");
 	return (-1);
 }
 
@@ -318,6 +360,7 @@ static int	first_redir(char **args)
 			return (-1);
 		i++;
 	}
+//	ft_printtab(args);
 	return (fd);
 }
 
@@ -451,8 +494,10 @@ static char **nb_lastredir(char **args, int i)
 	char	*found;
 	char	*line;
 	char	*before;
-//	char	*last;
+	char	*sign;
 
+	sign = NULL;
+//	ft_printtab(args);
 	line = ft_strdup(args[i]);
 	before = ft_strdup(args[i]);
 	if (!(found = ft_strchr(before, '>')))
@@ -461,11 +506,35 @@ static char **nb_lastredir(char **args, int i)
 		return (args);
 	*found = '\0';
 //	dprintf(2, "before: |%s|\n", before);
-	if (!(found = ft_strrchr(line, '>')))
+	if ((found = ft_strrchr(line, '>')))
+	{
+		if (*(--found) == '>')
+			sign = ft_strdup(">>");
+		else
+			sign = ft_strdup(">");
+		++found;
+//		dprintf(2, "sign: %s\n", sign);
+	}
+	else
+	{
 		found = ft_strrchr(line, '<');
+		if (*(--found) == '<')
+			sign = ft_strdup("<<");
+		else
+			sign = ft_strdup("<");
+		++found;
+	}
+//		found = ft_strrchr(line, '<');
 //	dprintf(2, "found: |%s|\n", found);
+//	dprintf(2, "sign: %s\n", sign);
 	free(args[i]);
-	args[i] = ft_strjoin(before, found);
+	args[i] = ft_strjoin(before, sign);
+	free(before);
+	before = ft_strdup(args[i]);
+	free(args[i]);
+	args[i] = ft_strjoin(before, found + 1);
+	if (sign)
+		free(sign);
 	free(line);
 	free(before);
 //	dprintf(2, "args[i]: |%s|\n", args[i]);
@@ -553,7 +622,7 @@ static int	arg_last_redir(char **str)
 	cpy = ft_strdup(*str);
 	if (!(found = ft_strrchr(cpy, '<')))
 		found = ft_strrchr(cpy, '>');
-	if (*(found - 1) == '>')
+	if (*(found - 1) == '>' || *(found - 1) == '<')
 		found = found - 1;
 	after = ft_strdup(found);
 	if (!(found = ft_strchr(cpy, '<')))
@@ -592,6 +661,7 @@ char	**retab_dirs(char **args)
 			ft_strcmp(cpy, ">>") != 0 && (ft_strcmp(cpy, "<<") != 0) &&
 			ft_strlen(args[i]) != 1)
 		{
+//			ft_printtab(args);
 //			dprintf(2, "1 - args[i]: |%s|\n", args[i]);
 			if ((ret = arg_last_redir(&args[i])) == -1)
 			{
@@ -602,10 +672,13 @@ char	**retab_dirs(char **args)
 				;
 			else
 			{
+//				ft_putstr("IN");
+//				ft_printtab(args);
 				after = ft_strdup(found + 1);
 				*found = '\0';
 //				dprintf(2, "cpy: |%s|\n", cpy);
 //				dprintf(2, "after: |%s|\n", after);
+//				ft_printtab(args);
 				if (ft_isnum(cpy) && ft_strcmp(cpy, "") != 0)
 					args = nb_lastredir(args, i);
 				else if (ft_strcmp(cpy, "") == 0)
