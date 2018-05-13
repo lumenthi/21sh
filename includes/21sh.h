@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/08 11:22:09 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/05/03 20:39:09 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/05/09 14:40:24 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -137,11 +137,37 @@ void	term_init(void);
 void	term_reset(void);
 char	*get_content(int fd);
 char	*args_translate(char *line, char **args);
-char	*ft_insert(char *line, char buf, int pos, int i);
-int		history_open(int fd);
 char	*strchr_quote(char *line, int elem);
 void	ft_retab(char **args, int i);
 char	**retab_dirs(char **args);
+void	dup_std(void);
+void	signal_handler(int sig);
+void	all_signals(void);
+void	ft_history(char **args);
+void	history_free(void);
+void	free_lines(void);
+void	history_error(void);
+void	fd_error(char *str);
+void	parse_error(void);
+void	input_error(char *line);
+int		ft_redir(char ***arg);
+void	quote_get2(char **file);
+void	history_error(void);
+void	history_init(void);
+void	write_file(void);
+void	history_search(int *i, char a);
+void	ft_rewrite(int *i);
+int		ft_move(char dir, int i);
+void	edit_line(int *i);
+void	ft_clear(int i);
+void	inser_char(char buf, int *i);
+void	ft_home(int i);
+void	ft_end(int i);
+void	line_up(int i);
+void	line_down(int i);
+void	word_left(int i);
+void	word_right(int i);
+void	copy_mode(int *i);
 
 t_inputs *g_input;
 t_data	*g_data;

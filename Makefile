@@ -6,7 +6,7 @@
 #    By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2017/12/22 14:06:43 by lumenthi          #+#    #+#              #
-#    Updated: 2018/03/24 23:25:09 by lumenthi         ###   ########.fr        #
+#    Updated: 2018/05/09 14:41:21 by lumenthi         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -39,7 +39,18 @@ SRCS = minishell.c \
 		ft_error.c \
 		cd.c \
 		global_tools2.c \
-		termcaps_tools.c
+		termcaps_tools.c \
+		signal_handling.c \
+		ft_history.c \
+		ft_redirections.c \
+		ft_quotes.c \
+		history.c \
+		line_history.c \
+		line_tools.c \
+		copy_mode.c \
+		heredoc_mode.c \
+		quote_mode.c \
+		standard_mode.c
 
 SOURCES = $(addprefix $(SRCDIR)/, $(SRCS))
 INCLUDES = $(addprefix -I, $(INCDIR))
@@ -51,9 +62,19 @@ vpath %.c srcs \
 	srcs/builtins/ft_setenv \
 	srcs/builtins/ft_unsetenv \
 	srcs/builtins/ft_env \
+	srcs/builtins/ft_history \
 	srcs/tools \
 	srcs/args \
-	srcs/tools/error
+	srcs/tools/error \
+	srcs/tools/quotes \
+	srcs/signals \
+	srcs/redirections \
+	srcs/history \
+	srcs/line_edition \
+	srcs/line_edition/copy_mode \
+	srcs/line_edition/heredoc_mode \
+	srcs/line_edition/quote_mode \
+	srcs/line_edition/standard_mode
 
 GREEN = '\033[4;32m'
 RED = '\033[4;31m'
