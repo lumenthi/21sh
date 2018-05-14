@@ -6,11 +6,56 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/03/13 12:12:55 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/05/09 14:37:01 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/05/13 12:12:25 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../includes/21sh.h"
+
+static int	ft_left(int x)
+{
+	if (x == 0)
+	{
+		ft_put("up");
+		tputs(tgoto(tgetstr("ch", NULL), 0, g_data->w_col - 1), 0, my_outc);
+		g_data->pos--;
+		g_data->cursor->y--;
+		if (!g_data->cursor->y)
+			g_data->cursor->x = g_data->w_col - g_data->cursor->start;
+		else
+			g_data->cursor->x = g_data->w_col - 1;
+		return (1);
+	}
+	else if (g_data->pos > 0)
+	{
+		ft_put("le");
+		g_data->pos--;
+		g_data->cursor->x--;
+		return (1);
+	}
+	return (0);
+}
+
+static int	ft_right(int x, int i)
+{
+	if (x == g_data->w_col - 1)
+	{
+			ft_put("cr");
+			ft_put("do");
+			g_data->cursor->x = 0;
+			g_data->pos++;
+			g_data->cursor->y++;
+			return (1);
+	}
+	else if (g_data->pos < i)
+	{
+		ft_put("nd");
+		g_data->pos++;
+		g_data->cursor->x++;
+		return (1);
+	}
+	return (0);
+}
 
 int		ft_move(char dir, int i)
 {
@@ -20,48 +65,9 @@ int		ft_move(char dir, int i)
 	start = g_data->cursor->y ? 0 : (g_data->cursor->start - 1);
 	x = g_data->cursor->x + start;
 	if (dir == 'l')
-	{
-		if (x == 0)
-		{
-			ft_put("up");
-			tputs(tgoto(tgetstr("ch", NULL), 0, g_data->w_col - 1), 0, my_outc);
-			g_data->pos--;
-			g_data->cursor->y--;
-			if (!g_data->cursor->y)
-				g_data->cursor->x = g_data->w_col - g_data->cursor->start;
-			else
-				g_data->cursor->x = g_data->w_col - 1;
-			return (1);
-		}
-		else if (g_data->pos > 0)
-		{
-			ft_put("le");
-			g_data->pos--;
-			g_data->cursor->x--;
-			return (1);
-		}
-		return (0);
-	}
+		return (ft_left(x));
 	else if (dir == 'r')
-	{
-		if (x == g_data->w_col - 1)
-		{
-				ft_put("cr");
-				ft_put("do");
-				g_data->cursor->x = 0;
-				g_data->pos++;
-				g_data->cursor->y++;
-				return (1);
-		}
-		else if (g_data->pos < i)
-		{
-			ft_put("nd");
-			g_data->pos++;
-			g_data->cursor->x++;
-			return (1);
-		}
-		return (0);
-	}
+		return (ft_right(x, i));
 	return (0);
 }
 
@@ -159,7 +165,10 @@ void	ft_rewrite(int *i)
 	if (!g_data->cursor->y)
 		g_data->cursor->x = g_data->pos;
 	else
-		g_data->cursor->x = (g_data->pos + g_data->cursor->start - 1) - (g_data->cursor->y * g_data->w_col);
+	{
+		g_data->cursor->x = (g_data->pos + g_data->cursor->start - 1)
+		- (g_data->cursor->y * g_data->w_col);
+	}
 }
 
 void	ft_home(int i)

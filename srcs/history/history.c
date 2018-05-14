@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_history.c                                       :+:      :+:    :+:   */
+/*   history.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/09 11:13:03 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/05/09 11:21:09 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/05/14 12:45:45 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,6 @@ static void		get_lines(void)
 	char	*tmp;
 	int		len;
 
-	line = NULL;
 	i = 0;
 	line = read_file();
 	tmp = ft_strdup(line);
@@ -88,12 +87,10 @@ static int		history_open(int fd)
 	return (fd);
 }
 
-void	history_init(void)
+static void	first_init(int *i, int *fd)
 {
-	int i = 0;
-	int	fd;
-
-	fd = 0;
+	*i = 0;
+	*fd = 0;
 	if (!(g_history = malloc(sizeof(t_history))))
 		exit(-1);
 	if (!(g_history->line = malloc(sizeof(char *) * HISTORY_LIMIT + 1)))
@@ -101,7 +98,15 @@ void	history_init(void)
 	g_history->nb_lines = 0;
 	g_history->error = 0;
 	g_history->special = 0;
-	fd = history_open(fd);
+	*fd = history_open(*fd);
+}
+
+void	history_init(void)
+{
+	int i;
+	int	fd;
+
+	first_init(&i, &fd);
 	if (HISTORY_LIMIT < 0)
 	{
 		history_error();
