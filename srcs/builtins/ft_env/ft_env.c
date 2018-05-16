@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/28 14:08:43 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/05/03 21:10:15 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/05/14 18:22:05 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,37 +78,42 @@ static void		reset_env(char ***environ, char ***bu, char ***fake_env)
 	free(*bu);
 }
 
+static void		just_env(int j, char **args)
+{
+	int i;
+
+	i = 0;
+	while ((args + j)[i])
+	{
+		(args + j)[i] = args_translate((args + j)[i], (args + j));
+		i++;
+	}
+	if (ft_strcmp(args[1], "exit") != 0 && ft_strcmp(args[1], "q") != 0)
+		ft_apply(args + j);
+	else
+		env_error();
+}
+
 void			ft_env(char ***environ, char **args)
 {
 	int		j;
 	char	**fake_env;
 	char	**bu;
-	int		i = 0;
+	int		i;
 
 	environ_cpy(*environ, &fake_env);
 	environ_cpy(*environ, &bu);
+	i = 0;
 	j = 1;
-//	ft_printtab(args + j);
 	if (!(j = make_fake(&fake_env, args, &j)))
 	{
 		reset_env(environ, &bu, &fake_env);
 		return ;
 	}
 	fake_cpy(environ, fake_env);
-//	ft_printtab(args + j);
 	if (j == tab_size(args))
 		print_environ(environ);
 	else
-	{
-		while ((args + j)[i])
-		{
-			(args + j)[i] = args_translate((args + j)[i], (args + j));
-			i++;
-		}
-		if (ft_strcmp(args[1], "exit") != 0 && ft_strcmp(args[1], "q") != 0)
-			ft_apply(args + j);
-		else
-			env_error();
-	}
+		just_env(j, args);
 	reset_env(environ, &bu, &fake_env);
 }

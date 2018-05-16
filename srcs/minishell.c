@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/08 11:24:59 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/05/09 11:16:45 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/05/16 10:53:24 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,9 +24,10 @@ void	dup_std(void)
 
 void	ft_retab(char **args, int i)
 {
-	int	j = 0;
+	int		j;
 	char	*tmp;
 
+	j = 0;
 	while (j <= i)
 	{
 		tmp = ft_strdup(args[j]);
@@ -210,16 +211,9 @@ int			ft_minishell(char **line)
 	i = 0;
 	args = NULL;
 	term_init();
-//	printf("before quote_get\n");
-//	ft_printtab(g_data->cpy);
 	quote_get2(line);
-//	printf("after quote_get\n");
-//	ft_printtab(g_data->cpy);
 	term_reset();
 	args = get_a(*line, args);
-//	ft_putstr("after get_a\n");
-//	ft_putstr(*line);
-//	ft_printtab(args);
 	if ((fd = ft_redir(&args)) == -1)
 	{
 		dup_std();
@@ -230,21 +224,11 @@ int			ft_minishell(char **line)
 		free(args);
 		return (0);
 	}
-//	dprintf(2, "fd: %d\n", fd);
-//	ft_printtab(args);
-//	ft_putstr("after_redir\n");
-//	ft_printtab(args);
 	while (args[i])
 	{
-//		ft_putstr("IN");
 		args[i] = args_translate(args[i], args);
-//		printf("args[i]: %s\n", args[i]);
 		i++;
 	}
-//	ft_putstr("after_translate\n");
-//	ft_putstr("after translate:\n");
-//	ft_printtab(args);
-//	ft_printtab(g_data->cpy);
 	if (!args)
 		ft_print_error(NULL, QUOTES, *line);
 	else if (args[0] && ft_strcmp(args[0], "exit") == 0)
@@ -258,8 +242,6 @@ int			ft_minishell(char **line)
 	}
 	else
 		ft_apply(args);
-//	ft_putstr("after apply:\n");
-//	ft_putstr("end apply\n");
 	if (args)
 	{
 		ft_tabdel(&args);
@@ -269,7 +251,6 @@ int			ft_minishell(char **line)
 	if (g_input->op != 0 && fd > 0 && fd != 0 && fd != 1 && fd != 2)
 		close(fd);
 	free(*line);
-//	ft_putstr("after free\n");
 	return (0);
 }
 

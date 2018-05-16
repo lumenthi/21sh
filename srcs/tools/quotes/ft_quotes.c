@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/09 10:58:08 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/05/09 18:07:12 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/05/15 14:33:52 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,21 @@ static int		squote_invalid(char *line)
 	return (c % 2 ? 1 : 0);
 }
 
+static void	make_newstring(char **line, char **old, char **new, char **file)
+{
+	if (*new)
+	{
+		free(*line);
+		*line = ft_strjoin(*old, *new);
+		*file = *line;
+	}
+	else
+	{
+		free(*file);
+		*file = NULL;
+	}
+}
+
 static void	get_quote(char **file, int mode)
 {
 	char	*new;
@@ -46,17 +61,7 @@ static void	get_quote(char **file, int mode)
 	{
 		old = ft_strjoin(line, "\n");
 		new = quote_mode(mode);
-		if (new)
-		{
-			free(line);
-			line = ft_strjoin(old, new);
-			*file = line;
-		}
-		else
-		{
-			free(*file);
-			*file = NULL;
-		}
+		make_newstring(&line, &old, &new, file);
 		free(old);
 	}
 }
@@ -88,6 +93,12 @@ void	quote_get2(char **file)
 		get_quote(file, 39);
 }
 
+static void		var_delete(char **line, int *i, int *len)
+{
+	*line = ft_delete(*line, *i, ft_strlen(*line));
+	(*len)--;
+}
+
 static char		*var_translate(char *line, int i)
 {
 	char	*tmp;
@@ -108,10 +119,7 @@ static char		*var_translate(char *line, int i)
 	len = ft_strlen(tmp);
 	env = get_var(g_data->cpy, tmp);
 	while (len && found)
-	{
-		line = ft_delete(line, i, ft_strlen(line));
-		len--;
-	}
+		var_delete(&line, &i, &len);
 	if (env)
 		line = insert_str(line, env, i, ft_strlen(line));
 	free(tmp);
@@ -159,7 +167,31 @@ static char		*home_translate(char *line, int i)
 	return (line);
 }
 
-static char		*remove_quote(char *line)
+static void		get_currentq(char *line, int *mode, int *end, int i)
+{
+	if (line[i] == 34 && *mode != 39)
+	{
+		if (*mode)
+		{
+			*mode = 0;
+			*end = 1;
+		}
+		else if (!*mode)
+			*mode = 34;
+	}
+	else if (line[i] == 39 && *mode != 34)
+	{
+		if (*mode)
+		{
+			*mode = 0;
+			*end = 1;
+		}
+		else if (!*mode)
+			*mode = 39;
+	}
+}
+
+char		*remove_quote(char *line)
 {
 	char	*str;
 	int		i;
@@ -173,26 +205,7 @@ static char		*remove_quote(char *line)
 	str = ft_strdup("");
 	while (line[i])
 	{
-		if (line[i] == 34 && mode != 39)
-		{
-			if (mode)
-			{
-				mode = 0;
-				end = 1;
-			}
-			else if (!mode)
-				mode = 34;
-		}
-		else if (line[i] == 39 && mode != 34)
-		{
-			if (mode)
-			{
-				mode = 0;
-				end = 1;
-			}
-			else if (!mode)
-				mode = 39;
-		}
+		get_currentq(line, &mode, &end, i);
 		if (line[i] && line[i] != mode && !end)
 		{
 			tmp = ft_strdup(str);
@@ -206,14 +219,19 @@ static char		*remove_quote(char *line)
 	return (str);
 }
 
+static void	variables_init(int *i, char *mode)
+{
+	*i = 0;
+	*mode = 0;
+}
+
 char		*args_translate(char *line, char **args)
 {
 	int		i;
 	char	*new;
 	char	mode;
 
-	i = 0;
-	mode = 0;
+	variables_init(&i, &mode);
 	if (ft_strcmp(line, "\"|\"") == 0)
 		return (line);
 	while (line[i])

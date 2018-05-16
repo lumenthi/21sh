@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/03/08 10:32:01 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/05/03 15:37:42 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/05/16 10:51:43 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,7 +62,7 @@ static void	get_quotes(int *c, char *line, char **str, int *j)
 		(*j)++;
 		if (line[*c] == 34)
 		{
-			if (*c == lim - 2)
+			if (*c == lim - 1)
 				break ;
 			else if (ft_isspace(line[(*c) + 1]))
 				break ;
@@ -90,13 +90,22 @@ static void	get_squotes(int *c, char *line, char **str, int *j)
 		(*j)++;
 		if (line[*c] == 39)
 		{
-			if (*c == lim - 2)
+			if (*c == lim - 1)
 				break ;
 			else if (ft_isspace(line[(*c) + 1]))
 				break ;
 		}
 		(*c)++;
 	}
+}
+
+static int	dquotes_valid(char *line, int c)
+{
+	if (c == 0)
+		return (1);
+	else if (ft_isspace(line[c - 1]))
+		return (1);
+	return (0);
 }
 
 static void	get_words(char *line, char ***args, char **str, int *i)
@@ -110,13 +119,8 @@ static void	get_words(char *line, char ***args, char **str, int *i)
 	j = 0;
 	while (c < lim)
 	{
-		if (line[c] == 34)
-		{
-			if (c == 0)
-				get_quotes(&c, line, str, &j);
-			else if (ft_isspace(line[c - 1]))
-				get_quotes(&c, line, str, &j);
-		}
+		if (line[c] == 34 && dquotes_valid(line, c))
+			get_quotes(&c, line, str, &j);
 		else if (line[c] == 39)
 		{
 			if (c == 0)
@@ -137,13 +141,10 @@ char		**get_a(char *line, char **args)
 	int		i;
 	char	*str;
 
-//	if (line && quote_invalid(line))
-//		return (NULL);
 	i = 0;
 	str = NULL;
 	args = NULL;
 	get_words(line, &args, &str, &i);
-//	ft_putstr("end_getword");
 	args = (char **)ft_realloc(args, sizeof(char *) * (i + 1));
 	args[i] = NULL;
 	free(str);

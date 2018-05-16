@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/08 11:22:09 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/05/09 14:40:24 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/05/15 16:13:00 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -168,6 +168,8 @@ void	line_down(int i);
 void	word_left(int i);
 void	word_right(int i);
 void	copy_mode(int *i);
+char	*remove_quote(char *line);
+char	*strchr_quote(char *line, int elem);
 
 t_inputs *g_input;
 t_data	*g_data;

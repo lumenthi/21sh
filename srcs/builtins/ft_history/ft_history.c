@@ -6,16 +6,39 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/08 16:00:59 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/05/08 16:03:23 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/05/14 18:16:13 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../../includes/21sh.h"
 
+static int	history_clear(void)
+{
+	int fd;
+
+	fd = 0;
+	fd = open(HISTORY_PATH, O_RDWR|O_CREAT|O_TRUNC, 0666);
+	if (fd < 0)
+	{
+		g_history->error = 1;
+		history_error();
+		return (0);
+	}
+	else
+		g_history->error = 0;
+	free_lines();
+	ft_putstr(GREEN);
+	ft_putstr("Cleaning history...");
+	ft_putstr(BLANK);
+	ft_putchar('\n');
+	g_history->nb_lines = 0;
+	close(fd);
+	return (1);
+}
+
 void	ft_history(char **args)
 {
-	int	i;
-	int	fd;
+	int i;
 
 	i = 0;
 	if (tab_size(args) == 1)
@@ -32,24 +55,8 @@ void	ft_history(char **args)
 			i++;
 		}
 	}
-	else if (ft_strcmp(args[1], "clean") == 0 ||
+	else if ((ft_strcmp(args[1], "clean") == 0 ||
 		ft_strcmp(args[1], "clear") == 0 || ft_strcmp(args[1], "reset") == 0)
-	{
-		fd = open(HISTORY_PATH, O_RDWR|O_CREAT|O_TRUNC, 0666);
-		if (fd < 0)
-		{
-			g_history->error = 1;
-			history_error();
-			return ;
-		}
-		else
-			g_history->error = 0;
-		free_lines();
-		ft_putstr(GREEN);
-		ft_putstr("Cleaning history...");
-		ft_putstr(BLANK);
-		ft_putchar('\n');
-		g_history->nb_lines = 0;
-		close(fd);
-	}
+		&& !history_clear())
+			return;
 }
