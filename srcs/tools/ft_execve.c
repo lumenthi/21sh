@@ -6,11 +6,28 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/28 14:12:13 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/05/03 12:15:34 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/05/17 16:12:43 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../includes/21sh.h"
+
+static int	find_path(char **arg, char **env)
+{
+	char	*path;
+	char	*cmd;
+
+	path = get_var(env, "PATH=");
+	path = ft_strjoin(path, "/");
+	if (arg[0][0] != '/')
+		cmd = ft_strjoin(path, arg[0]);
+	else
+		cmd = ft_strdup(arg[0]);
+//	dprintf(2, "acces ret: %d\n", access(cmd, X_OK));
+	free(path);
+	free(cmd);
+	return (access(cmd, X_OK));
+}
 
 static int	do_execve(char **arg, char **env)
 {
@@ -33,8 +50,10 @@ static int	do_execve(char **arg, char **env)
 	}
 	else
 	{
-		waitpid(-1, &status, 0);
-		WIFEXITED(status);
+		if (!in_pipe)
+			waitpid(-1, &status, 0);
+		else
+			return (pid);
 		free(path);
 		free(cmd);
 		return (status);
@@ -81,23 +100,21 @@ void		ft_execve(char **arg, char **env)
 	char	*path;
 	char	*bu;
 	char	*old;
-	int		ret;
 
-	if (arg[0] && arg[0][0] == '/')
-	{
-		ret = do_execve(arg, env);
-		if (ret == 768)
-			ft_print_error(arg[0], FT_FOUND, NULL);
-		return ;
-	}
 	if (error_exec(&arg, env, &fullpath, &bu))
 		return ;
 	while ((path = make_string(fullpath)))
 	{
 		set_var(&env, "PATH=", path);
 		free(path);
-		if ((!(ret = do_execve(arg, env))) || ret == 256)
+		if (find_path(arg, env) == 0)
+		{
+			if (in_pipe)
+				pipe_pid = do_execve(arg, env);
+			else
+				do_execve(arg, env);
 			break ;
+		}
 		make_fullpath(&fullpath, &old);
 	}
 	free(fullpath);

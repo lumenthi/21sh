@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/08 11:24:59 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/05/16 10:53:24 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/05/18 11:37:50 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,20 +70,36 @@ static void	inputs_reset()
 
 void	just_apply(char **args)
 {
-	if (args[0] && ft_strcmp(args[0], "echo") == 0)
-		ft_echo(args);
-	else if (args[0] && ft_strcmp(args[0], "cd") == 0)
-		ft_cd(&g_data->cpy, args);
-	else if (args[0] && ft_strcmp(args[0], "setenv") == 0)
-		ft_setenv(&g_data->cpy, args);
-	else if (args[0] && ft_strcmp(args[0], "unsetenv") == 0)
-		ft_unsetenv(&g_data->cpy, args);
-	else if (args[0] && ft_strcmp(args[0], "env") == 0)
-		ft_env(&g_data->cpy, args);
-	else if (args[0] && ft_strcmp(args[0], "history") == 0)
-		ft_history(args);
-	else
-		ft_execve(args, g_data->cpy);
+		if (args[0] && ft_strcmp(args[0], "echo") == 0)
+			ft_echo(args);
+		else if (args[0] && ft_strcmp(args[0], "cd") == 0)
+			ft_cd(&g_data->cpy, args);
+		else if (args[0] && ft_strcmp(args[0], "setenv") == 0)
+			ft_setenv(&g_data->cpy, args);
+		else if (args[0] && ft_strcmp(args[0], "unsetenv") == 0)
+			ft_unsetenv(&g_data->cpy, args);
+		else if (args[0] && ft_strcmp(args[0], "env") == 0)
+			ft_env(&g_data->cpy, args);
+		else if (args[0] && ft_strcmp(args[0], "history") == 0)
+			ft_history(args);
+		else
+			ft_execve(args, g_data->cpy);
+}
+
+int		count_pipes(char **args)
+{
+	int		count;
+	int		i;
+
+	count = 0;
+	i = 0;
+	while (args[i])
+	{
+		if (ft_strcmp(args[i], "|") == 0)
+			count = count + 2;
+		i++;
+	}
+	return(count);
 }
 
 void	ft_apply(char **arg)
@@ -94,7 +110,12 @@ void	ft_apply(char **arg)
 	char	**args;
 	int		std;
 	int		std1;
+	int		*old_pids;
+	int		count = 0;
 
+	pipe_pid = 0;
+	if (!(old_pids = (int *)malloc(sizeof(int) * count_pipes(arg))))
+		exit(-1);
 	if (!(args = (char **)malloc(sizeof(char *) * tab_size(arg) + 1)))
 		exit(-1);
 	i = 0;
@@ -116,34 +137,59 @@ void	ft_apply(char **arg)
 			pipe(tube);
 			dup2(tube[1], 1);
 			free(args[j]);
+			if (pipe_pid != 0)
+			{
+				old_pids[count] = pipe_pid;
+				count++;
+				pipe_pid = 0;
+			}
 			args[j] = NULL;
-			just_apply(args);
+			int		tunnel[2];
+			pipe(tunnel);
+			if (!fork())
+			{
+				close(tunnel[0]);
+				in_pipe = 1;
+				just_apply(args);
+				write(tunnel[1], &pipe_pid, sizeof(int));
+				close(tunnel[1]);
+				exit(0);
+			}
+			else
+			{
+				close(tunnel[1]);
+				wait(NULL);
+				read(tunnel[0], &pipe_pid, sizeof(int));
+				close(tunnel[0]);
+			}
 			ft_tabdel(&args);
 			j = -1;
 			dup2(tube[0], 0);
 			close(tube[1]);
 		}
-		if (g_data->error)
-		{
-			args[j] = NULL;
-			dup2(std1, 1);
-			dup2(std, 0);
-			ioctl(0, TIOCSTI, "\n");
-			ft_putstr("\033[F");
-			ft_putstr("^C");
-			return ;
-		}
-//		printf("args[%d]: %s\n", j, args[j]);
 		j++;
 		i++;
 	}
 	args[j] = NULL;
-//	printf("after apply parsing (j: %d)\n", j);
-//	ft_printtab(args);
+	if (pipe_pid != 0)
+	{
+		old_pids[count] = pipe_pid;
+		count++;
+		pipe_pid = 0;
+	}
 	dup2(std1, 1);
+	in_pipe = 0;
 	just_apply(args);
+	old_pids[count] = 0;
+	count = 0;
+	while (old_pids[count] != 0)
+	{
+		kill(old_pids[count], SIGTERM);
+		count++;
+	}
 	dup2(std, 0);
 	ft_tabdel(&args);
+	free(old_pids);
 	free(args);
 }
 
