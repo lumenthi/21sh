@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/28 14:08:43 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/05/14 18:22:05 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/05/22 15:25:40 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,7 +85,8 @@ static void		just_env(int j, char **args)
 	i = 0;
 	while ((args + j)[i])
 	{
-		(args + j)[i] = args_translate((args + j)[i], (args + j));
+		if ((args + j)[i][0] != 39)
+			(args + j)[i] = args_translate((args + j)[i], (args + j));
 		i++;
 	}
 	if (ft_strcmp(args[1], "exit") != 0 && ft_strcmp(args[1], "q") != 0)

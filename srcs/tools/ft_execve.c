@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/28 14:12:13 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/05/17 16:12:43 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/05/18 16:01:24 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,6 +101,19 @@ void		ft_execve(char **arg, char **env)
 	char	*bu;
 	char	*old;
 
+	if (arg[0] && arg[0][0] == '/')
+	{
+		if (find_path(arg, env) != 0)
+		{
+			ft_print_error(arg[0], FT_FOUND, NULL);
+			return ;
+		}
+		if (in_pipe)
+			pipe_pid = do_execve(arg, env);
+		else
+			do_execve(arg, env);
+		return ;
+	}
 	if (error_exec(&arg, env, &fullpath, &bu))
 		return ;
 	while ((path = make_string(fullpath)))

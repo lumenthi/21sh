@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/09 10:58:08 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/05/15 14:33:52 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/05/22 15:29:01 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,8 +71,9 @@ void	quote_get2(char **file)
 	int		i;
 	int		sq;
 	int		dq;
-	char	*line = NULL;
+	char	*line;
 
+	line = NULL;
 	free(*file);
 	*file = ft_strdup(*file);
 	line = *file;
@@ -225,6 +226,14 @@ static void	variables_init(int *i, char *mode)
 	*mode = 0;
 }
 
+static void	translate_end(char **new, char *line, char **args)
+{
+	if (ft_strcmp(args[0], "env") != 0)
+		*new = remove_quote(line);
+	else
+		*new = ft_strdup(line);
+}
+
 char		*args_translate(char *line, char **args)
 {
 	int		i;
@@ -232,8 +241,6 @@ char		*args_translate(char *line, char **args)
 	char	mode;
 
 	variables_init(&i, &mode);
-	if (ft_strcmp(line, "\"|\"") == 0)
-		return (line);
 	while (line[i])
 	{
 		if (line[i] == 34 && mode != 39)
@@ -248,7 +255,7 @@ char		*args_translate(char *line, char **args)
 			line = home_translate(line, i);
 		i++;
 	}
-	new = remove_quote(line);
+	translate_end(&new, line, args);
 	free(line);
 	return (new);
 }

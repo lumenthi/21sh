@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/08 11:24:59 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/05/18 11:37:50 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/05/22 20:18:58 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,20 +22,25 @@ void	dup_std(void)
 		dup2(g_input->std2, 2);
 }
 
+static void	retab_init(char ***args, int *j, char **tmp, int i)
+{
+	*j = 0;
+	while (*j <= i)
+	{
+		*tmp = ft_strdup(*(*args + *j));
+		free(*(*args + *j));
+		*(*args + *j) = ft_strdup(*tmp);
+		free(*tmp);
+		(*j)++;
+	}
+}
+
 void	ft_retab(char **args, int i)
 {
 	int		j;
 	char	*tmp;
 
-	j = 0;
-	while (j <= i)
-	{
-		tmp = ft_strdup(args[j]);
-		free(args[j]);
-		args[j] = ft_strdup(tmp);
-		free(tmp);
-		j++;
-	}
+	retab_init(&args, &j, &tmp, i);
 	while (args[i])
 	{
 		if (args[i + 1])
@@ -68,22 +73,52 @@ static void	inputs_reset()
 	free(g_input);
 }
 
-void	just_apply(char **args)
+static void	just_apply2(char ***args, int *fd)
 {
-		if (args[0] && ft_strcmp(args[0], "echo") == 0)
-			ft_echo(args);
-		else if (args[0] && ft_strcmp(args[0], "cd") == 0)
-			ft_cd(&g_data->cpy, args);
-		else if (args[0] && ft_strcmp(args[0], "setenv") == 0)
-			ft_setenv(&g_data->cpy, args);
-		else if (args[0] && ft_strcmp(args[0], "unsetenv") == 0)
-			ft_unsetenv(&g_data->cpy, args);
-		else if (args[0] && ft_strcmp(args[0], "env") == 0)
-			ft_env(&g_data->cpy, args);
-		else if (args[0] && ft_strcmp(args[0], "history") == 0)
-			ft_history(args);
-		else
-			ft_execve(args, g_data->cpy);
+	if (*(*args + 0) && ft_strcmp(*(*args + 0), "echo") == 0)
+		ft_echo(*args);
+	else if (*(*args + 0) && ft_strcmp(*(*args + 0), "cd") == 0)
+		ft_cd(&g_data->cpy, *args);
+	else if (*(*args + 0) && ft_strcmp(*(*args + 0), "setenv") == 0)
+		ft_setenv(&g_data->cpy, *args);
+	else if (*(*args + 0) && ft_strcmp(*(*args + 0), "unsetenv") == 0)
+		ft_unsetenv(&g_data->cpy, *args);
+	else if (*(*args + 0) && ft_strcmp(*(*args + 0), "env") == 0)
+		ft_env(&g_data->cpy, *args);
+	else if (*(*args + 0) && ft_strcmp(*(*args + 0), "history") == 0)
+		ft_history(*args);
+	else
+		ft_execve(*args, g_data->cpy);
+	if (g_input->op != 0 && *fd > 0 && *fd != 0 && *fd != 1 && *fd != 2)
+		close(*fd);
+}
+
+void	just_apply(char ***args)
+{
+	int i;
+	int fd;
+
+	i = 0;
+	if ((fd = ft_redir(args)) == -1)
+	{
+		dup_std();
+		if (g_input->op != 0 && fd > 0 && fd != 0 && fd != 1 && fd != 2)
+			close(fd);
+		return ;
+	}
+	while (*(*args + i))
+	{
+		*(*args + i) = args_translate(*(*args + i), *args);
+		i++;
+	}
+	if (*(*args + 0) && ft_strcmp(*(*args + 0), "exit") == 0)
+	{
+		dup_std();
+		if (g_input->op != 0 && fd > 0 && fd != 0 && fd != 1 && fd != 2)
+			close(fd);
+		return ;
+	}
+	just_apply2(args, &fd);
 }
 
 int		count_pipes(char **args)
@@ -102,95 +137,117 @@ int		count_pipes(char **args)
 	return(count);
 }
 
-void	ft_apply(char **arg)
+static t_nrm	*apply_init(int tube[], int **o_pid, char ***args, char ***arg)
 {
-	int		i;
-	int		j;
-	int		tube[2];
-	char	**args;
-	int		std;
-	int		std1;
-	int		*old_pids;
-	int		count = 0;
+	t_nrm *nrm;
 
+	if (!(nrm = (t_nrm *)malloc(sizeof(t_nrm))))
+		exit(-1);
+	if (!(*o_pid = (int *)malloc(sizeof(int) * count_pipes(*arg))))
+		exit(-1);
+	if (!(*args = (char **)malloc(sizeof(char *) * tab_size(*arg) + 1)))
+		exit(-1);
+	nrm->count = 0;
 	pipe_pid = 0;
-	if (!(old_pids = (int *)malloc(sizeof(int) * count_pipes(arg))))
-		exit(-1);
-	if (!(args = (char **)malloc(sizeof(char *) * tab_size(arg) + 1)))
-		exit(-1);
-	i = 0;
-	j = 0;
+	nrm->i = 0;
+	nrm->j = 0;
 	tube[0] = 0;
 	tube[1] = 0;
-	std = dup(0);
-	std1 = dup(1);
-	while (arg[i])
+	nrm->std = dup(0);
+	nrm->std1 = dup(1);
+	return (nrm);
+}
+
+static void		process_pipe(char ***args)
+{
+	int		tunnel[2];
+
+	pipe(tunnel);
+	if (!fork())
 	{
-		args[j] = ft_strdup(arg[i]);
-		if ((args[j][0] == 34 || args[j][0] == 39) && (ft_strchr(args[j], '|')))
-		{
-			free(args[j]);
-			args[j] = ft_strdup("|");
-		}
-		else if (ft_strcmp(args[j], "|") == 0)
-		{
-			pipe(tube);
-			dup2(tube[1], 1);
-			free(args[j]);
-			if (pipe_pid != 0)
-			{
-				old_pids[count] = pipe_pid;
-				count++;
-				pipe_pid = 0;
-			}
-			args[j] = NULL;
-			int		tunnel[2];
-			pipe(tunnel);
-			if (!fork())
-			{
-				close(tunnel[0]);
-				in_pipe = 1;
-				just_apply(args);
-				write(tunnel[1], &pipe_pid, sizeof(int));
-				close(tunnel[1]);
-				exit(0);
-			}
-			else
-			{
-				close(tunnel[1]);
-				wait(NULL);
-				read(tunnel[0], &pipe_pid, sizeof(int));
-				close(tunnel[0]);
-			}
-			ft_tabdel(&args);
-			j = -1;
-			dup2(tube[0], 0);
-			close(tube[1]);
-		}
-		j++;
-		i++;
+		close(tunnel[0]);
+		in_pipe = 1;
+		just_apply(args);
+		dup_std();
+		write(tunnel[1], &pipe_pid, sizeof(int));
+		close(tunnel[1]);
+		exit(0);
 	}
-	args[j] = NULL;
-	if (pipe_pid != 0)
+	else
 	{
-		old_pids[count] = pipe_pid;
-		count++;
-		pipe_pid = 0;
+		close(tunnel[1]);
+		wait(NULL);
+		read(tunnel[0], &pipe_pid, sizeof(int));
+		close(tunnel[0]);
 	}
-	dup2(std1, 1);
+}
+
+static void		do_pipes(int tube[], t_nrm **nrm, char ***args, int **old_pids)
+{
+	if (ft_strcmp((*args)[(*nrm)->j], "|") == 0)
+	{
+		pipe(tube);
+		dup2(tube[1], 1);
+		free((*args)[(*nrm)->j]);
+		if (pipe_pid != 0)
+		{
+			(*old_pids)[(*nrm)->count] = pipe_pid;
+			(*nrm)->count++;
+			pipe_pid = 0;
+		}
+		(*args)[(*nrm)->j] = NULL;
+		process_pipe(args);
+		ft_tabdel(args);
+		(*nrm)->j = -1;
+		dup2(tube[0], 0);
+		close(tube[1]);
+	}
+}
+
+static void		end_apply(char ***args, int **old_pids, t_nrm **nrm)
+{
+	dup2((*nrm)->std1, 1);
 	in_pipe = 0;
 	just_apply(args);
-	old_pids[count] = 0;
-	count = 0;
-	while (old_pids[count] != 0)
+	dup_std();
+	(*args)[tab_size(*args)] = NULL;
+	(*old_pids)[(*nrm)->count] = 0;
+	(*nrm)->count = 0;
+	while ((*old_pids)[(*nrm)->count] != 0)
 	{
-		kill(old_pids[count], SIGTERM);
-		count++;
+		kill((*old_pids)[(*nrm)->count], SIGTERM);
+		(*nrm)->count++;
 	}
-	dup2(std, 0);
-	ft_tabdel(&args);
-	free(old_pids);
-	free(args);
+	dup2((*nrm)->std, 0);
+	free(*nrm);
+	free(*old_pids);
+	ft_tabdel(args);
+	free(*args);
+}
+
+void			ft_apply(char **arg)
+{
+	int		tube[2];
+	char	**args;
+	int		*old_pids;
+	t_nrm	*nrm;
+
+	nrm = apply_init(tube, &old_pids, &args, &arg);
+	while (arg[nrm->i])
+	{
+		args[nrm->j] = ft_strdup(arg[nrm->i]);
+		do_pipes(tube, &nrm, &args, &old_pids);
+		nrm->j++;
+		nrm->i++;
+	}
+	args[nrm->j] = NULL;
+	if (pipe_pid != 0)
+	{
+		old_pids[nrm->count] = pipe_pid;
+		nrm->count++;
+		pipe_pid = 0;
+	}
+	end_apply(&args, &old_pids, &nrm);
 }
 
 static void	flag_init(struct termios *term)
@@ -251,51 +308,20 @@ void		term_reset()
 int			ft_minishell(char **line)
 {
 	char	**args;
-	int		i;
-	int		fd;
 
-	i = 0;
 	args = NULL;
 	term_init();
 	quote_get2(line);
 	term_reset();
 	args = get_a(*line, args);
-	if ((fd = ft_redir(&args)) == -1)
-	{
-		dup_std();
-		if (g_input->op != 0 && fd > 0 && fd != 0 && fd != 1 && fd != 2)
-			close(fd);
-		free(*line);
-		ft_tabdel(&args);
-		free(args);
-		return (0);
-	}
-	while (args[i])
-	{
-		args[i] = args_translate(args[i], args);
-		i++;
-	}
-	if (!args)
-		ft_print_error(NULL, QUOTES, *line);
-	else if (args[0] && ft_strcmp(args[0], "exit") == 0)
-	{
-		dup_std();
-		if (g_input->op != 0 && fd > 0 && fd != 0 && fd != 1 && fd != 2)
-			close(fd);
-		ft_tabdel(&args);
-		free(args);
+	ft_apply(args);
+	if (args[0] && ft_strcmp(args[0], "exit") == 0)
 		return (1);
-	}
-	else
-		ft_apply(args);
 	if (args)
 	{
 		ft_tabdel(&args);
 		free(args);
 	}
-	dup_std();
-	if (g_input->op != 0 && fd > 0 && fd != 0 && fd != 1 && fd != 2)
-		close(fd);
 	free(*line);
 	return (0);
 }
@@ -342,29 +368,54 @@ char	*strchr_quote(char *line, int elem)
 	return (NULL);
 }
 
-int		ft_commands(char **line)
+static int		end_commands(char **str, char **base, char **line)
 {
-	char	*str = NULL;
-	char	*found = NULL;
-	char	*base = NULL;
-	char	*tmp = NULL;
+	if (ft_minishell(str))
+	{
+		free(*base);
+		free(*str);
+		return (1);
+	}
+	free(*line);
+	free(*base);
+	return (0);
+}
+
+static void		loop_init(char **found, char **str, char **base, char **tmp)
+{
+	*(*found + 1) = '\0';
+	*(*str + ft_strlen(*str) - 1) = '\0';
+	*tmp = ft_strdup(*base);
+	free(*base);
+	*base = ft_strdup(*tmp + ft_strlen(*str) + 1);
+}
+
+static int		do_minishell(char **str, char **base, char **tmp)
+{
+	if (ft_minishell(str))
+	{
+		free(*base);
+		free(*str);
+		return (1);
+	}
+	free(*tmp);
+	return (0);
+}
+
+int				ft_commands(char **line)
+{
+	char	*str;
+	char	*found;
+	char	*base;
+	char	*tmp;
 
 	base = ft_strdup(*line);
 	str = ft_strdup(*line);
 	while ((found = strchr_quote(str, ';')))
 	{
-		*(found + 1) = '\0';
-		str[ft_strlen(str) - 1] = '\0';
-		tmp = ft_strdup(base);
-		free(base);
-		base = ft_strdup(tmp + ft_strlen(str) + 1);
-		if (ft_minishell(&str))
-		{
-			free(base);
-			free(str);
+		loop_init(&found, &str, &base, &tmp);
+		if (do_minishell(&str, &base, &tmp))
 			return (1);
-		}
-		free(tmp);
 		if (g_data->error)
 		{
 			free(*line);
@@ -373,15 +424,7 @@ int		ft_commands(char **line)
 		}
 		str = ft_strdup(base);
 	}
-	if (ft_minishell(&str))
-	{
-		free(base);
-		free(str);
-		return (1);
-	}
-	free(*line);
-	free(base);
-	return (0);
+	return (end_commands(&str, &base, line));
 }
 
 void		set_lvl(void)
@@ -401,6 +444,25 @@ void		set_lvl(void)
 	free(line);
 }
 
+static int	ft_shell(void)
+{
+	g_data->line = NULL;
+	get_winsize();
+	term_init();
+	if (!g_data->error)
+		print_prompt(g_data->cpy);
+	g_data->line = gnl();
+	term_reset();
+	g_data->error = 0;
+	if (g_data->line)
+	{
+		write_file();
+		if (ft_commands(&g_data->line))
+			return (1);
+	}
+	return (0);
+}
+
 int			main(void)
 {
 	extern char	**environ;
@@ -415,20 +477,8 @@ int			main(void)
 	set_lvl();
 	while (1)
 	{
-		g_data->line = NULL;
-		get_winsize();
-		term_init();
-		if (!g_data->error)
-			print_prompt(g_data->cpy);
-		g_data->line = gnl();
-		term_reset();
-		g_data->error = 0;
-		if (g_data->line)
-		{
-			write_file();
-			if (ft_commands(&g_data->line))
-				break ;
-		}
+		if (ft_shell())
+			break ;
 	}
 	inputs_reset();
 	data_free();

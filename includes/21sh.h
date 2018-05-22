@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/08 11:22:09 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/05/17 15:47:45 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/05/22 15:34:30 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,6 +79,15 @@ typedef struct		s_history
 	int		error;
 	int		special;
 }					t_history;
+
+typedef struct		s_nrm
+{
+	int		i;
+	int		j;
+	int		std;
+	int		std1;
+	int		count;
+}					t_nrm;
 
 typedef struct		s_data
 {
@@ -170,6 +179,7 @@ void	word_right(int i);
 void	copy_mode(int *i);
 char	*remove_quote(char *line);
 char	*strchr_quote(char *line, int elem);
+int		valid_redir(char *str);
 
 t_inputs	*g_input;
 t_data		*g_data;
