@@ -6,59 +6,11 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/28 14:12:13 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/05/18 16:01:24 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/05/23 16:17:21 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../includes/21sh.h"
-
-static int	find_path(char **arg, char **env)
-{
-	char	*path;
-	char	*cmd;
-
-	path = get_var(env, "PATH=");
-	path = ft_strjoin(path, "/");
-	if (arg[0][0] != '/')
-		cmd = ft_strjoin(path, arg[0]);
-	else
-		cmd = ft_strdup(arg[0]);
-//	dprintf(2, "acces ret: %d\n", access(cmd, X_OK));
-	free(path);
-	free(cmd);
-	return (access(cmd, X_OK));
-}
-
-static int	do_execve(char **arg, char **env)
-{
-	pid_t	pid;
-	char	*cmd;
-	char	*path;
-	int		status;
-
-	path = get_var(env, "PATH=");
-	path = ft_strjoin(path, "/");
-	if (arg[0][0] != '/')
-		cmd = ft_strjoin(path, arg[0]);
-	else
-		cmd = ft_strdup(arg[0]);
-	((pid = new_process()) == -1) ? exit(EXIT_FAILURE) : 9;
-	if (pid == 0)
-	{
-		execve(cmd, arg, env);
-		exit(3);
-	}
-	else
-	{
-		if (!in_pipe)
-			waitpid(-1, &status, 0);
-		else
-			return (pid);
-		free(path);
-		free(cmd);
-		return (status);
-	}
-}
+#include "../../includes/shell.h"
 
 static int	error_exec(char ***arg, char **env, char **fullpath, char **bu)
 {
@@ -94,6 +46,24 @@ static void	end_execve(char *path, char **arg, char ***env, char **bu)
 	free(*bu);
 }
 
+static int	absolute_exec(char ***arg, char ***env)
+{
+	if ((*arg)[0] && (*arg)[0][0] == '/')
+	{
+		if (find_path(*arg, *env) != 0)
+		{
+			ft_print_error((*arg)[0], FT_FOUND, NULL);
+			return (1);
+		}
+		if (g_pipe->in)
+			g_pipe->pid = do_execve(*arg, *env);
+		else
+			do_execve(*arg, *env);
+		return (1);
+	}
+	return (0);
+}
+
 void		ft_execve(char **arg, char **env)
 {
 	char	*fullpath;
@@ -101,20 +71,7 @@ void		ft_execve(char **arg, char **env)
 	char	*bu;
 	char	*old;
 
-	if (arg[0] && arg[0][0] == '/')
-	{
-		if (find_path(arg, env) != 0)
-		{
-			ft_print_error(arg[0], FT_FOUND, NULL);
-			return ;
-		}
-		if (in_pipe)
-			pipe_pid = do_execve(arg, env);
-		else
-			do_execve(arg, env);
-		return ;
-	}
-	if (error_exec(&arg, env, &fullpath, &bu))
+	if ((absolute_exec(&arg, &env)) || (error_exec(&arg, env, &fullpath, &bu)))
 		return ;
 	while ((path = make_string(fullpath)))
 	{
@@ -122,8 +79,8 @@ void		ft_execve(char **arg, char **env)
 		free(path);
 		if (find_path(arg, env) == 0)
 		{
-			if (in_pipe)
-				pipe_pid = do_execve(arg, env);
+			if (g_pipe->in)
+				g_pipe->pid = do_execve(arg, env);
 			else
 				do_execve(arg, env);
 			break ;

@@ -6,11 +6,11 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/16 10:20:13 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/05/03 12:16:28 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/05/23 12:39:24 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../includes/21sh.h"
+#include "../../includes/shell.h"
 
 pid_t	new_process(void)
 {
@@ -33,7 +33,6 @@ int		quote_invalid(char *line)
 			c++;
 		i++;
 	}
-//	ft_putnbr(c);
 	return (c % 2 ? 1 : 0);
 }
 

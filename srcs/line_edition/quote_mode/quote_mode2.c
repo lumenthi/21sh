@@ -1,42 +1,36 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_env2.c                                          :+:      :+:    :+:   */
+/*   quote_mode2.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2018/03/20 13:44:34 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/05/23 14:50:03 by lumenthi         ###   ########.fr       */
+/*   Created: 2018/05/23 15:49:24 by lumenthi          #+#    #+#             */
+/*   Updated: 2018/05/23 15:50:29 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../../includes/shell.h"
 
-void	print_environ(char ***environ)
+int		quote_leave(int *i, char mode)
 {
-	int i;
+	ft_end(*i);
+	inser_char(mode, i);
+	ft_putchar('\n');
+	return (1);
+}
 
-	i = 0;
-	while (*(*environ + i))
+int		quote_ctrld(int *i)
+{
+	if (ft_strlen(g_data->line) == 0)
 	{
-		ft_putendl(*(*environ + i));
-		i++;
+		ft_end(*i);
+		free(g_data->line);
+		g_data->line = NULL;
+		ft_putchar('\n');
+		return (1);
 	}
-	if (i == 0)
-		ft_print_error("env", EMPTY, NULL);
-}
-
-void	env_error(void)
-{
-	ft_putstr_fd(RED, 2);
-	ft_putstr_fd("env", 2);
-	ft_putstr_fd(BLANK, 2);
-	ft_putendl_fd(": can't leave through env commad", 2);
-}
-
-void	fake_cpy(char ***environ, char **fake_env)
-{
-	ft_tabdel(environ);
-	free(*environ);
-	environ_cpy(fake_env, environ);
+	if (g_data->pos < *i)
+		edit_line(i);
+	return (0);
 }

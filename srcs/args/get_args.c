@@ -6,11 +6,11 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/03/08 10:32:01 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/05/16 10:51:43 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/05/23 14:56:22 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../includes/21sh.h"
+#include "../../includes/shell.h"
 
 static void	make_word(char ***args, int *i, char **str, int j)
 {
@@ -22,24 +22,6 @@ static void	make_word(char ***args, int *i, char **str, int j)
 		free(*str);
 		*str = NULL;
 		(*i)++;
-	}
-}
-
-static void	get_normal(int *c, char *line, char **str, int *j)
-{
-	int lim;
-
-	lim = (int)ft_strlen(line);
-	while (*c < lim && !ft_isspace(line[*c]))
-	{
-		if (!(*str))
-		{
-			if (!(*str = malloc(lim)))
-				exit(-1);
-		}
-		*(*str + *j) = line[*c];
-		(*j)++;
-		(*c)++;
 	}
 }
 
@@ -97,15 +79,6 @@ static void	get_squotes(int *c, char *line, char **str, int *j)
 		}
 		(*c)++;
 	}
-}
-
-static int	dquotes_valid(char *line, int c)
-{
-	if (c == 0)
-		return (1);
-	else if (ft_isspace(line[c - 1]))
-		return (1);
-	return (0);
 }
 
 static void	get_words(char *line, char ***args, char **str, int *i)

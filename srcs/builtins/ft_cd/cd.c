@@ -6,11 +6,11 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/03/13 11:51:16 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/05/03 12:17:51 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/05/23 12:34:21 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../../includes/21sh.h"
+#include "../../../includes/shell.h"
 
 static void	cd_error(char *path)
 {

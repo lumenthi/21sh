@@ -6,11 +6,11 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/09 14:23:54 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/05/14 11:20:10 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/05/23 15:52:01 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../../includes/21sh.h"
+#include "../../../includes/shell.h"
 
 static void	quote_init(int *i, char mode)
 {
@@ -42,30 +42,7 @@ static int	sigint_handler(int i)
 	return (1);
 }
 
-static int	quote_leave(int *i, char mode)
-{
-	ft_end(*i);
-	inser_char(mode, i);
-	ft_putchar('\n');
-	return (1);
-}
-
-static int	ctrld_handler(int *i)
-{
-	if (ft_strlen(g_data->line) == 0)
-	{
-		ft_end(*i);
-		free(g_data->line);
-		g_data->line = NULL;
-		ft_putchar('\n');
-		return (1);
-	}
-	if (g_data->pos < *i)
-		edit_line(i);
-	return (0);
-}
-
-static int ft_enter(int *i, char mode)
+static int	ft_enter(int *i, char mode)
 {
 	char	*bu;
 	char	*new;
@@ -103,7 +80,7 @@ static void	quote_actions(int *i, char *buf)
 		inser_char(buf[0], i);
 }
 
-char	*quote_mode(char mode)
+char		*quote_mode(char mode)
 {
 	char	buf[20];
 	int		i;
@@ -115,9 +92,9 @@ char	*quote_mode(char mode)
 		buf[1] = 0;
 		buf[2] = 0;
 		read(0, buf, 20);
-		if ((CTRL_C && sigint_handler(i)) || (CTRL_D && ctrld_handler(&i)))
+		if ((CTRL_C && sigint_handler(i)) || (CTRL_D && quote_ctrld(&i)))
 			break ;
-		else if (buf[0] == mode && quote_leave(&i ,mode))
+		else if (buf[0] == mode && quote_leave(&i, mode))
 			break ;
 		else if (BACKSPACE && ft_move('l', i))
 			edit_line(&i);

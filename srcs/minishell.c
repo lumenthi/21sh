@@ -6,11 +6,11 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/08 11:24:59 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/05/22 20:18:58 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/05/23 14:28:36 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../includes/21sh.h"
+#include "../includes/shell.h"
 
 void	dup_std(void)
 {
@@ -58,7 +58,7 @@ void	ft_retab(char **args, int i)
 	}
 }
 
-static void	inputs_init()
+static void	inputs_init(void)
 {
 	if (!(g_input = malloc(sizeof(g_input))))
 		exit(-1);
@@ -68,12 +68,12 @@ static void	inputs_init()
 	g_input->op = 0;
 }
 
-static void	inputs_reset()
+static void	inputs_reset(void)
 {
 	free(g_input);
 }
 
-static void	just_apply2(char ***args, int *fd)
+void	just_apply2(char ***args, int *fd)
 {
 	if (*(*args + 0) && ft_strcmp(*(*args + 0), "echo") == 0)
 		ft_echo(*args);
@@ -134,13 +134,15 @@ int		count_pipes(char **args)
 			count = count + 2;
 		i++;
 	}
-	return(count);
+	return (count);
 }
 
 static t_nrm	*apply_init(int tube[], int **o_pid, char ***args, char ***arg)
 {
 	t_nrm *nrm;
 
+	if (!(g_pipe = (t_pipe *)malloc(sizeof(t_pipe))))
+		exit(-1);
 	if (!(nrm = (t_nrm *)malloc(sizeof(t_nrm))))
 		exit(-1);
 	if (!(*o_pid = (int *)malloc(sizeof(int) * count_pipes(*arg))))
@@ -148,7 +150,7 @@ static t_nrm	*apply_init(int tube[], int **o_pid, char ***args, char ***arg)
 	if (!(*args = (char **)malloc(sizeof(char *) * tab_size(*arg) + 1)))
 		exit(-1);
 	nrm->count = 0;
-	pipe_pid = 0;
+	g_pipe->pid = 0;
 	nrm->i = 0;
 	nrm->j = 0;
 	tube[0] = 0;
@@ -166,10 +168,10 @@ static void		process_pipe(char ***args)
 	if (!fork())
 	{
 		close(tunnel[0]);
-		in_pipe = 1;
+		g_pipe->in = 1;
 		just_apply(args);
 		dup_std();
-		write(tunnel[1], &pipe_pid, sizeof(int));
+		write(tunnel[1], &g_pipe->pid, sizeof(int));
 		close(tunnel[1]);
 		exit(0);
 	}
@@ -177,7 +179,7 @@ static void		process_pipe(char ***args)
 	{
 		close(tunnel[1]);
 		wait(NULL);
-		read(tunnel[0], &pipe_pid, sizeof(int));
+		read(tunnel[0], &g_pipe->pid, sizeof(int));
 		close(tunnel[0]);
 	}
 }
@@ -189,11 +191,11 @@ static void		do_pipes(int tube[], t_nrm **nrm, char ***args, int **old_pids)
 		pipe(tube);
 		dup2(tube[1], 1);
 		free((*args)[(*nrm)->j]);
-		if (pipe_pid != 0)
+		if (g_pipe->pid != 0)
 		{
-			(*old_pids)[(*nrm)->count] = pipe_pid;
+			(*old_pids)[(*nrm)->count] = g_pipe->pid;
 			(*nrm)->count++;
-			pipe_pid = 0;
+			g_pipe->pid = 0;
 		}
 		(*args)[(*nrm)->j] = NULL;
 		process_pipe(args);
@@ -207,7 +209,7 @@ static void		do_pipes(int tube[], t_nrm **nrm, char ***args, int **old_pids)
 static void		end_apply(char ***args, int **old_pids, t_nrm **nrm)
 {
 	dup2((*nrm)->std1, 1);
-	in_pipe = 0;
+	g_pipe->in = 0;
 	just_apply(args);
 	dup_std();
 	(*args)[tab_size(*args)] = NULL;
@@ -219,6 +221,7 @@ static void		end_apply(char ***args, int **old_pids, t_nrm **nrm)
 		(*nrm)->count++;
 	}
 	dup2((*nrm)->std, 0);
+	free(g_pipe);
 	free(*nrm);
 	free(*old_pids);
 	ft_tabdel(args);
@@ -241,11 +244,11 @@ void			ft_apply(char **arg)
 		nrm->i++;
 	}
 	args[nrm->j] = NULL;
-	if (pipe_pid != 0)
+	if (g_pipe->pid != 0)
 	{
-		old_pids[nrm->count] = pipe_pid;
+		old_pids[nrm->count] = g_pipe->pid;
 		nrm->count++;
-		pipe_pid = 0;
+		g_pipe->pid = 0;
 	}
 	end_apply(&args, &old_pids, &nrm);
 }
@@ -282,8 +285,8 @@ int		valid_term(void)
 
 void	term_init(void)
 {
-	char	*name_term;
-	struct	termios term;
+	char			*name_term;
+	struct termios	term;
 
 	if (!(g_data->bu = malloc(sizeof(struct termios))))
 		exit(-1);
@@ -295,7 +298,7 @@ void	term_init(void)
 	tcsetattr(0, TCSADRAIN, &term);
 }
 
-void		term_reset()
+void		term_reset(void)
 {
 	if (g_data->bu != NULL)
 	{
@@ -305,23 +308,37 @@ void		term_reset()
 	}
 }
 
+static void	del_args(char ***arg)
+{
+	if (*arg)
+	{
+		ft_tabdel(arg);
+		free(*arg);
+	}
+}
+
 int			ft_minishell(char **line)
 {
 	char	**args;
+	char	**arg;
 
 	args = NULL;
 	term_init();
 	quote_get2(line);
 	term_reset();
 	args = get_a(*line, args);
-	ft_apply(args);
-	if (args[0] && ft_strcmp(args[0], "exit") == 0)
-		return (1);
-	if (args)
+	if (!(arg = retab_pipes(args)))
 	{
 		ft_tabdel(&args);
 		free(args);
+		free(*line);
+		return (0);
 	}
+	else
+		ft_apply(arg);
+	if (arg[0] && ft_strcmp(arg[0], "exit") == 0)
+		return (1);
+	del_args(&arg);
 	free(*line);
 	return (0);
 }

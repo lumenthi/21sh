@@ -6,11 +6,11 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/09 10:11:36 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/05/22 12:48:19 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/05/23 13:30:27 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../includes/21sh.h"
+#include "../../includes/shell.h"
 
 int		ft_isnum(char *str)
 {
@@ -765,7 +765,7 @@ static void	change_args(char ***args, int i, char **after, char *cpy)
 	free(*after);
 }
 
-static char	**retab_pipes(char **args)
+char	**retab_pipes(char **args)
 {
 	int		i;
 	char	*after;

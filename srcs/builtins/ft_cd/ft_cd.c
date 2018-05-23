@@ -6,11 +6,11 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/15 16:39:55 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/05/03 12:18:04 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/05/23 14:43:10 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../../includes/21sh.h"
+#include "../../../includes/shell.h"
 
 char		*var_conv(char *arg, char **env)
 {
@@ -38,12 +38,25 @@ static void	get_paths(char **abs_path, char **old_path, char **environ)
 	*abs_path = getcwd(*abs_path, 99);
 }
 
+static void	invalid_old(void)
+{
+	ft_putstr_fd(RED, 2);
+	ft_putstr_fd("21sh", 2);
+	ft_putstr_fd(BLANK, 2);
+	ft_putstr_fd(": OLDPWD is invalid, changing $OLDPWD to ERROR\n", 2);
+}
+
 void		ft_cd(char ***environ, char **arg)
 {
 	char	*abs_path;
 	char	*old_path;
 
 	get_paths(&abs_path, &old_path, *environ);
+	if (!abs_path)
+	{
+		invalid_old();
+		abs_path = ft_strdup("ERROR");
+	}
 	if (tab_size(arg) > 2)
 		ft_print_error("cd", ARGS, NULL);
 	else if (arg[1] && ft_strcmp(arg[1], "-") == 0)

@@ -6,7 +6,7 @@
 #    By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2017/12/22 14:06:43 by lumenthi          #+#    #+#              #
-#    Updated: 2018/05/09 14:41:21 by lumenthi         ###   ########.fr        #
+#    Updated: 2018/05/23 16:28:51 by lumenthi         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -32,9 +32,11 @@ SRCS = minishell.c \
 		ft_setenv.c \
 		ft_unsetenv.c \
 		ft_execve.c \
+		ft_execve2.c \
 		del_tools.c \
 		global_tools.c \
 		get_args.c \
+		get_args2.c \
 		error_handling.c \
 		ft_error.c \
 		cd.c \
@@ -44,13 +46,23 @@ SRCS = minishell.c \
 		ft_history.c \
 		ft_redirections.c \
 		ft_quotes.c \
+		ft_quotes2.c \
+		ft_quotes3.c \
 		history.c \
+		history2.c \
 		line_history.c \
 		line_tools.c \
+		line_tools2.c \
+		line_tools3.c \
+		line_tools4.c \
 		copy_mode.c \
+		copy_mode2.c \
+		copy_mode3.c \
 		heredoc_mode.c \
 		quote_mode.c \
-		standard_mode.c
+		quote_mode2.c \
+		standard_mode.c \
+		standard_mode2.c
 
 SOURCES = $(addprefix $(SRCDIR)/, $(SRCS))
 INCLUDES = $(addprefix -I, $(INCDIR))
@@ -74,7 +86,8 @@ vpath %.c srcs \
 	srcs/line_edition/copy_mode \
 	srcs/line_edition/heredoc_mode \
 	srcs/line_edition/quote_mode \
-	srcs/line_edition/standard_mode
+	srcs/line_edition/standard_mode \
+	srcs/line_edition/tools
 
 GREEN = '\033[4;32m'
 RED = '\033[4;31m'

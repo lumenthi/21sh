@@ -6,11 +6,11 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/03/13 11:40:30 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/05/09 11:12:10 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/05/23 12:39:03 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../../includes/21sh.h"
+#include "../../../includes/shell.h"
 
 void	ft_print_error(char *ft, int error, char *arg)
 {
@@ -50,7 +50,7 @@ void	input_error(char *line)
 	ft_putstr_fd(": no such file or directory\n", 2);
 }
 
-void		history_error(void)
+void	history_error(void)
 {
 	g_history->error = 1;
 	ft_putstr_fd(RED, 2);

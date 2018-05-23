@@ -6,12 +6,12 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/08 11:22:09 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/05/22 15:34:30 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/05/23 16:28:17 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef MINISHELL_H
-# define MINISHELL_H
+#ifndef SHELL_H
+# define SHELL_H
 
 # define GREEN "\033[1;32m"
 # define BLUE "\033[1;34m"
@@ -101,6 +101,12 @@ typedef struct		s_data
 	int				pos;
 }					t_data;
 
+typedef struct		s_pipe
+{
+	int				in;
+	int				pid;
+}					t_pipe;
+
 pid_t	new_process(void);
 void	ft_tabdel(char ***tabs);
 char	*get_var(char **environ, char *var);
@@ -180,11 +186,43 @@ void	copy_mode(int *i);
 char	*remove_quote(char *line);
 char	*strchr_quote(char *line, int elem);
 int		valid_redir(char *str);
+char	**retab_pipes(char **args);
+void	just_apply(char ***args);
+void	just_apply2(char ***args, int *fd);
+void	print_environ(char ***environ);
+int		dquotes_valid(char *line, int c);
+void	get_normal(int *c, char *line, char **str, int *j);
+int		history_open(int fd);
+void	get_lines(void);
+int		standard_enter(int i);
+int		standard_sigint(int i);
+int		standard_ctrld(int *i);
+int		shortcut_clear(void);
+int		shortcut_echap(int i);
+void	copy_sub(int len, int *i);
+void	copy_write(int pos, int *i);
+void	mode_icon(char icon, int i);
+int		copy_sigint(int *i);
+void	copy_cpy(int *i, int *select);
+void	copy_cut(int *i, char **cpy, int *select);
+int		copy_paste(int *i, char **cpy, int *select);
+int		copy_quit(int *i, int select);
+int		quote_leave(int *i, char mode);
+int		quote_ctrld(int *i);
+void	ft_print(int len);
+char	*ft_insert(char *line, char buf, int pos, int i);
+int		find_path(char **arg, char **env);
+void	get_cmd(char **path, char **env, char **cmd, char **arg);
+int		do_execve(char **arg, char **env);
+char	*home_translate(char *line, int i);
+void	variables_init(int *i, char *mode);
+void	translate_end(char **ne, char *line, char **args);
+char	*var_translate(char *line, int i);
+char	*point_translate(char *line, int i);
 
 t_inputs	*g_input;
 t_data		*g_data;
 t_history	*g_history;
-int			in_pipe;
-int			pipe_pid;
+t_pipe		*g_pipe;
 
 #endif

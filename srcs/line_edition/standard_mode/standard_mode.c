@@ -6,60 +6,13 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/09 14:22:05 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/05/14 12:40:01 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/05/23 15:21:57 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../../includes/21sh.h"
+#include "../../../includes/shell.h"
 
-static int	ft_enter(int i)
-{
-	ft_end(i);
-	ft_putchar('\n');
-	return (1);
-}
-
-static int	sigint_handler(int i)
-{
-	ft_end(i);
-	if (g_data->line)
-		free(g_data->line);
-	ft_putchar('\n');
-	return (1);
-}
-
-static int	ctrld_handler(int *i)
-{
-	if (ft_strlen(g_data->line) == 0)
-	{
-		g_history->special = 1;
-		ft_putstr("exit");
-		return (1);
-	}
-	if (g_data->pos < *i)
-		edit_line(i);
-	return (0);
-}
-
-static int	shortcut_clear(void)
-{
-	if (g_data->line)
-		free(g_data->line);
-	g_history->special = 1;
-	return (1);
-}
-
-static int	shortcut_echap(int i)
-{
-	ft_end(i);
-	if (g_data->line)
-		free(g_data->line);
-	g_history->special = 1;
-	ft_putstr("exit\n");
-	return (1);
-}
-
-static void standard_history(int *i, char *buf)
+static void	standard_history(int *i, char *buf)
 {
 	if (UP)
 		g_history->nb_lines ? history_search(i, 'u') : 0;
@@ -94,7 +47,7 @@ static void	standard_actions(int *i, char *buf)
 		inser_char(buf[0], i);
 }
 
-static void buf_init(char *ptr1, char *ptr2, char *ptr3)
+static void	buf_init(char *ptr1, char *ptr2, char *ptr3)
 {
 	*ptr1 = 0;
 	*ptr2 = 0;
@@ -108,7 +61,7 @@ static void	gnl_init(int *i)
 	*i = 0;
 }
 
-char	*gnl(void)
+char		*gnl(void)
 {
 	char	buf[20];
 	int		i;
@@ -118,11 +71,11 @@ char	*gnl(void)
 	{
 		buf_init(&buf[0], &buf[1], &buf[2]);
 		read(0, buf, 20);
-		if (ENTER && ft_enter(i))
+		if (ENTER && standard_enter(i))
 			break ;
-		else if (CTRL_C && sigint_handler(i))
+		else if (CTRL_C && standard_sigint(i))
 			return (ft_strdup(""));
-		else if (CTRL_D && ctrld_handler(&i))
+		else if (CTRL_D && standard_ctrld(&i))
 			return (ft_strdup("exit"));
 		else if (CTRL_L && shortcut_clear())
 			return (ft_strdup("clear"));

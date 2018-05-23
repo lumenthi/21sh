@@ -6,13 +6,13 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/03/13 12:12:55 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/05/09 14:10:30 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/05/23 12:39:34 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../includes/21sh.h"
+#include "../../includes/shell.h"
 
-char	**tab_conv(char **args, char **env)
+char			**tab_conv(char **args, char **env)
 {
 	int	i;
 
@@ -29,7 +29,7 @@ char	**tab_conv(char **args, char **env)
 	return (args);
 }
 
-char	*make_string(char *fullpath)
+char			*make_string(char *fullpath)
 {
 	char *tmp;
 	char *str;
@@ -47,7 +47,7 @@ char	*make_string(char *fullpath)
 	return (str);
 }
 
-void	environ_cpy(char **environ, char ***cpy)
+void			environ_cpy(char **environ, char ***cpy)
 {
 	int i;
 
@@ -65,21 +65,8 @@ void	environ_cpy(char **environ, char ***cpy)
 	*(*cpy + i) = NULL;
 }
 
-void	print_prompt(char **cpy)
+static void		print_prompt2(char *path)
 {
-	char *path;
-	char *tmp;
-
-	tmp = NULL;
-	path = NULL;
-	if (cpy)
-		tmp = get_var(cpy, "PWD=");
-	if (tmp)
-	{
-		path = ft_strrchr(tmp, '/');
-		ft_strlen(path) > 1 ? path = path + 1 : 0;
-		!path ? path = tmp : 0;
-	}
 	ft_putstr(ORANGE);
 	ft_putchar('[');
 	ft_put("us");
@@ -94,4 +81,22 @@ void	print_prompt(char **cpy)
 	g_data->pos = 0;
 	g_data->cursor->y = 0;
 	g_data->cursor->x = 0;
+}
+
+void			print_prompt(char **cpy)
+{
+	char *path;
+	char *tmp;
+
+	tmp = NULL;
+	path = NULL;
+	if (cpy)
+		tmp = get_var(cpy, "PWD=");
+	if (tmp)
+	{
+		path = ft_strrchr(tmp, '/');
+		ft_strlen(path) > 1 ? path = path + 1 : 0;
+		!path ? path = tmp : 0;
+	}
+	print_prompt2(path);
 }

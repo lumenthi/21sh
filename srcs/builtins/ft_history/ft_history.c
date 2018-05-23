@@ -6,18 +6,18 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/08 16:00:59 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/05/14 18:16:13 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/05/23 12:35:25 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../../includes/21sh.h"
+#include "../../../includes/shell.h"
 
 static int	history_clear(void)
 {
 	int fd;
 
 	fd = 0;
-	fd = open(HISTORY_PATH, O_RDWR|O_CREAT|O_TRUNC, 0666);
+	fd = open(HISTORY_PATH, O_RDWR | O_CREAT | O_TRUNC, 0666);
 	if (fd < 0)
 	{
 		g_history->error = 1;
@@ -36,7 +36,7 @@ static int	history_clear(void)
 	return (1);
 }
 
-void	ft_history(char **args)
+void		ft_history(char **args)
 {
 	int i;
 
@@ -58,5 +58,5 @@ void	ft_history(char **args)
 	else if ((ft_strcmp(args[1], "clean") == 0 ||
 		ft_strcmp(args[1], "clear") == 0 || ft_strcmp(args[1], "reset") == 0)
 		&& !history_clear())
-			return;
+		return ;
 }

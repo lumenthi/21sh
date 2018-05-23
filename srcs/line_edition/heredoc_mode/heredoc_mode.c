@@ -6,13 +6,13 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/09 14:25:42 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/05/13 22:32:40 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/05/23 12:36:40 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../../includes/21sh.h"
+#include "../../../includes/shell.h"
 
-static void	heredoc_init(int *i)
+static void		heredoc_init(int *i)
 {
 	ft_put("ks");
 	free(g_data->line);
@@ -25,7 +25,7 @@ static void	heredoc_init(int *i)
 	g_data->cursor->start = 10;
 }
 
-static int	sigint_handler(int i)
+static int		sigint_handler(int i)
 {
 	ft_end(i);
 	free(g_data->line);
@@ -35,7 +35,7 @@ static int	sigint_handler(int i)
 	return (1);
 }
 
-static int	ctrld_handler(int *i)
+static int		ctrld_handler(int *i)
 {
 	if (ft_strlen(g_data->line) == 0 || g_data->line == NULL)
 	{
@@ -48,7 +48,7 @@ static int	ctrld_handler(int *i)
 	return (0);
 }
 
-static int	ft_enter(char *lim, int *i, int fd)
+static int		ft_enter(char *lim, int *i, int fd)
 {
 	if (!g_data->line)
 		g_data->line = ft_strdup("");
@@ -68,7 +68,7 @@ static int	ft_enter(char *lim, int *i, int fd)
 	return (1);
 }
 
-void		write_mode(int fd, char *lim)
+void			write_mode(int fd, char *lim)
 {
 	char	buf[20];
 	int		i;

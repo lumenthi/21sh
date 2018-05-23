@@ -6,11 +6,11 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/08 14:51:49 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/05/09 14:48:26 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/05/23 12:38:22 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../includes/21sh.h"
+#include "../../includes/shell.h"
 
 void		all_signals(void)
 {
@@ -30,7 +30,7 @@ void		all_signals(void)
 	signal(SIGCONT, signal_handler);
 }
 
-void	signal_handler(int sig)
+void		signal_handler(int sig)
 {
 	if (sig == SIGINT)
 	{

@@ -6,11 +6,11 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/28 14:08:43 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/05/22 15:25:40 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/05/23 14:51:02 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../../includes/21sh.h"
+#include "../../../includes/shell.h"
 
 static int		set_env(char ***environ, char *env)
 {
@@ -32,20 +32,6 @@ static int		set_env(char ***environ, char *env)
 	free(key);
 	free(value);
 	return (1);
-}
-
-static void		print_environ(char ***environ)
-{
-	int i;
-
-	i = 0;
-	while (*(*environ + i))
-	{
-		ft_putendl(*(*environ + i));
-		i++;
-	}
-	if (i == 0)
-		ft_print_error("env", EMPTY, NULL);
 }
 
 static int		make_fake(char ***fake_env, char **args, int *j)
@@ -80,9 +66,11 @@ static void		reset_env(char ***environ, char ***bu, char ***fake_env)
 
 static void		just_env(int j, char **args)
 {
-	int i;
+	int		i;
+	char	**args2;
 
 	i = 0;
+	args2 = args + j;
 	while ((args + j)[i])
 	{
 		if ((args + j)[i][0] != 39)
@@ -90,7 +78,7 @@ static void		just_env(int j, char **args)
 		i++;
 	}
 	if (ft_strcmp(args[1], "exit") != 0 && ft_strcmp(args[1], "q") != 0)
-		ft_apply(args + j);
+		just_apply2(&args2, 0);
 	else
 		env_error();
 }

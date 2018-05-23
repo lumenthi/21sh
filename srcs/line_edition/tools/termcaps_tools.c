@@ -6,11 +6,11 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/03/24 11:24:18 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/05/03 12:15:18 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/05/23 16:01:14 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../includes/21sh.h"
+#include "../../../includes/shell.h"
 
 int		my_outc(int c)
 {

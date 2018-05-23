@@ -6,11 +6,11 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/09 14:03:18 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/05/13 12:16:52 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/05/23 14:58:13 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../includes/21sh.h"
+#include "../../includes/shell.h"
 
 static void	history_up(int *pos)
 {
@@ -22,7 +22,7 @@ static void	history_up(int *pos)
 	g_history->position++;
 }
 
-void	history_search(int *i, char a)
+void		history_search(int *i, char a)
 {
 	int		pos;
 
