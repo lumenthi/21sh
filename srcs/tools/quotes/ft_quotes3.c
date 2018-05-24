@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/23 16:27:10 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/05/23 16:28:39 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/05/24 15:35:27 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,6 +58,8 @@ char			*point_translate(char *line, int i)
 		return (line);
 	path = NULL;
 	path = getcwd(path, 99);
+	if (!path)
+		path = ft_strdup("");
 	while (found)
 	{
 		if (found - 1 && (tmp = ft_strrchr(path, '/')))

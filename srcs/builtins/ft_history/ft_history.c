@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/08 16:00:59 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/05/23 12:35:25 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/05/24 20:51:46 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,6 +36,18 @@ static int	history_clear(void)
 	return (1);
 }
 
+static void	error_option(char *str)
+{
+	ft_putstr_fd(RED, 2);
+	ft_putstr_fd("history", 2);
+	ft_putstr_fd(BLANK, 2);
+	ft_putstr_fd(": illegal option ", 2);
+	ft_putstr_fd(RED, 2);
+	ft_putstr_fd(str, 2);
+	ft_putstr_fd(BLANK, 2);
+	ft_putchar_fd('\n', 2);
+}
+
 void		ft_history(char **args)
 {
 	int i;
@@ -56,7 +68,8 @@ void		ft_history(char **args)
 		}
 	}
 	else if ((ft_strcmp(args[1], "clean") == 0 ||
-		ft_strcmp(args[1], "clear") == 0 || ft_strcmp(args[1], "reset") == 0)
-		&& !history_clear())
-		return ;
+		ft_strcmp(args[1], "clear") == 0 || ft_strcmp(args[1], "reset") == 0))
+			history_clear();
+	else
+		error_option(args[1]);
 }

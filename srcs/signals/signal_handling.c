@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/08 14:51:49 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/05/23 12:38:22 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/05/24 15:39:10 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,6 +50,9 @@ void		signal_handler(int sig)
 		|| sig == SIGFPE || sig == SIGILL || sig == SIGUSR1 || sig == SIGUSR2)
 	{
 		term_reset();
+		ft_putstr_fd("program exited with code: ", 2);
+		ft_putnbr_fd(sig, 2);
+		ft_putchar_fd('\n', 2);
 		exit(-1);
 	}
 }

@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/16 10:15:47 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/05/23 12:35:42 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/05/24 16:33:15 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,7 +65,7 @@ void	set_var(char ***cpy, char *var, char *value)
 	char	**args;
 
 	if (!(args = malloc(sizeof(char *) * 4)))
-		exit(-1);
+		malloc_error();
 	args[0] = ft_strdup("setenv");
 	args[1] = ft_strdup(var);
 	args[1][ft_strlen(args[1]) - 1] = '\0';

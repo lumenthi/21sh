@@ -6,7 +6,7 @@
 #    By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2017/12/22 14:06:43 by lumenthi          #+#    #+#              #
-#    Updated: 2018/05/23 16:28:51 by lumenthi         ###   ########.fr        #
+#    Updated: 2018/05/24 22:34:52 by lumenthi         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -25,6 +25,11 @@ LIBFT = $(LIBDIR)/libft.a
 LIBFT_OBJ = $(LIBDIR)/objs
 
 SRCS = minishell.c \
+		minishell1.c \
+		minishell2.c \
+		minishell3.c \
+		minishell4.c \
+		minishell5.c \
 		ft_echo.c \
 		ft_cd.c \
 		ft_env.c \
@@ -39,12 +44,22 @@ SRCS = minishell.c \
 		get_args2.c \
 		error_handling.c \
 		ft_error.c \
+		ft_error2.c \
 		cd.c \
 		global_tools2.c \
 		termcaps_tools.c \
 		signal_handling.c \
 		ft_history.c \
 		ft_redirections.c \
+		ft_redirections1.c \
+		ft_redirections2.c \
+		ft_redirections3.c \
+		ft_redirections4.c \
+		ft_redirections5.c \
+		ft_redirections6.c \
+		ft_redirections7.c \
+		ft_redirections8.c \
+		ft_redirections9.c \
 		ft_quotes.c \
 		ft_quotes2.c \
 		ft_quotes3.c \
@@ -87,7 +102,8 @@ vpath %.c srcs \
 	srcs/line_edition/heredoc_mode \
 	srcs/line_edition/quote_mode \
 	srcs/line_edition/standard_mode \
-	srcs/line_edition/tools
+	srcs/line_edition/tools \
+	srcs/core
 
 GREEN = '\033[4;32m'
 RED = '\033[4;31m'

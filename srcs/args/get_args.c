@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/03/08 10:32:01 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/05/23 14:56:22 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/05/24 16:31:04 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,7 @@ static void	get_quotes(int *c, char *line, char **str, int *j)
 	if (!(*str))
 	{
 		if (!(*str = malloc(lim)))
-			exit(-1);
+			malloc_error();
 	}
 	*(*str + *j) = line[*c];
 	(*c)++;
@@ -61,7 +61,7 @@ static void	get_squotes(int *c, char *line, char **str, int *j)
 	if (!(*str))
 	{
 		if (!(*str = malloc(lim)))
-			exit(-1);
+			malloc_error();
 	}
 	*(*str + *j) = line[*c];
 	(*c)++;

@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/03/13 12:12:55 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/05/23 12:39:34 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/05/24 16:32:47 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,7 +55,7 @@ void			environ_cpy(char **environ, char ***cpy)
 	while (*(environ + i))
 		i++;
 	if (!(*cpy = malloc(sizeof(char *) * (i + 1))))
-		exit(-1);
+		malloc_error();
 	i = 0;
 	while (*(environ + i))
 	{

@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/23 16:10:51 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/05/23 16:11:26 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/05/24 16:32:28 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@ char	*ft_insert(char *line, char buf, int pos, int i)
 	else
 		line[i] = '\0';
 	if (!(after = malloc(i + 2)))
-		exit(-1);
+		malloc_error();
 	ft_strncpy(after, line, pos);
 	after[pos] = buf;
 	after[pos + 1] = '\0';

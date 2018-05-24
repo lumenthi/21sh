@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/23 14:59:16 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/05/23 15:09:11 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/05/24 16:31:55 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,9 +32,9 @@ static void		first_init(int *i, int *fd)
 	*i = 0;
 	*fd = 0;
 	if (!(g_history = malloc(sizeof(t_history))))
-		exit(-1);
+		malloc_error();
 	if (!(g_history->line = malloc(sizeof(char *) * HISTORY_LIMIT + 1)))
-		exit(-1);
+		malloc_error();
 	g_history->nb_lines = 0;
 	g_history->error = 0;
 	g_history->special = 0;

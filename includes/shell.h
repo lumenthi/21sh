@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   21sh.h                                             :+:      :+:    :+:   */
+/*   shell.h                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/08 11:22:09 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/05/23 16:28:17 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/05/24 22:33:16 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -219,6 +219,67 @@ void	variables_init(int *i, char *mode);
 void	translate_end(char **ne, char *line, char **args);
 char	*var_translate(char *line, int i);
 char	*point_translate(char *line, int i);
+void	pipe_error(void);
+void	malloc_error(void);
+void	dup_error(void);
+void	not_filefd(int *new_fd, int sign, char *after);
+char	*get_after(char **found, char **cpy, int *sign, int *new_fd);
+int		heredoc_nb(char *cpy, char *found);
+void	last_redir(char **after);
+int		ft_isnum(char *str);
+int		open_fd(char *after, int sign);
+void	numdup_badcpy(char **cpy, int *new_fd);
+void	numdup_after(char **cpy, int *new_fd, int sign);
+void	redir_numdup(char **cpy, int *new_fd, char **after, int sign);
+int		invalid_fd(int new_fd, char **after, char **cpy, int sign);
+void	get_afterredir(char **after, char **found, char **sign);
+char	**tab_insert(char **args, int i, char *ne);
+int		redir_init(char *line, int *new_fd, char **cpy);
+int		is_redir(char *line);
+int		first_redir(char **args);
+char	**nb_lastredir(char **args, int i);
+void	get_sign(char **found, char *line, char **sign);
+char	**after_resize(char **args, int i);
+char	**before_resize(char **args, int i);
+char	**tab_resize(char **args, int i);
+void	get_mode(char *str, int i, int *mode);
+int		opin_quote(char *str);
+int		check_validity(char **found, char **tmp, int *other, int *j);
+int		valid_redir(char *str);
+char	*strrchr_quote(char *line, int elem);
+int		retab_condition(char **found, char *cpy, char *args);
+int		retab_argsdir(char ***args, char **cpy, char **after, int i);
+void	nb_retabs(char ***args, int i, char *after);
+int		arg_last_redir(char **str, char **cpy2);
+void	get_found(char **found, char **after, char *cpy, char **str);
+char	**before_pipes(char **args, int i);
+char	**retab_dirs(char **args);
+void	retab_norm(char **after, char **found);
+void	loop_forward(int *i, char **cpy);
+void	retab_dirsinit(int *i, int *ret);
+void	change_args(char ***args, int i, char **after, char *cpy);
+int		get_pipefound(char **found, char **cpy, int i, char **args);
+char	**resize_pipes(char **args, int i);
+char	**after_pipes(char **args, int i);
+void	redir_sleftend(int *fd, int tube[]);
+int		get_heredoc(char ***args, int tube[]);
+int		apply_heredoc(char ***args, int tube[], int i);
+void	do_heredoc(char ***args, int tube[], int i);
+char	**redit_init(int tube[], char ***arg, int *i, int *fd);
+void	retab_init(char ***args, int *j, char **tmp, int i);
+void	inputs_init(void);
+void	inputs_reset(void);
+void	process_pipe(char ***args);
+t_nrm	*apply_init(int tube[], int **o_pid, char ***args, char ***arg);
+int		count_pipes(char **args);
+void	termios_error(void);
+void	flag_init(struct termios *term);
+void	del_args(char ***arg);
+int		valid_term(void);
+void	data_free(void);
+void	data_init(void);
+int		end_commands(char **str, char **base, char **line);
+void	loop_init(char **found, char **str, char **base, char **tmp);
 
 t_inputs	*g_input;
 t_data		*g_data;
