@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/24 22:29:30 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/05/24 22:30:18 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/05/27 12:44:05 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,15 +71,17 @@ int			ft_minishell(char **line)
 	args = get_a(*line, args);
 	if (!(arg = retab_pipes(args)))
 	{
-		ft_tabdel(&args);
-		free(args);
+		del_args(&args);
 		free(*line);
 		return (0);
 	}
 	else
 		ft_apply(arg);
 	if (arg[0] && ft_strcmp(arg[0], "exit") == 0)
+	{
+		del_args(&args);
 		return (1);
+	}
 	del_args(&arg);
 	free(*line);
 	return (0);

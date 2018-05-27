@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/28 14:08:43 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/05/23 14:51:02 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/05/27 17:24:17 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,7 +68,9 @@ static void		just_env(int j, char **args)
 {
 	int		i;
 	char	**args2;
+	int		fd;
 
+	fd = 0;
 	i = 0;
 	args2 = args + j;
 	while ((args + j)[i])
@@ -78,7 +80,7 @@ static void		just_env(int j, char **args)
 		i++;
 	}
 	if (ft_strcmp(args[1], "exit") != 0 && ft_strcmp(args[1], "q") != 0)
-		just_apply2(&args2, 0);
+		just_apply2(&args2, &fd);
 	else
 		env_error();
 }
