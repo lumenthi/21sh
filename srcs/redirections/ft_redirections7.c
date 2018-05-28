@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/24 21:51:23 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/05/24 21:52:42 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/05/28 10:57:22 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,7 +51,7 @@ int		arg_last_redir(char **str, char **cpy2)
 	return (1);
 }
 
-void		nb_retabs(char ***args, int i, char *after)
+void	nb_retabs(char ***args, int i, char *after)
 {
 	char	*final;
 
@@ -72,7 +72,7 @@ void		nb_retabs(char ***args, int i, char *after)
 	free(final);
 }
 
-int			retab_argsdir(char ***args, char **cpy, char **after, int i)
+int		retab_argsdir(char ***args, char **cpy, char **after, int i)
 {
 	if (!*(*args + i + 1) && (ft_strcmp(*after, "") == 0 ||
 	ft_strcmp(*after, ">") == 0 || ft_strcmp(*after, "<") == 0))
@@ -95,7 +95,7 @@ int			retab_argsdir(char ***args, char **cpy, char **after, int i)
 	return (1);
 }
 
-int			retab_condition(char **found, char *cpy, char *args)
+int		retab_condition(char **found, char *cpy, char *args)
 {
 	if (!opin_quote(cpy) && ((*found = strchr_quote(cpy, '>')) ||
 		(*found = strchr_quote(cpy, '<'))) &&

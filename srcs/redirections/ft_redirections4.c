@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/24 21:28:38 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/05/24 21:32:25 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/05/28 14:03:54 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,7 +78,7 @@ int		first_redir(char **args)
 	return (fd);
 }
 
-char		**tab_insert(char **args, int i, char *ne)
+char	**tab_insert(char **args, int i, char *ne)
 {
 	int	size;
 	int	c;

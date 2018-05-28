@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/08 16:00:59 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/05/24 20:51:46 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/05/28 10:48:52 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,7 +69,7 @@ void		ft_history(char **args)
 	}
 	else if ((ft_strcmp(args[1], "clean") == 0 ||
 		ft_strcmp(args[1], "clear") == 0 || ft_strcmp(args[1], "reset") == 0))
-			history_clear();
+		history_clear();
 	else
 		error_option(args[1]);
 }

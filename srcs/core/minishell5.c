@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/24 22:31:07 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/05/24 22:32:57 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/05/28 10:51:28 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,7 +67,7 @@ int		end_commands(char **str, char **base, char **line)
 	return (0);
 }
 
-void		loop_init(char **found, char **str, char **base, char **tmp)
+void	loop_init(char **found, char **str, char **base, char **tmp)
 {
 	*(*found + 1) = '\0';
 	*(*str + ft_strlen(*str) - 1) = '\0';

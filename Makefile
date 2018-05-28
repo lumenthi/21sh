@@ -6,14 +6,14 @@
 #    By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2017/12/22 14:06:43 by lumenthi          #+#    #+#              #
-#    Updated: 2018/05/24 22:34:52 by lumenthi         ###   ########.fr        #
+#    Updated: 2018/05/28 15:16:12 by lumenthi         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME = 21sh
 
 CC = gcc
-FLAGS = -Wall -Werror -Wextra -g
+FLAGS = -Wall -Werror -Wextra
 CURSES = -lncurses
 
 LIBDIR = libft
@@ -30,6 +30,7 @@ SRCS = minishell.c \
 		minishell3.c \
 		minishell4.c \
 		minishell5.c \
+		minishell6.c \
 		ft_echo.c \
 		ft_cd.c \
 		ft_env.c \

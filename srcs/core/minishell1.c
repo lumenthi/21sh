@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/24 22:21:27 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/05/24 22:23:37 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/05/28 11:14:16 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,11 +15,11 @@
 void	dup_std(void)
 {
 	if (g_input->std0 != 0)
-		dup2(g_input->std0, 0) == -1 ? dup_error() : 1;
+		dup2(g_input->std0, 0);
 	if (g_input->std1 != 0)
-		dup2(g_input->std1, 1) == -1 ? dup_error() : 1;
+		dup2(g_input->std1, 1);
 	if (g_input->std2 != 0)
-		dup2(g_input->std2, 2) == -1 ? dup_error() : 1;
+		dup2(g_input->std2, 2);
 }
 
 void	retab_init(char ***args, int *j, char **tmp, int i)

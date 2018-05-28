@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/24 21:09:50 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/05/24 21:11:41 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/05/28 11:17:34 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,7 +60,7 @@ int		heredoc_nb(char *cpy, char *found)
 		g_input->std1 = dup(ft_atoi(cpy));
 	else if (ft_atoi(cpy) == 2)
 		g_input->std2 = dup(ft_atoi(cpy));
-	dup2(tube[0], ft_atoi(cpy)) == -1 ? dup_error() : 1;
+	dup2(tube[0], ft_atoi(cpy));
 	g_input->op = 1;
 	free(after);
 	return (tube[0]);
@@ -99,7 +99,7 @@ void	not_filefd(int *new_fd, int sign, char *after)
 	if (sign == 0)
 		*new_fd = open(after, O_RDONLY);
 	else if (sign == 1)
-		*new_fd = open(after, O_RDWR|O_CREAT|O_TRUNC, 0666);
+		*new_fd = open(after, O_RDWR | O_CREAT | O_TRUNC, 0666);
 	else
-		*new_fd = open(after, O_RDWR|O_CREAT|O_APPEND, 0666);
+		*new_fd = open(after, O_RDWR | O_CREAT | O_APPEND, 0666);
 }

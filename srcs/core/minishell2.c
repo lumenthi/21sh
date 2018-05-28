@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/24 22:24:19 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/05/27 17:22:57 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/05/28 10:52:32 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -99,7 +99,7 @@ t_nrm	*apply_init(int tube[], int **o_pid, char ***args, char ***arg)
 	return (nrm);
 }
 
-void		process_pipe(char ***args)
+void	process_pipe(char ***args)
 {
 	int		tunnel[2];
 

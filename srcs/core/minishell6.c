@@ -1,31 +1,22 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_error2.c                                        :+:      :+:    :+:   */
+/*   minishell6.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2018/05/24 16:02:59 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/05/28 11:18:40 by lumenthi         ###   ########.fr       */
+/*   Created: 2018/05/28 14:59:02 by lumenthi          #+#    #+#             */
+/*   Updated: 2018/05/28 15:00:06 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../../includes/shell.h"
+#include "../../includes/shell.h"
 
-void	pipe_error(void)
+int		retab_all(char ***args, char ***arg)
 {
-	ft_putstr_fd(RED, 2);
-	ft_putstr_fd("21sh", 2);
-	ft_putstr_fd(BLANK, 2);
-	ft_putstr_fd(": fatal pipe error, exiting\n", 2);
-	exit(-1);
-}
-
-void	malloc_error(void)
-{
-	ft_putstr_fd(RED, 2);
-	ft_putstr_fd("21sh", 2);
-	ft_putstr_fd(BLANK, 2);
-	ft_putstr_fd(": fatal malloc error, exiting\n", 2);
-	exit(-1);
+	if (!(*arg = retab_pipes(*args)))
+		return (0);
+	if (!(*arg = retab_dirs(*arg)))
+		return (0);
+	return (1);
 }

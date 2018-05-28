@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/24 22:04:10 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/05/24 22:07:32 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/05/28 14:00:03 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -109,7 +109,10 @@ char	**retab_pipes(char **args)
 		if ((found = strchr_quote(cpy, '|')) && ft_strlen(args[i]) != 1)
 		{
 			if (!get_pipefound(&found, &cpy, i, args))
+			{
+				del_args(&args);
 				return (NULL);
+			}
 			after = ft_strdup(found + 1);
 			*found = '\0';
 			change_args(&args, i, &after, cpy);

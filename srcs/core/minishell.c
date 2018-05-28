@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/08 11:24:59 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/05/27 17:30:59 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/05/28 10:50:06 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,7 +49,7 @@ int				ft_commands(char **line)
 	return (end_commands(&str, &base, line));
 }
 
-void		set_lvl(void)
+void			set_lvl(void)
 {
 	int		nb;
 	char	*line;
@@ -66,7 +66,7 @@ void		set_lvl(void)
 	free(line);
 }
 
-static int	ft_shell(void)
+static int		ft_shell(void)
 {
 	g_data->line = NULL;
 	get_winsize();
@@ -85,7 +85,7 @@ static int	ft_shell(void)
 	return (0);
 }
 
-int			main(void)
+int				main(void)
 {
 	extern char	**environ;
 

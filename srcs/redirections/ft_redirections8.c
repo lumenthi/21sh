@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/24 21:59:57 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/05/24 22:03:02 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/05/28 14:58:30 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,7 @@ void		retab_norm(char **after, char **found)
 	**found = '\0';
 }
 
-char			**retab_dirs(char **args)
+char		**retab_dirs(char **args)
 {
 	int		i;
 	char	*after;
@@ -44,12 +44,12 @@ char			**retab_dirs(char **args)
 		cpy = ft_strdup(args[i]);
 		if (retab_condition(&found, cpy, args[i]))
 		{
-			if ((ret = arg_last_redir(&args[i], &cpy)) == -1)
+			if ((ret = arg_last_redir(&args[i], &cpy)) == -1 && del_args(&args))
 				return (NULL);
 			else if (ret != 0)
 			{
 				retab_norm(&after, &found);
-				if (!retab_argsdir(&args, &cpy, &after, i))
+				if (!retab_argsdir(&args, &cpy, &after, i) && del_args(&args))
 					return (NULL);
 			}
 		}
@@ -58,7 +58,7 @@ char			**retab_dirs(char **args)
 	return (args);
 }
 
-char	**before_pipes(char **args, int i)
+char		**before_pipes(char **args, int i)
 {
 	char	*before;
 	char	*after;

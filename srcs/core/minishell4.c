@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/24 22:29:30 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/05/27 12:44:05 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/05/28 15:00:49 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,7 @@ void	term_init(void)
 	tcsetattr(0, TCSADRAIN, &term);
 }
 
-void		term_reset(void)
+void	term_reset(void)
 {
 	if (g_data->bu != NULL)
 	{
@@ -50,16 +50,17 @@ void		term_reset(void)
 	}
 }
 
-void	del_args(char ***arg)
+int		del_args(char ***arg)
 {
 	if (*arg)
 	{
 		ft_tabdel(arg);
 		free(*arg);
 	}
+	return (1);
 }
 
-int			ft_minishell(char **line)
+int		ft_minishell(char **line)
 {
 	char	**args;
 	char	**arg;
@@ -69,9 +70,8 @@ int			ft_minishell(char **line)
 	quote_get2(line);
 	term_reset();
 	args = get_a(*line, args);
-	if (!(arg = retab_pipes(args)))
+	if (!(retab_all(&args, &arg)))
 	{
-		del_args(&args);
 		free(*line);
 		return (0);
 	}

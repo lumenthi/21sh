@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/24 21:15:46 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/05/24 21:20:10 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/05/28 11:18:16 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ int		open_fd(char *after, int sign)
 			if (sign == 1)
 				new_fd = open(after + 1, O_RDWR);
 			else
-				new_fd = open(after + 1, O_RDWR|O_APPEND);
+				new_fd = open(after + 1, O_RDWR | O_APPEND);
 		}
 	}
 	else
@@ -52,7 +52,7 @@ void	numdup_badcpy(char **cpy, int *new_fd)
 			g_input->std2 = dup(2);
 		else
 			return ;
-		dup2(fd, *new_fd) == -1 ? dup_error() : 1;
+		dup2(fd, *new_fd);
 		close(fd);
 		g_input->op = 1;
 	}
@@ -69,9 +69,9 @@ void	numdup_after(char **cpy, int *new_fd, int sign)
 	{
 		g_input->std1 = dup(1);
 		if (sign > 0)
-			dup2(*new_fd, 1) == -1 ? dup_error() : 1;
+			dup2(*new_fd, 1);
 		else
-			dup2(1, *new_fd) == -1 ? dup_error() : 1;
+			dup2(1, *new_fd);
 		g_input->op = 1;
 		return ;
 	}
@@ -89,7 +89,7 @@ void	redir_numdup(char **cpy, int *new_fd, char **after, int sign)
 			g_input->std1 = dup(ft_atoi(*cpy));
 		else if (ft_atoi(*cpy) == 2)
 			g_input->std2 = dup(ft_atoi(*cpy));
-		dup2(*new_fd, ft_atoi(*cpy)) == 1 ? dup_error() : 1;
+		dup2(*new_fd, ft_atoi(*cpy));
 		g_input->op = 1;
 	}
 	else
