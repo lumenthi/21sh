@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/24 22:24:19 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/05/28 10:52:32 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/05/29 12:37:50 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,6 +96,8 @@ t_nrm	*apply_init(int tube[], int **o_pid, char ***args, char ***arg)
 	tube[1] = 0;
 	nrm->std = dup(0);
 	nrm->std1 = dup(1);
+	g_input->std0 = nrm->std;
+	g_input->std1 = nrm->std1;
 	return (nrm);
 }
 

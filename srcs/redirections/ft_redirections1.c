@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/24 22:09:44 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/05/28 14:05:22 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/05/29 12:36:53 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,9 +17,6 @@ char		**redit_init(int tube[], char ***arg, int *i, int *fd)
 	tube[0] = 0;
 	tube[1] = 0;
 	g_input->op = 0;
-	g_input->std0 = 0;
-	g_input->std1 = 0;
-	g_input->std2 = 0;
 	*fd = 0;
 	*i = 0;
 	*fd = first_redir(*arg);
