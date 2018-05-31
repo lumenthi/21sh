@@ -6,7 +6,7 @@
 /*   By: lumenthi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/24 21:09:50 by lumenthi          #+#    #+#             */
-/*   Updated: 2018/05/28 11:17:34 by lumenthi         ###   ########.fr       */
+/*   Updated: 2018/05/31 10:44:56 by lumenthi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,7 +73,7 @@ char	*get_after(char **found, char **cpy, int *sign, int *new_fd)
 	*sign = 1;
 	if (**found == '<')
 	{
-		*sign = -1;
+		*sign = 0;
 		if (*(*found + 1) == '<')
 		{
 			*sign = 2;
